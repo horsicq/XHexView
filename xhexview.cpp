@@ -1,0 +1,415 @@
+// copyright (c) 2020 hors<horsicq@gmail.com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+//
+#include "xhexview.h"
+
+XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
+{
+    g_pDevice=nullptr;
+
+    g_nDataSize=0;
+    g_nBytesProLine=16;
+    g_nDataBlockSize=0;
+    g_nViewStartDelta=0;
+    g_searchData={};
+
+#ifdef Q_OS_WIN
+    setTextFont(QFont("Courier",10));
+#endif
+#ifdef Q_OS_LINUX
+    setTextFont(QFont("Monospace",10));
+#endif
+#ifdef Q_OS_OSX
+    setTextFont(QFont("Courier",10)); // TODO Check "Menlo"
+#endif
+
+    addColumn((8+2)*getCharWidth(),tr("Address"));
+    addColumn((g_nBytesProLine*3+1)*getCharWidth(),"HEX");
+    addColumn((g_nBytesProLine+2)*getCharWidth(),"ANSI");
+}
+
+void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
+{
+    g_pDevice=pDevice;
+    g_options=options;
+
+    g_nDataSize=pDevice->size();
+
+    qint64 nTotalLineCount=g_nDataSize/g_nBytesProLine;
+
+    if(g_nDataSize%g_nBytesProLine==0)
+    {
+        nTotalLineCount--;
+    }
+
+    setTotalLineCount(nTotalLineCount);
+
+    reload(true);
+}
+
+void XHexView::goToAddress(qint64 nAddress)
+{
+    goToOffset(nAddress-g_options.nStartAddress);
+}
+
+bool XHexView::isOffsetValid(qint64 nOffset)
+{
+    bool bResult=false;
+
+    if((nOffset>=0)&&(nOffset<g_nDataSize))
+    {
+        bResult=true;
+    }
+
+    return bResult;
+}
+
+void XHexView::goToOffset(qint64 nOffset)
+{
+    if(isOffsetValid(nOffset))
+    {
+        verticalScrollBar()->setValue((nOffset)/g_nBytesProLine); // TODO large files
+        qint32 nViewStartDelta=(nOffset)%g_nBytesProLine;
+
+        if(g_nViewStartDelta!=nViewStartDelta)
+        {
+            g_nViewStartDelta=nViewStartDelta;
+            adjust(true);
+        }
+    }
+}
+
+qint64 XHexView::cursorPositionToOffset(XAbstractTableView::CURSOR_POSITION cursorPosition)
+{
+    qint64 nOffset=-1;
+
+    if((cursorPosition.bIsValid)&&(cursorPosition.ptype==PT_CELL))
+    {
+        qint64 nBlockOffset=(getViewStart()+cursorPosition.nRow)*g_nBytesProLine+g_nViewStartDelta;
+
+        if(cursorPosition.nColumn==0)
+        {
+            nOffset=nBlockOffset;
+        }
+        else if(cursorPosition.nColumn==1)
+        {
+            nOffset=nBlockOffset+cursorPosition.nCellLeft/(getCharWidth()*3);
+        }
+        else if(cursorPosition.nColumn==2)
+        {
+            nOffset=nBlockOffset+cursorPosition.nCellLeft/getCharWidth();
+        }
+
+        if(!isOffsetValid(nOffset))
+        {
+            nOffset=g_nDataSize; // TODO Check
+        }
+    }
+
+    return nOffset;
+}
+
+void XHexView::updateData()
+{
+    if(g_pDevice)
+    {
+        qint64 nBlockOffset=getViewStart()*g_nBytesProLine+g_nViewStartDelta;
+
+        g_listAddresses.clear();
+
+        if(g_pDevice->seek(nBlockOffset))
+        {
+            qint32 nDataBlockSize=g_nBytesProLine*getLinesProPage();
+
+            g_baDataBuffer.resize(nDataBlockSize);
+            g_nDataBlockSize=(int)g_pDevice->read(g_baDataBuffer.data(),nDataBlockSize);
+            g_baDataBuffer.resize(g_nDataBlockSize);
+            g_baDataHexBuffer=QByteArray(g_baDataBuffer.toHex());
+
+            for(int i=0;i<g_nDataBlockSize;i+=g_nBytesProLine)
+            {
+                QString sAddress=QString("%1").arg(i+g_options.nStartAddress+nBlockOffset,8,16,QChar('0')); // TODO address width
+
+                g_listAddresses.append(sAddress);
+            }
+        }
+        else
+        {
+            g_baDataBuffer.clear();
+            g_baDataHexBuffer.clear();
+        }
+    }
+}
+
+void XHexView::startPainting()
+{
+
+}
+
+void XHexView::paintColumn(qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
+{
+    Q_UNUSED(nColumn)
+    Q_UNUSED(nLeft)
+    Q_UNUSED(nTop)
+    Q_UNUSED(nWidth)
+    Q_UNUSED(nHeight)
+}
+
+void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
+{
+//    g_pPainterText->drawRect(nLeft,nTop,nWidth,nHeight);
+    if(nColumn==0)
+    {
+        if(nRow<g_listAddresses.count())
+        {
+            getPainter()->drawText(nLeft+getCharWidth(),nTop+nHeight,g_listAddresses.at(nRow)); // TODO Text Optional
+        }
+    }
+    else if((nColumn==1)||(nColumn==2))
+    {
+        STATE state=getState();
+
+        if(nRow*g_nBytesProLine<g_nDataBlockSize)
+        {
+            qint32 nDataBlockStartOffset=getViewStart()*g_nBytesProLine+g_nViewStartDelta;
+            qint32 nDataBlockSize=qMin(g_nDataBlockSize-nRow*g_nBytesProLine,g_nBytesProLine);
+
+            for(int i=0;i<nDataBlockSize;i++)
+            {
+                int nIndex=nRow*g_nBytesProLine+i;
+
+                QString sHex=g_baDataHexBuffer.mid(nIndex*2,2);
+                QString sSymbol;
+
+                bool bBold=(sHex!="00");
+                bool bSelected=isOffsetSelected(nDataBlockStartOffset+nIndex);
+                bool bCursor=(state.nCursorOffset==(nDataBlockStartOffset+nIndex));
+
+                if(bBold)
+                {
+                    getPainter()->save();
+                    QFont font=getPainter()->font();
+                    font.setBold(true);
+                    getPainter()->setFont(font);
+                }
+
+                QRect rectSymbol;
+
+
+                if(nColumn==1)
+                {
+                    rectSymbol.setRect(nLeft+(i*3+1)*getCharWidth(),nTop,3*getCharWidth(),nHeight);
+                    sSymbol=sHex;
+                }
+                else if(nColumn==2)
+                {
+                    rectSymbol.setRect(nLeft+(i+1)*getCharWidth(),nTop,getCharWidth(),nHeight);
+                    sSymbol=g_baDataBuffer.at(nIndex); // TODO filter \n \r
+                }
+
+                if(bSelected||bCursor)
+                {
+                    QRect rectSelected;
+                    rectSelected.setRect(rectSymbol.x(),rectSymbol.y()+getLineDelta(),rectSymbol.width(),rectSymbol.height());
+
+                    if(bCursor)
+                    {
+                        if(nColumn==state.cursorPosition.nColumn)
+                        {
+                            setCursor(rectSelected,sSymbol);
+                        }
+                    }
+
+                    if(bSelected)
+                    {
+                        getPainter()->fillRect(rectSelected,viewport()->palette().color(QPalette::Highlight));
+                    }
+                }
+
+                getPainter()->drawText(rectSymbol.x(),rectSymbol.y()+nHeight,sSymbol);
+
+                if(bBold)
+                {
+                    getPainter()->restore();
+                }
+            }
+        }
+    }
+}
+
+void XHexView::endPainting()
+{
+
+}
+
+void XHexView::contextMenu(const QPoint &pos)
+{
+    QAction actionGoToAddress(tr("Go to address"),this);
+    actionGoToAddress.setShortcut(QKeySequence(XShortcuts::GOTOADDRESS));
+    connect(&actionGoToAddress,SIGNAL(triggered()),this,SLOT(_goToAddress()));
+
+    QAction actionDumpToFile(tr("Dump to file"),this);
+    actionDumpToFile.setShortcut(QKeySequence(XShortcuts::DUMPTOFILE));
+    connect(&actionDumpToFile,SIGNAL(triggered()),this,SLOT(_dumpToFile()));
+
+    QAction actionSignature(tr("Signature"),this);
+    actionSignature.setShortcut(QKeySequence(XShortcuts::SIGNATURE));
+    connect(&actionSignature,SIGNAL(triggered()),this,SLOT(_signature()));
+
+    QAction actionFind(tr("Find"),this);
+    actionFind.setShortcut(QKeySequence(XShortcuts::FIND));
+    connect(&actionFind,SIGNAL(triggered()),this,SLOT(_find()));
+
+    QAction actionFindNext(tr("Find next"),this);
+    actionFindNext.setShortcut(QKeySequence(XShortcuts::FINDNEXT));
+    connect(&actionFindNext,SIGNAL(triggered()),this,SLOT(_findNext()));
+
+    QAction actionSelectAll(tr("Select all"),this);
+    actionSelectAll.setShortcut(QKeySequence(XShortcuts::SELECTALL));
+    connect(&actionSelectAll,SIGNAL(triggered()),this,SLOT(_selectAll()));
+
+    QAction actionCopyAsHex(tr("Copy as hex"),this);
+    actionCopyAsHex.setShortcut(QKeySequence(XShortcuts::COPYASHEX));
+    connect(&actionCopyAsHex,SIGNAL(triggered()),this,SLOT(_copyAsHex()));
+
+    QMenu contextMenu(this);
+    QMenu menuSelect(tr("Select"),this);
+    QMenu menuCopy(tr("Copy"),this);
+
+    contextMenu.addAction(&actionGoToAddress);
+    contextMenu.addAction(&actionFind);
+    contextMenu.addAction(&actionFindNext);
+
+    STATE state=getState();
+
+    if(state.nSelectionSize)
+    {
+        contextMenu.addAction(&actionDumpToFile);
+        contextMenu.addAction(&actionSignature);
+
+        menuCopy.addAction(&actionCopyAsHex);
+        contextMenu.addMenu(&menuCopy);
+    }
+
+    menuSelect.addAction(&actionSelectAll);
+    contextMenu.addMenu(&menuSelect);
+
+    // TODO reset select
+
+    contextMenu.exec(pos);
+}
+
+void XHexView::wheelEvent(QWheelEvent *pEvent)
+{
+    if((g_nViewStartDelta)&&(pEvent->angleDelta().y()>0))
+    {
+        if(verticalScrollBar()->value()==0)
+        {
+            g_nViewStartDelta=0;
+            adjust(true);
+            viewport()->update();
+        }
+    }
+
+    XAbstractTableView::wheelEvent(pEvent);
+}
+
+void XHexView::_goToAddress()
+{
+    DialogGoToAddress da(this,g_options.nStartAddress,g_options.nStartAddress+g_nDataSize,DialogGoToAddress::TYPE_ADDRESS);
+    if(da.exec()==QDialog::Accepted)
+    {
+        goToAddress(da.getValue());
+        setFocus();
+        viewport()->update();
+    }
+}
+
+void XHexView::_dumpToFile()
+{
+    QString sFilter;
+    sFilter+=QString("%1 (*.bin)").arg(tr("Raw data"));
+    QString sSaveFileName="dump.bin"; // TODO a function
+    QString sFileName=QFileDialog::getSaveFileName(this,tr("Save dump"),sSaveFileName,sFilter);
+
+    if(!sFileName.isEmpty())
+    {
+        STATE state=getState();
+
+        DialogDumpProcess dd(this,g_pDevice,state.nSelectionOffset,state.nSelectionSize,sFileName,DumpProcess::DT_OFFSET);
+
+        dd.exec();
+    }
+}
+
+void XHexView::_signature()
+{
+    STATE state=getState();
+
+    DialogHexSignature dsh(this,g_pDevice,state.nSelectionOffset,state.nSelectionSize);
+
+    dsh.exec();
+}
+
+void XHexView::_find()
+{
+    STATE state=getState();
+
+    g_searchData={};
+    g_searchData.nResult=-1;
+    g_searchData.nCurrentOffset=state.nCursorOffset;
+
+    DialogSearch dialogSearch(this,g_pDevice,&g_searchData);
+
+    if(dialogSearch.exec()==QDialog::Accepted)
+    {
+        goToOffset(g_searchData.nResult);
+        setFocus();
+        viewport()->update();
+    }
+}
+
+void XHexView::_findNext()
+{
+    if(g_searchData.bInit)
+    {
+        g_searchData.nCurrentOffset=g_searchData.nResult+1;
+        g_searchData.startFrom=SearchProcess::SF_CURRENTOFFSET;
+
+        DialogSearchProcess dialogSearch(this,g_pDevice,&g_searchData);
+
+        if(dialogSearch.exec()==QDialog::Accepted)
+        {
+            goToOffset(g_searchData.nResult);
+            setFocus();
+            viewport()->update();
+        }
+    }
+}
+
+void XHexView::_selectAll()
+{
+    setSelection(0,g_nDataSize-1);
+}
+
+void XHexView::_copyAsHex()
+{
+    // TODO
+}
