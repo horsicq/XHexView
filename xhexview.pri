@@ -2,10 +2,15 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 HEADERS += \
-    $$PWD/xhexview.h
+    $$PWD/xhexview.h \
+    $$PWD/xhexviewwidget.h
 
 SOURCES += \
-    $$PWD/xhexview.cpp
+    $$PWD/xhexview.cpp \
+    $$PWD/xhexviewwidget.cpp
+
+FORMS += \
+    $$PWD/xhexviewwidget.ui
     
 !contains(XCONFIG, xabstracttableview) {
     XCONFIG += xabstracttableview

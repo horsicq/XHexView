@@ -41,8 +41,17 @@ public:
     void setData(QIODevice *pDevice,OPTIONS options={});
     void goToAddress(qint64 nAddress);
 
+private:
+    enum COLUMN
+    {
+        COLUMN_ADDRESS=0,
+        COLUMN_HEX,
+        COLUMN_SYMBOLS
+    };
+
 protected:
     virtual bool isOffsetValid(qint64 nOffset);
+    virtual bool isEnd(qint64 nOffset);
     virtual void goToOffset(qint64 nOffset);
     virtual qint64 cursorPositionToOffset(CURSOR_POSITION cursorPosition);
     virtual void updateData();
@@ -52,6 +61,7 @@ protected:
     virtual void endPainting();
     virtual void contextMenu(const QPoint &pos);
     virtual void wheelEvent(QWheelEvent *pEvent);
+    virtual void keyPressEvent(QKeyEvent *pEvent);
 
 private slots:
     void _goToAddress();
@@ -73,6 +83,13 @@ private:
     QByteArray g_baDataHexBuffer;
     QList<QString> g_listAddresses;
     SearchProcess::SEARCHDATA g_searchData;
+    QShortcut *g_scGoToAddress;
+    QShortcut *g_scDumpToFile;
+    QShortcut *g_scSelectAll;
+    QShortcut *g_scCopyAsHex;
+    QShortcut *g_scFind;
+    QShortcut *g_scFindNext;
+    QShortcut *g_scSignature;
 };
 
 #endif // XHEXVIEW_H

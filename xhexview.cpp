@@ -30,6 +30,14 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
     g_nViewStartDelta=0;
     g_searchData={};
 
+    g_scGoToAddress   =new QShortcut(QKeySequence(XShortcuts::GOTOADDRESS),   this,SLOT(_goToAddress()));
+    g_scDumpToFile    =new QShortcut(QKeySequence(XShortcuts::DUMPTOFILE),    this,SLOT(_dumpToFile()));
+    g_scSelectAll     =new QShortcut(QKeySequence(XShortcuts::SELECTALL),     this,SLOT(_selectAll()));
+    g_scCopyAsHex     =new QShortcut(QKeySequence(XShortcuts::COPYASHEX),     this,SLOT(_copyAsHex()));
+    g_scFind          =new QShortcut(QKeySequence(XShortcuts::FIND),          this,SLOT(_find()));
+    g_scFindNext      =new QShortcut(QKeySequence(XShortcuts::FINDNEXT),      this,SLOT(_findNext()));
+    g_scSignature     =new QShortcut(QKeySequence(XShortcuts::SIGNATURE),     this,SLOT(_signature()));
+
 #ifdef Q_OS_WIN
     setTextFont(QFont("Courier",10));
 #endif
@@ -40,9 +48,9 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
     setTextFont(QFont("Courier",10)); // TODO Check "Menlo"
 #endif
 
-    addColumn((8+2)*getCharWidth(),tr("Address"));
-    addColumn((g_nBytesProLine*3+1)*getCharWidth(),"HEX");
-    addColumn((g_nBytesProLine+2)*getCharWidth(),"ANSI");
+    addColumn((8+2)*getCharWidth(),tr("Address"));          // COLUMN_ADDRESS
+    addColumn((g_nBytesProLine*3+1)*getCharWidth(),"HEX");  // COLUMN_HEX
+    addColumn((g_nBytesProLine+2)*getCharWidth(),"ANSI");   // COLUMN_SYMBOLS
 }
 
 void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
@@ -81,6 +89,11 @@ bool XHexView::isOffsetValid(qint64 nOffset)
     return bResult;
 }
 
+bool XHexView::isEnd(qint64 nOffset)
+{
+    return (nOffset==g_nDataSize);
+}
+
 void XHexView::goToOffset(qint64 nOffset)
 {
     if(isOffsetValid(nOffset))
@@ -104,15 +117,15 @@ qint64 XHexView::cursorPositionToOffset(XAbstractTableView::CURSOR_POSITION curs
     {
         qint64 nBlockOffset=(getViewStart()+cursorPosition.nRow)*g_nBytesProLine+g_nViewStartDelta;
 
-        if(cursorPosition.nColumn==0)
+        if(cursorPosition.nColumn==COLUMN_ADDRESS)
         {
             nOffset=nBlockOffset;
         }
-        else if(cursorPosition.nColumn==1)
+        else if(cursorPosition.nColumn==COLUMN_HEX)
         {
             nOffset=nBlockOffset+cursorPosition.nCellLeft/(getCharWidth()*3);
         }
-        else if(cursorPosition.nColumn==2)
+        else if(cursorPosition.nColumn==COLUMN_SYMBOLS)
         {
             nOffset=nBlockOffset+cursorPosition.nCellLeft/getCharWidth();
         }
@@ -175,14 +188,14 @@ void XHexView::paintColumn(qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWi
 void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
 {
 //    g_pPainterText->drawRect(nLeft,nTop,nWidth,nHeight);
-    if(nColumn==0)
+    if(nColumn==COLUMN_ADDRESS)
     {
         if(nRow<g_listAddresses.count())
         {
             getPainter()->drawText(nLeft+getCharWidth(),nTop+nHeight,g_listAddresses.at(nRow)); // TODO Text Optional
         }
     }
-    else if((nColumn==1)||(nColumn==2))
+    else if((nColumn==COLUMN_HEX)||(nColumn==COLUMN_SYMBOLS))
     {
         STATE state=getState();
 
@@ -212,13 +225,12 @@ void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop,
 
                 QRect rectSymbol;
 
-
-                if(nColumn==1)
+                if(nColumn==COLUMN_HEX)
                 {
                     rectSymbol.setRect(nLeft+(i*3+1)*getCharWidth(),nTop,3*getCharWidth(),nHeight);
                     sSymbol=sHex;
                 }
-                else if(nColumn==2)
+                else if(nColumn==COLUMN_SYMBOLS)
                 {
                     rectSymbol.setRect(nLeft+(i+1)*getCharWidth(),nTop,getCharWidth(),nHeight);
                     sSymbol=g_baDataBuffer.at(nIndex); // TODO filter \n \r
@@ -331,6 +343,92 @@ void XHexView::wheelEvent(QWheelEvent *pEvent)
     XAbstractTableView::wheelEvent(pEvent);
 }
 
+void XHexView::keyPressEvent(QKeyEvent *pEvent)
+{
+    // Move commands
+    if( pEvent->matches(QKeySequence::MoveToNextChar)||
+        pEvent->matches(QKeySequence::MoveToPreviousChar)||
+        pEvent->matches(QKeySequence::MoveToNextLine)||
+        pEvent->matches(QKeySequence::MoveToPreviousLine)||
+        pEvent->matches(QKeySequence::MoveToStartOfLine)||
+        pEvent->matches(QKeySequence::MoveToEndOfLine)||
+        pEvent->matches(QKeySequence::MoveToNextPage)||
+        pEvent->matches(QKeySequence::MoveToPreviousPage)||
+        pEvent->matches(QKeySequence::MoveToStartOfDocument)||
+        pEvent->matches(QKeySequence::MoveToEndOfDocument))
+    {
+        if(pEvent->matches(QKeySequence::MoveToNextChar))
+        {
+            setCursorOffset(getCursorOffset()+1);
+        }
+        else if(pEvent->matches(QKeySequence::MoveToPreviousChar))
+        {
+            setCursorOffset(getCursorOffset()-1);
+        }
+        else if(pEvent->matches(QKeySequence::MoveToNextLine))
+        {
+            setCursorOffset(getCursorOffset()+g_nBytesProLine);
+        }
+        else if(pEvent->matches(QKeySequence::MoveToPreviousLine))
+        {
+            setCursorOffset(getCursorOffset()-g_nBytesProLine);
+        }
+        else if(pEvent->matches(QKeySequence::MoveToNextPage)) // TODO Check
+        {
+            setCursorOffset(getCursorOffset()+g_nBytesProLine*getLinesProPage());
+        }
+        else if(pEvent->matches(QKeySequence::MoveToPreviousPage)) // TODO Check
+        {
+            setCursorOffset(getCursorOffset()-g_nBytesProLine*getLinesProPage());
+        }
+        // TODO MoveToStartOfLine && MoveToEndOfLine
+
+        if( pEvent->matches(QKeySequence::MoveToNextChar)||
+            pEvent->matches(QKeySequence::MoveToPreviousChar)||
+            pEvent->matches(QKeySequence::MoveToNextLine)||
+            pEvent->matches(QKeySequence::MoveToPreviousLine)||
+            pEvent->matches(QKeySequence::MoveToStartOfLine)||
+            pEvent->matches(QKeySequence::MoveToEndOfLine))
+        {
+            if(getCursorOffset()<0)
+            {
+                setCursorOffset(0);
+                g_nViewStartDelta=0;
+            }
+
+            if(getCursorOffset()>=g_nDataSize)
+            {
+                setCursorOffset(g_nDataSize-1);
+                g_nViewStartDelta=0;
+            }
+
+            qint64 nRelOffset=getCursorOffset()-getViewStart()*g_nBytesProLine-g_nViewStartDelta;
+
+            if(nRelOffset>=g_nBytesProLine*getLinesProPage())
+            {
+                goToOffset(getViewStart()*g_nBytesProLine+g_nViewStartDelta+g_nBytesProLine);
+            }
+            else if(nRelOffset<0)
+            {
+                goToOffset(getViewStart()*g_nBytesProLine+g_nViewStartDelta-g_nBytesProLine);
+            }
+        }
+
+        // TODO deltas
+
+        adjust();
+        viewport()->update();
+    }
+    else if(pEvent->matches(QKeySequence::SelectAll))
+    {
+        _selectAll();
+    }
+    else
+    {
+        XAbstractTableView::keyPressEvent(pEvent);
+    }
+}
+
 void XHexView::_goToAddress()
 {
     DialogGoToAddress da(this,g_options.nStartAddress,g_options.nStartAddress+g_nDataSize,DialogGoToAddress::TYPE_ADDRESS);
@@ -406,10 +504,16 @@ void XHexView::_findNext()
 
 void XHexView::_selectAll()
 {
-    setSelection(0,g_nDataSize-1);
+    setSelection(0,g_nDataSize);
 }
 
 void XHexView::_copyAsHex()
 {
-    // TODO
+    STATE state=getState();
+
+    qint64 nSize=qMin(state.nSelectionSize,(qint64)0x10000);
+
+    QByteArray baData=XBinary::read_array(g_pDevice,state.nSelectionOffset,nSize);
+
+    QApplication::clipboard()->setText(baData.toHex());
 }
