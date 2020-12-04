@@ -143,7 +143,18 @@ void XHexView::updateData()
 {
     if(g_pDevice)
     {
+        // Update cursor position
+
         qint64 nBlockOffset=getViewStart()*g_nBytesProLine+g_nViewStartDelta;
+
+        qint64 nCursorOffset=nBlockOffset+getCursorDelta();
+
+        if(nCursorOffset>=g_nDataSize)
+        {
+            nCursorOffset=g_nDataSize-1;
+        }
+
+        setCursorOffset(nCursorOffset);
 
         g_listAddresses.clear();
 
@@ -206,7 +217,7 @@ void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop,
 
             for(int i=0;i<nDataBlockSize;i++)
             {
-                int nIndex=nRow*g_nBytesProLine+i;
+                qint32 nIndex=nRow*g_nBytesProLine+i;
 
                 QString sHex=g_baDataHexBuffer.mid(nIndex*2,2);
                 QString sSymbol;
@@ -245,7 +256,7 @@ void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop,
                     {
                         if(nColumn==state.cursorPosition.nColumn)
                         {
-                            setCursor(rectSelected,sSymbol);
+                            setCursor(rectSelected,sSymbol,nIndex);
                         }
                     }
 
@@ -350,12 +361,12 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
         pEvent->matches(QKeySequence::MoveToPreviousChar)||
         pEvent->matches(QKeySequence::MoveToNextLine)||
         pEvent->matches(QKeySequence::MoveToPreviousLine)||
-        pEvent->matches(QKeySequence::MoveToStartOfLine)||
-        pEvent->matches(QKeySequence::MoveToEndOfLine)||
+        pEvent->matches(QKeySequence::MoveToStartOfLine)|| // TODO Check
+        pEvent->matches(QKeySequence::MoveToEndOfLine)|| // TODO Check
         pEvent->matches(QKeySequence::MoveToNextPage)||
         pEvent->matches(QKeySequence::MoveToPreviousPage)||
-        pEvent->matches(QKeySequence::MoveToStartOfDocument)||
-        pEvent->matches(QKeySequence::MoveToEndOfDocument))
+        pEvent->matches(QKeySequence::MoveToStartOfDocument)|| // TODO Check
+        pEvent->matches(QKeySequence::MoveToEndOfDocument)) // TODO Check
     {
         if(pEvent->matches(QKeySequence::MoveToNextChar))
         {
@@ -373,35 +384,25 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
         {
             setCursorOffset(getCursorOffset()-g_nBytesProLine);
         }
-        else if(pEvent->matches(QKeySequence::MoveToNextPage)) // TODO Check
-        {
-            setCursorOffset(getCursorOffset()+g_nBytesProLine*getLinesProPage());
-        }
-        else if(pEvent->matches(QKeySequence::MoveToPreviousPage)) // TODO Check
-        {
-            setCursorOffset(getCursorOffset()-g_nBytesProLine*getLinesProPage());
-        }
         // TODO MoveToStartOfLine && MoveToEndOfLine
+
+        if(getCursorOffset()<0)
+        {
+            setCursorOffset(0);
+            g_nViewStartDelta=0;
+        }
+
+        if(getCursorOffset()>=g_nDataSize)
+        {
+            setCursorOffset(g_nDataSize-1);
+            g_nViewStartDelta=0;
+        }
 
         if( pEvent->matches(QKeySequence::MoveToNextChar)||
             pEvent->matches(QKeySequence::MoveToPreviousChar)||
             pEvent->matches(QKeySequence::MoveToNextLine)||
-            pEvent->matches(QKeySequence::MoveToPreviousLine)||
-            pEvent->matches(QKeySequence::MoveToStartOfLine)||
-            pEvent->matches(QKeySequence::MoveToEndOfLine))
+            pEvent->matches(QKeySequence::MoveToPreviousLine))
         {
-            if(getCursorOffset()<0)
-            {
-                setCursorOffset(0);
-                g_nViewStartDelta=0;
-            }
-
-            if(getCursorOffset()>=g_nDataSize)
-            {
-                setCursorOffset(g_nDataSize-1);
-                g_nViewStartDelta=0;
-            }
-
             qint64 nRelOffset=getCursorOffset()-getViewStart()*g_nBytesProLine-g_nViewStartDelta;
 
             if(nRelOffset>=g_nBytesProLine*getLinesProPage())
@@ -411,6 +412,18 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
             else if(nRelOffset<0)
             {
                 goToOffset(getViewStart()*g_nBytesProLine+g_nViewStartDelta-g_nBytesProLine);
+            }
+        }
+        else if(pEvent->matches(QKeySequence::MoveToNextPage)||
+                pEvent->matches(QKeySequence::MoveToPreviousPage))
+        {
+            if(pEvent->matches(QKeySequence::MoveToNextPage))
+            {
+                goToOffset(getViewStart()*g_nBytesProLine+g_nBytesProLine*getLinesProPage());
+            }
+            else if(pEvent->matches(QKeySequence::MoveToPreviousPage))
+            {
+                goToOffset(getViewStart()*g_nBytesProLine-g_nBytesProLine*getLinesProPage());
             }
         }
 
