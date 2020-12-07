@@ -361,12 +361,12 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
         pEvent->matches(QKeySequence::MoveToPreviousChar)||
         pEvent->matches(QKeySequence::MoveToNextLine)||
         pEvent->matches(QKeySequence::MoveToPreviousLine)||
-        pEvent->matches(QKeySequence::MoveToStartOfLine)|| // TODO Check
-        pEvent->matches(QKeySequence::MoveToEndOfLine)|| // TODO Check
+        pEvent->matches(QKeySequence::MoveToStartOfLine)||
+        pEvent->matches(QKeySequence::MoveToEndOfLine)||
         pEvent->matches(QKeySequence::MoveToNextPage)||
         pEvent->matches(QKeySequence::MoveToPreviousPage)||
-        pEvent->matches(QKeySequence::MoveToStartOfDocument)|| // TODO Check
-        pEvent->matches(QKeySequence::MoveToEndOfDocument)) // TODO Check
+        pEvent->matches(QKeySequence::MoveToStartOfDocument)||
+        pEvent->matches(QKeySequence::MoveToEndOfDocument))
     {
         if(pEvent->matches(QKeySequence::MoveToNextChar))
         {
@@ -384,15 +384,22 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
         {
             setCursorOffset(getCursorOffset()-g_nBytesProLine);
         }
-        // TODO MoveToStartOfLine && MoveToEndOfLine
+        else if(pEvent->matches(QKeySequence::MoveToStartOfLine))
+        {
+            setCursorOffset(getCursorOffset()-(getCursorDelta()%g_nBytesProLine));
+        }
+        else if(pEvent->matches(QKeySequence::MoveToEndOfLine))
+        {
+            setCursorOffset(getCursorOffset()-(getCursorDelta()%g_nBytesProLine)+g_nBytesProLine-1);
+        }
 
-        if(getCursorOffset()<0)
+        if((getCursorOffset()<0)||(pEvent->matches(QKeySequence::MoveToStartOfDocument)))
         {
             setCursorOffset(0);
             g_nViewStartDelta=0;
         }
 
-        if(getCursorOffset()>=g_nDataSize)
+        if((getCursorOffset()>=g_nDataSize)||(pEvent->matches(QKeySequence::MoveToEndOfDocument)))
         {
             setCursorOffset(g_nDataSize-1);
             g_nViewStartDelta=0;
@@ -426,8 +433,11 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
                 goToOffset(getViewStart()*g_nBytesProLine-g_nBytesProLine*getLinesProPage());
             }
         }
-
-        // TODO deltas
+        else if(pEvent->matches(QKeySequence::MoveToStartOfDocument)||
+                pEvent->matches(QKeySequence::MoveToEndOfDocument)) // TODO
+        {
+            goToOffset(getCursorOffset());
+        }
 
         adjust();
         viewport()->update();
