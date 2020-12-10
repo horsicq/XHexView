@@ -96,17 +96,7 @@ bool XHexView::isEnd(qint64 nOffset)
 
 void XHexView::goToOffset(qint64 nOffset)
 {
-    if(isOffsetValid(nOffset))
-    {
-        verticalScrollBar()->setValue((nOffset)/g_nBytesProLine); // TODO large files
-        qint32 nViewStartDelta=(nOffset)%g_nBytesProLine;
-
-        if(g_nViewStartDelta!=nViewStartDelta)
-        {
-            g_nViewStartDelta=nViewStartDelta;
-            adjust(true);
-        }
-    }
+    XAbstractTableView::goToOffset(nOffset);
 }
 
 qint64 XHexView::cursorPositionToOffset(XAbstractTableView::CURSOR_POSITION cursorPosition)
@@ -115,7 +105,7 @@ qint64 XHexView::cursorPositionToOffset(XAbstractTableView::CURSOR_POSITION curs
 
     if((cursorPosition.bIsValid)&&(cursorPosition.ptype==PT_CELL))
     {
-        qint64 nBlockOffset=(getViewStart()+cursorPosition.nRow)*g_nBytesProLine+g_nViewStartDelta;
+        qint64 nBlockOffset=getViewStart()+(cursorPosition.nRow*g_nBytesProLine)+g_nViewStartDelta;
 
         if(cursorPosition.nColumn==COLUMN_ADDRESS)
         {
@@ -145,7 +135,7 @@ void XHexView::updateData()
     {
         // Update cursor position
 
-        qint64 nBlockOffset=getViewStart()*g_nBytesProLine+g_nViewStartDelta;
+        qint64 nBlockOffset=getViewStart()+g_nViewStartDelta;
 
         qint64 nCursorOffset=nBlockOffset+getCursorDelta();
 
@@ -212,7 +202,7 @@ void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop,
 
         if(nRow*g_nBytesProLine<g_nDataBlockSize)
         {
-            qint32 nDataBlockStartOffset=getViewStart()*g_nBytesProLine+g_nViewStartDelta;
+            qint32 nDataBlockStartOffset=getViewStart()+g_nViewStartDelta;
             qint32 nDataBlockSize=qMin(g_nDataBlockSize-nRow*g_nBytesProLine,g_nBytesProLine);
 
             for(int i=0;i<nDataBlockSize;i++)
@@ -244,7 +234,7 @@ void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop,
                 else if(nColumn==COLUMN_SYMBOLS)
                 {
                     rectSymbol.setRect(nLeft+(i+1)*getCharWidth(),nTop,getCharWidth(),nHeight);
-                    sSymbol=g_baDataBuffer.at(nIndex); // TODO filter \n \r
+                    sSymbol=g_baDataBuffer.mid(nIndex,1); // TODO filter \n \r
                 }
 
                 if(bSelected||bCursor)
@@ -410,15 +400,15 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
             pEvent->matches(QKeySequence::MoveToNextLine)||
             pEvent->matches(QKeySequence::MoveToPreviousLine))
         {
-            qint64 nRelOffset=getCursorOffset()-getViewStart()*g_nBytesProLine-g_nViewStartDelta;
+            qint64 nRelOffset=getCursorOffset()-getViewStart()-g_nViewStartDelta;
 
             if(nRelOffset>=g_nBytesProLine*getLinesProPage())
             {
-                goToOffset(getViewStart()*g_nBytesProLine+g_nViewStartDelta+g_nBytesProLine);
+                goToOffset(getViewStart()+g_nViewStartDelta+g_nBytesProLine);
             }
             else if(nRelOffset<0)
             {
-                goToOffset(getViewStart()*g_nBytesProLine+g_nViewStartDelta-g_nBytesProLine);
+                goToOffset(getViewStart()+g_nViewStartDelta-g_nBytesProLine);
             }
         }
         else if(pEvent->matches(QKeySequence::MoveToNextPage)||
@@ -426,11 +416,11 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
         {
             if(pEvent->matches(QKeySequence::MoveToNextPage))
             {
-                goToOffset(getViewStart()*g_nBytesProLine+g_nBytesProLine*getLinesProPage());
+                goToOffset(getViewStart()+g_nBytesProLine*getLinesProPage());
             }
             else if(pEvent->matches(QKeySequence::MoveToPreviousPage))
             {
-                goToOffset(getViewStart()*g_nBytesProLine-g_nBytesProLine*getLinesProPage());
+                goToOffset(getViewStart()-g_nBytesProLine*getLinesProPage());
             }
         }
         else if(pEvent->matches(QKeySequence::MoveToStartOfDocument)||
@@ -449,6 +439,23 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
     else
     {
         XAbstractTableView::keyPressEvent(pEvent);
+    }
+}
+
+qint64 XHexView::getVerticalScrollBarOffset()
+{
+    return verticalScrollBar()->value()*g_nBytesProLine; // TODO large files
+}
+
+void XHexView::setVerticalScrollBarOffset(qint64 nOffset)
+{
+    verticalScrollBar()->setValue((nOffset)/g_nBytesProLine); // TODO large files
+    qint32 nViewStartDelta=(nOffset)%g_nBytesProLine;
+
+    if(g_nViewStartDelta!=nViewStartDelta)
+    {
+        g_nViewStartDelta=nViewStartDelta;
+        adjust(true);
     }
 }
 

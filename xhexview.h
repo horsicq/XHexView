@@ -62,6 +62,8 @@ protected:
     virtual void contextMenu(const QPoint &pos);
     virtual void wheelEvent(QWheelEvent *pEvent);
     virtual void keyPressEvent(QKeyEvent *pEvent);
+    virtual qint64 getVerticalScrollBarOffset();
+    virtual void setVerticalScrollBarOffset(qint64 nOffset);
 
 private slots:
     void _goToAddress();
