@@ -52,7 +52,6 @@ private:
 protected:
     virtual bool isOffsetValid(qint64 nOffset);
     virtual bool isEnd(qint64 nOffset);
-    virtual void goToOffset(qint64 nOffset);
     virtual qint64 cursorPositionToOffset(CURSOR_POSITION cursorPosition);
     virtual void updateData();
     virtual void startPainting();
@@ -62,8 +61,8 @@ protected:
     virtual void contextMenu(const QPoint &pos);
     virtual void wheelEvent(QWheelEvent *pEvent);
     virtual void keyPressEvent(QKeyEvent *pEvent);
-    virtual qint64 getVerticalScrollBarOffset();
-    virtual void setVerticalScrollBarOffset(qint64 nOffset);
+    virtual qint64 getScrollValue();
+    virtual void setScrollValue(qint64 nOffset);
 
 private slots:
     void _goToAddress();
