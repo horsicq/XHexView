@@ -240,7 +240,7 @@ void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop,
                     {
                         if(nColumn==state.cursorPosition.nColumn)
                         {
-                            setCursor(rectSelected,sSymbol,nIndex);
+                            setCursorData(rectSelected,sSymbol,nIndex);
                         }
                     }
 
