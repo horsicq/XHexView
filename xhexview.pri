@@ -3,14 +3,17 @@ DEPENDPATH += $$PWD
 
 HEADERS += \
     $$PWD/xhexview.h \
-    $$PWD/xhexviewwidget.h
+    $$PWD/xhexviewwidget.h \
+    $$PWD/dialoghexview.h
 
 SOURCES += \
     $$PWD/xhexview.cpp \
-    $$PWD/xhexviewwidget.cpp
+    $$PWD/xhexviewwidget.cpp \
+    $$PWD/dialoghexview.cpp
 
 FORMS += \
-    $$PWD/xhexviewwidget.ui
+    $$PWD/xhexviewwidget.ui \
+    $$PWD/dialoghexview.ui
     
 !contains(XCONFIG, xabstracttableview) {
     XCONFIG += xabstracttableview

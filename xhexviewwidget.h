@@ -36,6 +36,12 @@ public:
     ~XHexViewWidget();
 
     void setData(QIODevice *pDevice,XHexView::OPTIONS options={});
+    void reload();
+    void setReadonly(bool bState);
+    void enableReadOnly(bool bState);
+    void setEdited(bool bState);
+    qint64 getStartAddress();
+    void setSelection(qint64 nOffset, qint64 nSize);
 
 private:
     Ui::XHexViewWidget *ui;

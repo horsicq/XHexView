@@ -37,3 +37,37 @@ void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 {
     ui->scrollAreaHex->setData(pDevice,options);
 }
+
+void XHexViewWidget::reload()
+{
+    ui->scrollAreaHex->reload(true);
+}
+
+void XHexViewWidget::setReadonly(bool bState)
+{
+    Q_UNUSED(bState)
+    // TODO
+}
+
+void XHexViewWidget::enableReadOnly(bool bState)
+{
+    Q_UNUSED(bState)
+    // TODO
+}
+
+void XHexViewWidget::setEdited(bool bState)
+{
+    Q_UNUSED(bState)
+    // TODO
+}
+
+qint64 XHexViewWidget::getStartAddress()
+{
+    return ui->scrollAreaHex->getStartAddress();
+}
+
+void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
+{
+    ui->scrollAreaHex->setSelection(nOffset,nSize);
+    ui->scrollAreaHex->goToOffset(nOffset);
+}

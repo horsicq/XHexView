@@ -35,11 +35,19 @@ public:
     struct OPTIONS
     {
         qint64 nStartAddress;
+        qint64 nStartSelectionOffset;
+        qint64 nSizeOfSelection;
     };
 
     explicit XHexView(QWidget *pParent=nullptr);
     void setData(QIODevice *pDevice,OPTIONS options={});
     void goToAddress(qint64 nAddress);
+    void goToOffset(qint64 nOffset);
+    qint64 getStartAddress();
+
+    void setReadonly(bool bState);
+    void enableReadOnly(bool bState);
+    void setEdited(bool bState);
 
 private:
     enum COLUMN
@@ -48,6 +56,8 @@ private:
         COLUMN_HEX,
         COLUMN_SYMBOLS
     };
+
+    QChar filterSymbol(QChar cChar);
 
 protected:
     virtual bool isOffsetValid(qint64 nOffset);
@@ -91,6 +101,7 @@ private:
     QShortcut *g_scFind;
     QShortcut *g_scFindNext;
     QShortcut *g_scSignature;
+    qint32 g_nAddressWidth;
 };
 
 #endif // XHEXVIEW_H

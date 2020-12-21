@@ -51,6 +51,8 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
     addColumn((8+2)*getCharWidth(),tr("Address"));          // COLUMN_ADDRESS
     addColumn((g_nBytesProLine*3+1)*getCharWidth(),"HEX");  // COLUMN_HEX
     addColumn((g_nBytesProLine+2)*getCharWidth(),"ANSI");   // COLUMN_SYMBOLS
+
+    g_nAddressWidth=8;
 }
 
 void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
@@ -59,6 +61,19 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
     g_options=options;
 
     g_nDataSize=pDevice->size();
+
+    const QFontMetricsF fm(getTextFont());
+
+    if(XBinary::getModeFromSize(g_nDataSize)==XBinary::MODE_64)
+    {
+        g_nAddressWidth=16;
+        setColumnWidth(COLUMN_ADDRESS,2*getCharWidth()+fm.boundingRect("0000000000000000").width());
+    }
+    else
+    {
+        g_nAddressWidth=8;
+        setColumnWidth(COLUMN_ADDRESS,2*getCharWidth()+fm.boundingRect("00000000").width());
+    }
 
     qint64 nTotalLineCount=g_nDataSize/g_nBytesProLine;
 
@@ -69,13 +84,64 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 
     setTotalLineCount(nTotalLineCount);
 
+    if(options.nStartSelectionOffset)
+    {
+        _goToOffset(options.nStartSelectionOffset);
+    }
+
+    setSelection(options.nStartSelectionOffset,options.nSizeOfSelection);
+    setCursorOffset(options.nStartSelectionOffset,COLUMN_HEX);
+
     reload(true);
 }
 
 void XHexView::goToAddress(qint64 nAddress)
 {
-    goToOffset(nAddress-g_options.nStartAddress);
+    _goToOffset(nAddress-g_options.nStartAddress);
     // TODO reload
+}
+
+void XHexView::goToOffset(qint64 nOffset)
+{
+    _goToOffset(nOffset);
+}
+
+qint64 XHexView::getStartAddress()
+{
+    return g_options.nStartAddress;
+}
+
+void XHexView::setReadonly(bool bState)
+{
+    Q_UNUSED(bState)
+
+    // TODO
+}
+
+void XHexView::enableReadOnly(bool bState)
+{
+    Q_UNUSED(bState)
+
+    // TODO
+}
+
+void XHexView::setEdited(bool bState)
+{
+    Q_UNUSED(bState)
+
+    // TODO
+}
+
+QChar XHexView::filterSymbol(QChar cChar)
+{
+    QChar cResult=cChar;
+
+    if((cResult<QChar(0x20))||(cResult>QChar(0x7e)))
+    {
+        cResult='.';
+    }
+
+    return cResult;
 }
 
 bool XHexView::isOffsetValid(qint64 nOffset)
@@ -153,7 +219,7 @@ void XHexView::updateData()
 
             for(int i=0;i<g_nDataBlockSize;i+=g_nBytesProLine)
             {
-                QString sAddress=QString("%1").arg(i+g_options.nStartAddress+nBlockOffset,8,16,QChar('0')); // TODO address width
+                QString sAddress=QString("%1").arg(i+g_options.nStartAddress+nBlockOffset,g_nAddressWidth,16,QChar('0'));
 
                 g_listAddresses.append(sAddress);
             }
@@ -228,7 +294,8 @@ void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop,
                 else if(nColumn==COLUMN_SYMBOLS)
                 {
                     rectSymbol.setRect(nLeft+(i+1)*getCharWidth(),nTop,getCharWidth(),nHeight);
-                    sSymbol=g_baDataBuffer.mid(nIndex,1); // TODO filter \n \r
+                    QChar cChar=g_baDataBuffer.mid(nIndex,1).at(0); // TODO Check
+                    sSymbol=filterSymbol(cChar);
                 }
 
                 if(bSelected||bCursor)
@@ -400,13 +467,13 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
 
             if(nRelOffset>=g_nBytesProLine*getLinesProPage())
             {
-                goToOffset(nViewStart+g_nBytesProLine);
+                _goToOffset(nViewStart+g_nBytesProLine);
             }
             else if(nRelOffset<0)
             {
-                if(!goToOffset(nViewStart-g_nBytesProLine))
+                if(!_goToOffset(nViewStart-g_nBytesProLine))
                 {
-                    goToOffset(0);
+                    _goToOffset(0);
                 }
             }
         }
@@ -415,17 +482,17 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
         {
             if(pEvent->matches(QKeySequence::MoveToNextPage))
             {
-                goToOffset(nViewStart+g_nBytesProLine*getLinesProPage());
+                _goToOffset(nViewStart+g_nBytesProLine*getLinesProPage());
             }
             else if(pEvent->matches(QKeySequence::MoveToPreviousPage))
             {
-                goToOffset(nViewStart-g_nBytesProLine*getLinesProPage());
+                _goToOffset(nViewStart-g_nBytesProLine*getLinesProPage());
             }
         }
         else if(pEvent->matches(QKeySequence::MoveToStartOfDocument)||
                 pEvent->matches(QKeySequence::MoveToEndOfDocument)) // TODO
         {
-            goToOffset(getCursorOffset());
+            _goToOffset(getCursorOffset());
         }
 
         adjust();
@@ -545,7 +612,7 @@ void XHexView::_find()
 
     if(dialogSearch.exec()==QDialog::Accepted)
     {
-        goToOffset(g_searchData.nResult);
+        _goToOffset(g_searchData.nResult);
         setFocus();
         viewport()->update();
     }
@@ -562,7 +629,7 @@ void XHexView::_findNext()
 
         if(dialogSearch.exec()==QDialog::Accepted)
         {
-            goToOffset(g_searchData.nResult);
+            _goToOffset(g_searchData.nResult);
             setFocus();
             viewport()->update();
         }
