@@ -83,6 +83,9 @@ private slots:
     void _selectAll();
     void _copyAsHex();
 
+signals:
+    void editState(bool bState);
+
 private:
     QIODevice *g_pDevice;
     OPTIONS g_options;
