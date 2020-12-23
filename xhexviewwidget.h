@@ -43,6 +43,9 @@ public:
     qint64 getStartAddress();
     void setSelection(qint64 nOffset, qint64 nSize);
 
+signals:
+    void editState(bool bState);
+
 private:
     Ui::XHexViewWidget *ui;
 };
