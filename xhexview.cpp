@@ -38,6 +38,12 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
     g_scFindNext      =new QShortcut(QKeySequence(XShortcuts::FINDNEXT),      this,SLOT(_findNext()));
     g_scSignature     =new QShortcut(QKeySequence(XShortcuts::SIGNATURE),     this,SLOT(_signature()));
 
+    g_nAddressWidth=8;
+
+    addColumn(tr("Address"));
+    addColumn(QString("HEX"));
+    addColumn(tr("Symbols"));
+
 #ifdef Q_OS_WIN
     setTextFont(QFont("Courier",10));
 #endif
@@ -47,12 +53,6 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
 #ifdef Q_OS_OSX
     setTextFont(QFont("Courier",10)); // TODO Check "Menlo"
 #endif
-
-    addColumn((8+2)*getCharWidth(),tr("Address"));          // COLUMN_ADDRESS
-    addColumn((g_nBytesProLine*3+1)*getCharWidth(),"HEX");  // COLUMN_HEX
-    addColumn((g_nBytesProLine+2)*getCharWidth(),"ANSI");   // COLUMN_SYMBOLS
-
-    g_nAddressWidth=8;
 }
 
 void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
@@ -62,18 +62,7 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 
     g_nDataSize=pDevice->size();
 
-    const QFontMetricsF fm(getTextFont());
-
-    if(XBinary::getModeFromSize(g_nDataSize)==XBinary::MODE_64)
-    {
-        g_nAddressWidth=16;
-        setColumnWidth(COLUMN_ADDRESS,2*getCharWidth()+fm.boundingRect("0000000000000000").width());
-    }
-    else
-    {
-        g_nAddressWidth=8;
-        setColumnWidth(COLUMN_ADDRESS,2*getCharWidth()+fm.boundingRect("00000000").width());
-    }
+    adjustColumns();
 
     qint64 nTotalLineCount=g_nDataSize/g_nBytesProLine;
 
@@ -175,11 +164,11 @@ qint64 XHexView::cursorPositionToOffset(XAbstractTableView::CURSOR_POSITION curs
         }
         else if(cursorPosition.nColumn==COLUMN_HEX)
         {
-            nOffset=nBlockOffset+cursorPosition.nCellLeft/(getCharWidth()*3);
+            nOffset=nBlockOffset+(cursorPosition.nCellLeft)/(getCharWidth()*2+getLineDelta());
         }
         else if(cursorPosition.nColumn==COLUMN_SYMBOLS)
         {
-            nOffset=nBlockOffset+cursorPosition.nCellLeft/getCharWidth();
+            nOffset=nBlockOffset+(cursorPosition.nCellLeft)/getCharWidth();
         }
 
         if(!isOffsetValid(nOffset))
@@ -288,7 +277,7 @@ void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop,
 
                 if(nColumn==COLUMN_HEX)
                 {
-                    rectSymbol.setRect(nLeft+(i*3+1)*getCharWidth(),nTop,3*getCharWidth(),nHeight);
+                    rectSymbol.setRect(nLeft+getCharWidth()+(i*2)*getCharWidth()+i*getLineDelta(),nTop,2*getCharWidth()+getLineDelta(),nHeight);
                     sSymbol=sHex;
                 }
                 else if(nColumn==COLUMN_SYMBOLS)
@@ -563,6 +552,25 @@ void XHexView::setScrollValue(qint64 nOffset)
     adjust(true);
 }
 
+void XHexView::adjustColumns()
+{
+    const QFontMetricsF fm(getTextFont());
+
+    if(XBinary::getModeFromSize(g_nDataSize)==XBinary::MODE_64)
+    {
+        g_nAddressWidth=16;
+        setColumnWidth(COLUMN_ADDRESS,2*getCharWidth()+fm.boundingRect("0000000000000000").width());
+    }
+    else
+    {
+        g_nAddressWidth=8;
+        setColumnWidth(COLUMN_ADDRESS,2*getCharWidth()+fm.boundingRect("00000000").width());
+    }
+
+    setColumnWidth(COLUMN_HEX,g_nBytesProLine*2*getCharWidth()+2*getCharWidth()+getLineDelta()*g_nBytesProLine);
+    setColumnWidth(COLUMN_SYMBOLS,(g_nBytesProLine+2)*getCharWidth());
+}
+
 void XHexView::_goToAddress()
 {
     DialogGoToAddress da(this,g_options.nStartAddress,g_options.nStartAddress+g_nDataSize,DialogGoToAddress::TYPE_ADDRESS);
@@ -578,7 +586,7 @@ void XHexView::_dumpToFile()
 {
     QString sFilter;
     sFilter+=QString("%1 (*.bin)").arg(tr("Raw data"));
-    QString sSaveFileName="dump.bin"; // TODO a function
+    QString sSaveFileName="dump.bin"; // TODO a function  // TODO !!!
     QString sFileName=QFileDialog::getSaveFileName(this,tr("Save dump"),sSaveFileName,sFilter);
 
     if(!sFileName.isEmpty())

@@ -73,6 +73,7 @@ protected:
     virtual void keyPressEvent(QKeyEvent *pEvent);
     virtual qint64 getScrollValue();
     virtual void setScrollValue(qint64 nOffset);
+    virtual void adjustColumns();
 
 private slots:
     void _goToAddress();
