@@ -62,6 +62,8 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 
     g_nDataSize=pDevice->size();
 
+    resetCursorData();
+
     adjustColumns();
 
     qint64 nTotalLineCount=g_nDataSize/g_nBytesProLine;
@@ -283,8 +285,13 @@ void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop,
                 else if(nColumn==COLUMN_SYMBOLS)
                 {
                     rectSymbol.setRect(nLeft+(i+1)*getCharWidth(),nTop,getCharWidth(),nHeight);
-                    QChar cChar=g_baDataBuffer.mid(nIndex,1).at(0); // TODO Check
-                    sSymbol=filterSymbol(cChar);
+                    QByteArray baChar=g_baDataBuffer.mid(nIndex,1); // TODO Check
+
+                    if(baChar.size())
+                    {
+                        QChar cChar=g_baDataBuffer.mid(nIndex,1).at(0); // TODO Check
+                        sSymbol=filterSymbol(cChar);
+                    }
                 }
 
                 if(bSelected||bCursor)
