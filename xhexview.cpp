@@ -36,7 +36,7 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
     g_scCopyAsHex     =new QShortcut(QKeySequence(XShortcuts::COPYASHEX),     this,SLOT(_copyAsHex()));
     g_scFind          =new QShortcut(QKeySequence(XShortcuts::FIND),          this,SLOT(_find()));
     g_scFindNext      =new QShortcut(QKeySequence(XShortcuts::FINDNEXT),      this,SLOT(_findNext()));
-    g_scSignature     =new QShortcut(QKeySequence(XShortcuts::SIGNATURE),     this,SLOT(_signature()));
+    g_scSignature     =new QShortcut(QKeySequence(XShortcuts::HEXSIGNATURE),  this,SLOT(_signature()));
 
     g_nAddressWidth=8;
 
@@ -44,15 +44,7 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
     addColumn(QString("HEX"));
     addColumn(tr("Symbols"));
 
-#ifdef Q_OS_WIN
-    setTextFont(QFont("Courier",10));
-#endif
-#ifdef Q_OS_LINUX
-    setTextFont(QFont("Monospace",10));
-#endif
-#ifdef Q_OS_OSX
-    setTextFont(QFont("Courier",10)); // TODO Check "Menlo"
-#endif
+    setTextFont(getMonoFont(10));
 }
 
 void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
@@ -340,7 +332,7 @@ void XHexView::contextMenu(const QPoint &pos)
     connect(&actionDumpToFile,SIGNAL(triggered()),this,SLOT(_dumpToFile()));
 
     QAction actionSignature(tr("Signature"),this);
-    actionSignature.setShortcut(QKeySequence(XShortcuts::SIGNATURE));
+    actionSignature.setShortcut(QKeySequence(XShortcuts::HEXSIGNATURE));
     connect(&actionSignature,SIGNAL(triggered()),this,SLOT(_signature()));
 
     QAction actionFind(tr("Find"),this);
