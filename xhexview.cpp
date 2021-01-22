@@ -1,4 +1,4 @@
-// copyright (c) 2020 hors<horsicq@gmail.com>
+// copyright (c) 2020-2021 hors<horsicq@gmail.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -215,28 +215,14 @@ void XHexView::updateData()
     }
 }
 
-void XHexView::startPainting()
-{
-
-}
-
-void XHexView::paintColumn(qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
-{
-    Q_UNUSED(nColumn)
-    Q_UNUSED(nLeft)
-    Q_UNUSED(nTop)
-    Q_UNUSED(nWidth)
-    Q_UNUSED(nHeight)
-}
-
-void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
+void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
 {
 //    g_pPainterText->drawRect(nLeft,nTop,nWidth,nHeight);
     if(nColumn==COLUMN_ADDRESS)
     {
         if(nRow<g_listAddresses.count())
         {
-            getPainter()->drawText(nLeft+getCharWidth(),nTop+nHeight,g_listAddresses.at(nRow)); // TODO Text Optional
+            pPainter->drawText(nLeft+getCharWidth(),nTop+nHeight,g_listAddresses.at(nRow)); // TODO Text Optional
         }
     }
     else if((nColumn==COLUMN_HEX)||(nColumn==COLUMN_SYMBOLS))
@@ -261,10 +247,10 @@ void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop,
 
                 if(bBold)
                 {
-                    getPainter()->save();
-                    QFont font=getPainter()->font();
+                    pPainter->save();
+                    QFont font=pPainter->font();
                     font.setBold(true);
-                    getPainter()->setFont(font);
+                    pPainter->setFont(font);
                 }
 
                 QRect rectSymbol;
@@ -301,24 +287,19 @@ void XHexView::paintCell(qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop,
 
                     if(bSelected)
                     {
-                        getPainter()->fillRect(rectSelected,viewport()->palette().color(QPalette::Highlight));
+                        pPainter->fillRect(rectSelected,viewport()->palette().color(QPalette::Highlight));
                     }
                 }
 
-                getPainter()->drawText(rectSymbol.x(),rectSymbol.y()+nHeight,sSymbol);
+                pPainter->drawText(rectSymbol.x(),rectSymbol.y()+nHeight,sSymbol);
 
                 if(bBold)
                 {
-                    getPainter()->restore();
+                    pPainter->restore();
                 }
             }
         }
     }
-}
-
-void XHexView::endPainting()
-{
-
 }
 
 void XHexView::contextMenu(const QPoint &pos)
@@ -555,7 +536,7 @@ void XHexView::adjustColumns()
 {
     const QFontMetricsF fm(getTextFont());
 
-    if(XBinary::getModeFromSize(g_nDataSize)==XBinary::MODE_64)
+    if(XBinary::getModeFromSize(g_nDataSize)==XBinary::MODE_64) // TODO Check adjust start address
     {
         g_nAddressWidth=16;
         setColumnWidth(COLUMN_ADDRESS,2*getCharWidth()+fm.boundingRect("0000000000000000").width());
