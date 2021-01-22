@@ -71,6 +71,7 @@ protected:
     virtual qint64 getScrollValue();
     virtual void setScrollValue(qint64 nOffset);
     virtual void adjustColumns();
+    virtual void registerShortcuts(bool bState);
 
 private slots:
     void _goToAddress();

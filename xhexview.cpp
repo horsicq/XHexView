@@ -30,13 +30,13 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
     g_nViewStartDelta=0;
     g_searchData={};
 
-    g_scGoToAddress   =new QShortcut(QKeySequence(XShortcuts::GOTOADDRESS),   this,SLOT(_goToAddress()));
-    g_scDumpToFile    =new QShortcut(QKeySequence(XShortcuts::DUMPTOFILE),    this,SLOT(_dumpToFile()));
-    g_scSelectAll     =new QShortcut(QKeySequence(XShortcuts::SELECTALL),     this,SLOT(_selectAll()));
-    g_scCopyAsHex     =new QShortcut(QKeySequence(XShortcuts::COPYASHEX),     this,SLOT(_copyAsHex()));
-    g_scFind          =new QShortcut(QKeySequence(XShortcuts::FIND),          this,SLOT(_find()));
-    g_scFindNext      =new QShortcut(QKeySequence(XShortcuts::FINDNEXT),      this,SLOT(_findNext()));
-    g_scSignature     =new QShortcut(QKeySequence(XShortcuts::HEXSIGNATURE),  this,SLOT(_signature()));
+    g_scGoToAddress=nullptr;
+    g_scDumpToFile=nullptr;
+    g_scSelectAll=nullptr;
+    g_scCopyAsHex=nullptr;
+    g_scFind=nullptr;
+    g_scFindNext=nullptr;
+    g_scSignature=nullptr;
 
     g_nAddressWidth=8;
 
@@ -305,31 +305,31 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
 void XHexView::contextMenu(const QPoint &pos)
 {
     QAction actionGoToAddress(tr("Go to address"),this);
-    actionGoToAddress.setShortcut(QKeySequence(XShortcuts::GOTOADDRESS));
+    actionGoToAddress.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_GOTOADDRESS));
     connect(&actionGoToAddress,SIGNAL(triggered()),this,SLOT(_goToAddress()));
 
     QAction actionDumpToFile(tr("Dump to file"),this);
-    actionDumpToFile.setShortcut(QKeySequence(XShortcuts::DUMPTOFILE));
+    actionDumpToFile.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_DUMPTOFILE));
     connect(&actionDumpToFile,SIGNAL(triggered()),this,SLOT(_dumpToFile()));
 
     QAction actionSignature(tr("Signature"),this);
-    actionSignature.setShortcut(QKeySequence(XShortcuts::HEXSIGNATURE));
+    actionSignature.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SIGNATURE));
     connect(&actionSignature,SIGNAL(triggered()),this,SLOT(_signature()));
 
     QAction actionFind(tr("Find"),this);
-    actionFind.setShortcut(QKeySequence(XShortcuts::FIND));
+    actionFind.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FIND));
     connect(&actionFind,SIGNAL(triggered()),this,SLOT(_find()));
 
     QAction actionFindNext(tr("Find next"),this);
-    actionFindNext.setShortcut(QKeySequence(XShortcuts::FINDNEXT));
+    actionFindNext.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FINDNEXT));
     connect(&actionFindNext,SIGNAL(triggered()),this,SLOT(_findNext()));
 
     QAction actionSelectAll(tr("Select all"),this);
-    actionSelectAll.setShortcut(QKeySequence(XShortcuts::SELECTALL));
+    actionSelectAll.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SELECTALL));
     connect(&actionSelectAll,SIGNAL(triggered()),this,SLOT(_selectAll()));
 
     QAction actionCopyAsHex(tr("Copy as hex"),this);
-    actionCopyAsHex.setShortcut(QKeySequence(XShortcuts::COPYASHEX));
+    actionCopyAsHex.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYASHEX));
     connect(&actionCopyAsHex,SIGNAL(triggered()),this,SLOT(_copyAsHex()));
 
     QMenu contextMenu(this);
@@ -549,6 +549,30 @@ void XHexView::adjustColumns()
 
     setColumnWidth(COLUMN_HEX,g_nBytesProLine*2*getCharWidth()+2*getCharWidth()+getLineDelta()*g_nBytesProLine);
     setColumnWidth(COLUMN_SYMBOLS,(g_nBytesProLine+2)*getCharWidth());
+}
+
+void XHexView::registerShortcuts(bool bState)
+{
+    if(bState)
+    {
+        if(!g_scGoToAddress)  g_scGoToAddress   =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_GOTOADDRESS),     this,SLOT(_goToAddress()));
+        if(!g_scDumpToFile)   g_scDumpToFile    =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_DUMPTOFILE),      this,SLOT(_dumpToFile()));
+        if(!g_scSelectAll)    g_scSelectAll     =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SELECTALL),       this,SLOT(_selectAll()));
+        if(!g_scCopyAsHex)    g_scCopyAsHex     =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYASHEX),       this,SLOT(_copyAsHex()));
+        if(!g_scFind)         g_scFind          =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FIND),            this,SLOT(_find()));
+        if(!g_scFindNext)     g_scFindNext      =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FINDNEXT),        this,SLOT(_findNext()));
+        if(!g_scSignature)    g_scSignature     =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SIGNATURE),       this,SLOT(_signature()));
+    }
+    else
+    {
+        if(g_scGoToAddress)   {delete g_scGoToAddress;  g_scGoToAddress=nullptr;}
+        if(g_scDumpToFile)    {delete g_scDumpToFile;   g_scDumpToFile=nullptr;}
+        if(g_scSelectAll)     {delete g_scSelectAll;    g_scSelectAll=nullptr;}
+        if(g_scCopyAsHex)     {delete g_scCopyAsHex;    g_scCopyAsHex=nullptr;}
+        if(g_scFind)          {delete g_scFind;         g_scFind=nullptr;}
+        if(g_scFindNext)      {delete g_scFindNext;     g_scFindNext=nullptr;}
+        if(g_scSignature)     {delete g_scSignature;    g_scSignature=nullptr;}
+    }
 }
 
 void XHexView::_goToAddress()
