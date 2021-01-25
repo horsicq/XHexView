@@ -41,7 +41,7 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
     g_nAddressWidth=8;
 
     addColumn(tr("Address"));
-    addColumn(QString("HEX"));
+    addColumn(tr("Hex"));
     addColumn(tr("Symbols"));
 
     setTextFont(getMonoFont(10));
