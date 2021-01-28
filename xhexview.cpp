@@ -222,7 +222,10 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
     {
         if(nRow<g_listAddresses.count())
         {
+//            pPainter->save();
+//            pPainter->setPen(viewport()->palette().color(QPalette::Dark));
             pPainter->drawText(nLeft+getCharWidth(),nTop+nHeight,g_listAddresses.at(nRow)); // TODO Text Optional
+//            pPainter->restore();
         }
     }
     else if((nColumn==COLUMN_HEX)||(nColumn==COLUMN_SYMBOLS))
