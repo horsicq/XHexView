@@ -33,6 +33,11 @@ XHexViewWidget::~XHexViewWidget()
     delete ui;
 }
 
+void XHexViewWidget::setShortcuts(XShortcuts *pShortcuts)
+{
+    ui->scrollAreaHex->setShortcuts(pShortcuts);
+}
+
 void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 {
     ui->scrollAreaHex->setData(pDevice,options);
