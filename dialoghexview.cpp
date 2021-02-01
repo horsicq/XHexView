@@ -41,6 +41,11 @@ DialogHexView::~DialogHexView()
     delete ui;
 }
 
+void DialogHexView::setShortcuts(XShortcuts *pShortcuts)
+{
+    ui->widgetHex->setShortcuts(pShortcuts);
+}
+
 void DialogHexView::on_pushButtonClose_clicked()
 {
     this->close();

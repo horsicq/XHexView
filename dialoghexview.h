@@ -34,6 +34,7 @@ class DialogHexView : public QDialog
 public:
     explicit DialogHexView(QWidget *pParent,QIODevice *pDevice,XHexView::OPTIONS options={});
     ~DialogHexView();
+    void setShortcuts(XShortcuts *pShortcuts);
 
 signals:
     void editState(bool bState);

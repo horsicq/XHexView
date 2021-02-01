@@ -307,6 +307,8 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
 
 void XHexView::contextMenu(const QPoint &pos)
 {
+    qDebug(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FINDNEXT).toString().toLatin1().data());
+
     QAction actionGoToAddress(tr("Go to address"),this);
     actionGoToAddress.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_GOTOADDRESS));
     connect(&actionGoToAddress,SIGNAL(triggered()),this,SLOT(_goToAddress()));
