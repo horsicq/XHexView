@@ -37,6 +37,7 @@ public:
         qint64 nStartAddress;
         qint64 nStartSelectionOffset;
         qint64 nSizeOfSelection;
+        bool bMenu_Hex;
     };
 
     explicit XHexView(QWidget *pParent=nullptr);
@@ -81,9 +82,11 @@ private slots:
     void _findNext();
     void _selectAll();
     void _copyAsHex();
+    void _disasm();
 
 signals:
     void editState(bool bState);
+    void showDisasm(qint64 nOffset);
 
 private:
     QIODevice *g_pDevice;
@@ -103,6 +106,7 @@ private:
     QShortcut *g_scFind;
     QShortcut *g_scFindNext;
     QShortcut *g_scSignature;
+    // TODO Disasm
     qint32 g_nAddressWidth;
 };
 

@@ -307,8 +307,6 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
 
 void XHexView::contextMenu(const QPoint &pos)
 {
-    qDebug(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FINDNEXT).toString().toLatin1().data());
-
     QAction actionGoToAddress(tr("Go to address"),this);
     actionGoToAddress.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_GOTOADDRESS));
     connect(&actionGoToAddress,SIGNAL(triggered()),this,SLOT(_goToAddress()));
@@ -336,6 +334,8 @@ void XHexView::contextMenu(const QPoint &pos)
     QAction actionCopyAsHex(tr("Copy as hex"),this);
     actionCopyAsHex.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYASHEX));
     connect(&actionCopyAsHex,SIGNAL(triggered()),this,SLOT(_copyAsHex()));
+
+    // TODO Disasm
 
     QMenu contextMenu(this);
     QMenu menuSelect(tr("Select"),this);
@@ -567,6 +567,7 @@ void XHexView::registerShortcuts(bool bState)
         if(!g_scFind)         g_scFind          =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FIND),            this,SLOT(_find()));
         if(!g_scFindNext)     g_scFindNext      =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FINDNEXT),        this,SLOT(_findNext()));
         if(!g_scSignature)    g_scSignature     =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SIGNATURE),       this,SLOT(_signature()));
+        // TODO Disasm
     }
     else
     {
@@ -577,6 +578,7 @@ void XHexView::registerShortcuts(bool bState)
         if(g_scFind)          {delete g_scFind;         g_scFind=nullptr;}
         if(g_scFindNext)      {delete g_scFindNext;     g_scFindNext=nullptr;}
         if(g_scSignature)     {delete g_scSignature;    g_scSignature=nullptr;}
+        // TODO Disasm
     }
 }
 
@@ -667,4 +669,9 @@ void XHexView::_copyAsHex()
     QByteArray baData=XBinary::read_array(g_pDevice,state.nSelectionOffset,nSize);
 
     QApplication::clipboard()->setText(baData.toHex());
+}
+
+void XHexView::_disasm()
+{
+    // TODO
 }
