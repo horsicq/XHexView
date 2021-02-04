@@ -37,7 +37,7 @@ public:
         qint64 nStartAddress;
         qint64 nStartSelectionOffset;
         qint64 nSizeOfSelection;
-        bool bMenu_Hex;
+        bool bMenu_Disasm;
     };
 
     explicit XHexView(QWidget *pParent=nullptr);
@@ -75,14 +75,17 @@ protected:
     virtual void registerShortcuts(bool bState);
 
 private slots:
-    void _goToAddress();
-    void _dumpToFile();
-    void _signature();
-    void _find();
-    void _findNext();
-    void _selectAll();
-    void _copyAsHex();
-    void _disasm();
+    void _goToOffsetSlot();
+    void _goToAddressSlot();
+    void _dumpToFileSlot();
+    void _signatureSlot();
+    void _findSlot();
+    void _findNextSlot();
+    void _selectAllSlot();
+    void _copyAsHexSlot();
+    void _copyCursorOffsetSlot();
+    void _copyCursorAddressSlot();
+    void _disasmSlot();
 
 signals:
     void editState(bool bState);
@@ -99,13 +102,17 @@ private:
     QByteArray g_baDataHexBuffer;
     QList<QString> g_listAddresses;
     SearchProcess::SEARCHDATA g_searchData;
+    QShortcut *g_scGoToOffset;
     QShortcut *g_scGoToAddress;
     QShortcut *g_scDumpToFile;
     QShortcut *g_scSelectAll;
     QShortcut *g_scCopyAsHex;
+    QShortcut *g_scCopyCursorOffset;
+    QShortcut *g_scCopyCursorAddress;
     QShortcut *g_scFind;
     QShortcut *g_scFindNext;
     QShortcut *g_scSignature;
+    QShortcut *g_scDisasm;
     // TODO Disasm
     qint32 g_nAddressWidth;
 };
