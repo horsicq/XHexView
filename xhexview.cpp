@@ -148,9 +148,11 @@ bool XHexView::isEnd(qint64 nOffset)
     return (nOffset==g_nDataSize);
 }
 
-qint64 XHexView::cursorPositionToOffset(XAbstractTableView::CURSOR_POSITION cursorPosition)
+XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_POSITION cursorPosition)
 {
-    qint64 nOffset=-1;
+    OS osResult={};
+
+    osResult.nOffset=-1;
 
     if((cursorPosition.bIsValid)&&(cursorPosition.ptype==PT_CELL))
     {
@@ -158,24 +160,28 @@ qint64 XHexView::cursorPositionToOffset(XAbstractTableView::CURSOR_POSITION curs
 
         if(cursorPosition.nColumn==COLUMN_ADDRESS)
         {
-            nOffset=nBlockOffset;
+            osResult.nOffset=nBlockOffset;
+            osResult.nSize=1;
         }
         else if(cursorPosition.nColumn==COLUMN_HEX)
         {
-            nOffset=nBlockOffset+(cursorPosition.nCellLeft)/(getCharWidth()*2+getLineDelta());
+            osResult.nOffset=nBlockOffset+(cursorPosition.nCellLeft)/(getCharWidth()*2+getLineDelta());
+            osResult.nSize=1;
         }
         else if(cursorPosition.nColumn==COLUMN_SYMBOLS)
         {
-            nOffset=nBlockOffset+(cursorPosition.nCellLeft)/getCharWidth();
+            osResult.nOffset=nBlockOffset+(cursorPosition.nCellLeft)/getCharWidth();
+            osResult.nSize=1;
         }
 
-        if(!isOffsetValid(nOffset))
+        if(!isOffsetValid(osResult.nOffset))
         {
-            nOffset=g_nDataSize; // TODO Check
+            osResult.nOffset=g_nDataSize; // TODO Check
+            osResult.nSize=0;
         }
     }
 
-    return nOffset;
+    return osResult;
 }
 
 void XHexView::updateData()

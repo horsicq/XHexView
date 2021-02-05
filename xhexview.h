@@ -63,7 +63,7 @@ private:
 protected:
     virtual bool isOffsetValid(qint64 nOffset);
     virtual bool isEnd(qint64 nOffset);
-    virtual qint64 cursorPositionToOffset(CURSOR_POSITION cursorPosition);
+    virtual OS cursorPositionToOS(CURSOR_POSITION cursorPosition);
     virtual void updateData();
     virtual void paintCell(QPainter *pPainter,qint32 nRow,qint32 nColumn,qint32 nLeft,qint32 nTop,qint32 nWidth,qint32 nHeight);
     virtual void contextMenu(const QPoint &pos);
