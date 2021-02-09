@@ -26,6 +26,9 @@ XHexViewWidget::XHexViewWidget(QWidget *parent) :
     ui(new Ui::XHexViewWidget)
 {
     ui->setupUi(this);
+
+    connect(ui->scrollAreaHex,SIGNAL(showOffsetDisasm(qint64)),this,SIGNAL(showOffsetDisasm(qint64)));
+    connect(ui->scrollAreaHex,SIGNAL(showOffsetMemoryMap(qint64)),this,SIGNAL(showOffsetMemoryMap(qint64)));
 }
 
 XHexViewWidget::~XHexViewWidget()

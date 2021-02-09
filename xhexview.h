@@ -38,6 +38,7 @@ public:
         qint64 nStartSelectionOffset;
         qint64 nSizeOfSelection;
         bool bMenu_Disasm;
+        bool bMenu_MemoryMap;
     };
 
     explicit XHexView(QWidget *pParent=nullptr);
@@ -86,10 +87,11 @@ private slots:
     void _copyCursorOffsetSlot();
     void _copyCursorAddressSlot();
     void _disasmSlot();
+    void _memoryMapSlot();
 
 signals:
-    void editState(bool bState);
-    void showDisasm(qint64 nOffset);
+    void showOffsetDisasm(qint64 nOffset);
+    void showOffsetMemoryMap(qint64 nOffset);
 
 private:
     QIODevice *g_pDevice;
@@ -113,7 +115,7 @@ private:
     QShortcut *g_scFindNext;
     QShortcut *g_scSignature;
     QShortcut *g_scDisasm;
-    // TODO Disasm
+    QShortcut *g_scMemoryMap;
     qint32 g_nAddressWidth;
 };
 

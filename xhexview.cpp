@@ -41,6 +41,7 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
     g_scFindNext=nullptr;
     g_scSignature=nullptr;
     g_scDisasm=nullptr;
+    g_scMemoryMap=nullptr;
 
     g_nAddressWidth=8;
 
@@ -361,6 +362,10 @@ void XHexView::contextMenu(const QPoint &pos)
     actionDisasm.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_DISASM));
     connect(&actionDisasm,SIGNAL(triggered()),this,SLOT(_disasmSlot()));
 
+    QAction actionMemoryMap(tr("Memory map"),this);
+    actionMemoryMap.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_MEMORYMAP));
+    connect(&actionMemoryMap,SIGNAL(triggered()),this,SLOT(_memoryMapSlot()));
+
     STATE state=getState();
 
     QMenu contextMenu(this);
@@ -397,6 +402,11 @@ void XHexView::contextMenu(const QPoint &pos)
     if(g_options.bMenu_Disasm)
     {
         contextMenu.addAction(&actionDisasm);
+    }
+
+    if(g_options.bMenu_MemoryMap)
+    {
+        contextMenu.addAction(&actionMemoryMap);
     }
 
     contextMenu.addMenu(&menuCopy);
@@ -616,6 +626,7 @@ void XHexView::registerShortcuts(bool bState)
         if(!g_scFindNext)           g_scFindNext            =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FINDNEXT),            this,SLOT(_findNextSlot()));
         if(!g_scSignature)          g_scSignature           =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SIGNATURE),           this,SLOT(_signatureSlot()));
         if(!g_scDisasm)             g_scDisasm              =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_DISASM),              this,SLOT(_disasmSlot()));
+        if(!g_scMemoryMap)          g_scMemoryMap           =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_MEMORYMAP),           this,SLOT(_memoryMapSlot()));
     }
     else
     {
@@ -630,6 +641,7 @@ void XHexView::registerShortcuts(bool bState)
         if(g_scFindNext)            {delete g_scFindNext;           g_scFindNext=nullptr;}
         if(g_scSignature)           {delete g_scSignature;          g_scSignature=nullptr;}
         if(g_scDisasm)              {delete g_scDisasm;             g_scDisasm=nullptr;}
+        if(g_scMemoryMap)           {delete g_scMemoryMap;          g_scMemoryMap=nullptr;}
     }
 }
 
@@ -699,7 +711,7 @@ void XHexView::_findSlot()
     }
     else
     {
-        // TODO error message
+        errorMessage(tr("Nothing found"));
     }
 }
 
@@ -720,7 +732,7 @@ void XHexView::_findNextSlot()
         }
         else
         {
-            // TODO error message
+            errorMessage(tr("Nothing found"));
         }
     }
 }
@@ -759,6 +771,18 @@ void XHexView::_disasmSlot()
 {
     if(g_options.bMenu_Disasm)
     {
-        // TODO
+        STATE state=getState();
+
+        emit showOffsetDisasm(state.nCursorOffset);
+    }
+}
+
+void XHexView::_memoryMapSlot()
+{
+    if(g_options.bMenu_MemoryMap)
+    {
+        STATE state=getState();
+
+        emit showOffsetMemoryMap(state.nCursorOffset);
     }
 }
