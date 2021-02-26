@@ -688,7 +688,7 @@ void XHexView::_signatureSlot()
 {
     STATE state=getState();
 
-    DialogHexSignature dsh(this,g_pDevice,state.nSelectionOffset,state.nSelectionSize);
+    DialogHexSignature dsh(this,g_pDevice,state.nSelectionOffset,state.nSelectionSize,g_options.sSignaturesPath);
 
     dsh.exec();
 }

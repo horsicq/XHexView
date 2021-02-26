@@ -39,6 +39,7 @@ public:
         qint64 nSizeOfSelection;
         bool bMenu_Disasm;
         bool bMenu_MemoryMap;
+        QString sSignaturesPath;
         // TODO BackupFileName
     };
 
