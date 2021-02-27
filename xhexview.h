@@ -44,7 +44,7 @@ public:
     };
 
     explicit XHexView(QWidget *pParent=nullptr);
-    void setData(QIODevice *pDevice,OPTIONS options={});
+    void setData(QIODevice *pDevice,OPTIONS options);
     void goToAddress(qint64 nAddress);
     void goToOffset(qint64 nOffset);
     qint64 getStartAddress();
