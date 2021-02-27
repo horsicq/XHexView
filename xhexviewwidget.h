@@ -35,7 +35,7 @@ public:
     explicit XHexViewWidget(QWidget *parent=nullptr);
     ~XHexViewWidget();
     void setShortcuts(XShortcuts *pShortcuts);
-    void setData(QIODevice *pDevice,XHexView::OPTIONS options={});
+    void setData(QIODevice *pDevice,XHexView::OPTIONS options);
     void reload();
     void setReadonly(bool bState);
     void enableReadOnly(bool bState);
