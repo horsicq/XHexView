@@ -27,7 +27,7 @@ namespace Ui {
 class DialogHexView;
 }
 
-class DialogHexView : public QDialog
+class DialogHexView : public XShortcutsDialog
 {
     Q_OBJECT
 

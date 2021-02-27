@@ -29,6 +29,7 @@ XHexViewWidget::XHexViewWidget(QWidget *parent) :
 
     connect(ui->scrollAreaHex,SIGNAL(showOffsetDisasm(qint64)),this,SIGNAL(showOffsetDisasm(qint64)));
     connect(ui->scrollAreaHex,SIGNAL(showOffsetMemoryMap(qint64)),this,SIGNAL(showOffsetMemoryMap(qint64)));
+    connect(ui->scrollAreaHex,SIGNAL(errorMessage(QString)),this,SLOT(errorMessageSlot(QString)));
 }
 
 XHexViewWidget::~XHexViewWidget()
@@ -78,4 +79,9 @@ void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
 {
     ui->scrollAreaHex->setSelection(nOffset,nSize);
     ui->scrollAreaHex->goToOffset(nOffset);
+}
+
+void XHexViewWidget::errorMessageSlot(QString sErrorMessage)
+{
+    QMessageBox::critical(this,tr("Error"),sErrorMessage);
 }

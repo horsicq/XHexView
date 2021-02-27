@@ -688,9 +688,11 @@ void XHexView::_signatureSlot()
 {
     STATE state=getState();
 
-    DialogHexSignature dsh(this,g_pDevice,state.nSelectionOffset,state.nSelectionSize,g_options.sSignaturesPath);
+    DialogHexSignature dhs(this,g_pDevice,state.nSelectionOffset,state.nSelectionSize,g_options.sSignaturesPath);
 
-    dsh.exec();
+    dhs.setShortcuts(getShortcuts());
+
+    dhs.exec();
 }
 
 void XHexView::_findSlot()
@@ -711,7 +713,7 @@ void XHexView::_findSlot()
     }
     else
     {
-        errorMessage(tr("Nothing found"));
+        emit errorMessage(tr("Nothing found"));
     }
 }
 
@@ -732,7 +734,7 @@ void XHexView::_findNextSlot()
         }
         else
         {
-            errorMessage(tr("Nothing found"));
+            emit errorMessage(tr("Nothing found"));
         }
     }
 }

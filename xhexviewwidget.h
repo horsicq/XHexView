@@ -43,6 +43,9 @@ public:
     qint64 getStartAddress();
     void setSelection(qint64 nOffset, qint64 nSize);
 
+private slots:
+    void errorMessageSlot(QString sErrorMessage);
+
 signals:
     void editState(bool bState);
     void showOffsetDisasm(qint64 nOffset);
