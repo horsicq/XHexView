@@ -27,7 +27,7 @@ namespace Ui {
 class XHexViewWidget;
 }
 
-class XHexViewWidget : public QWidget
+class XHexViewWidget : public XShortcutsWidget
 {
     Q_OBJECT
 
@@ -50,6 +50,9 @@ signals:
     void editState(bool bState);
     void showOffsetDisasm(qint64 nOffset);
     void showOffsetMemoryMap(qint64 nOffset);
+
+protected:
+    virtual void registerShortcuts(bool bState);
 
 private:
     Ui::XHexViewWidget *ui;

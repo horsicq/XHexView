@@ -22,7 +22,7 @@
 #include "ui_xhexviewwidget.h"
 
 XHexViewWidget::XHexViewWidget(QWidget *parent) :
-    QWidget(parent),
+    XShortcutsWidget(parent),
     ui(new Ui::XHexViewWidget)
 {
     ui->setupUi(this);
@@ -40,6 +40,7 @@ XHexViewWidget::~XHexViewWidget()
 void XHexViewWidget::setShortcuts(XShortcuts *pShortcuts)
 {
     ui->scrollAreaHex->setShortcuts(pShortcuts);
+    XShortcutsWidget::setShortcuts(pShortcuts);
 }
 
 void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options)
@@ -84,4 +85,9 @@ void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
 void XHexViewWidget::errorMessageSlot(QString sErrorMessage)
 {
     QMessageBox::critical(this,tr("Error"),sErrorMessage);
+}
+
+void XHexViewWidget::registerShortcuts(bool bState)
+{
+    Q_UNUSED(bState)
 }
