@@ -295,7 +295,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                     {
                         if(nColumn==state.cursorPosition.nColumn)
                         {
-                            setCursorData(rectSelected,sSymbol,nIndex);
+                            setCursorData(rectSelected,rectSelected,sSymbol,nIndex);
                         }
                     }
 
