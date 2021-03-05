@@ -166,12 +166,12 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_P
         }
         else if(cursorPosition.nColumn==COLUMN_HEX)
         {
-            osResult.nOffset=nBlockOffset+(cursorPosition.nCellLeft)/(getCharWidth()*2+getLineDelta());
+            osResult.nOffset=nBlockOffset+(cursorPosition.nCellLeft-getLineDelta())/(getCharWidth()*2+getLineDelta());
             osResult.nSize=1;
         }
         else if(cursorPosition.nColumn==COLUMN_SYMBOLS)
         {
-            osResult.nOffset=nBlockOffset+(cursorPosition.nCellLeft)/getCharWidth();
+            osResult.nOffset=nBlockOffset+(cursorPosition.nCellLeft-getLineDelta())/getCharWidth();
             osResult.nSize=1;
         }
 
