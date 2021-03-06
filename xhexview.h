@@ -31,14 +31,15 @@
 class XHexView : public XAbstractTableView
 {
     Q_OBJECT
+
 public:
     struct OPTIONS
     {
         qint64 nStartAddress;
         qint64 nStartSelectionOffset;
         qint64 nSizeOfSelection;
-        bool bMenu_Disasm; // TODO remove TODO list of custom items
-        bool bMenu_MemoryMap; // TODO remove TODO list of custom items
+        bool bMenu_Disasm;
+        bool bMenu_MemoryMap;
         QString sSignaturesPath;
         // TODO BackupFileName
         // TODO save backup
