@@ -49,7 +49,7 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
     addColumn(tr("Hex"));
     addColumn(tr("Symbols"));
 
-    setTextFont(getMonoFont(10));
+    setTextFont(getMonoFont());
 }
 
 void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
