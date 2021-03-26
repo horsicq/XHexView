@@ -41,8 +41,7 @@ public:
         bool bMenu_Disasm;
         bool bMenu_MemoryMap;
         QString sSignaturesPath;
-        // TODO BackupFileName
-        // TODO save backup
+        bool bSaveBackup; // TODO !!!
     };
 
     explicit XHexView(QWidget *pParent=nullptr);
