@@ -496,11 +496,11 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
 
             if(nRelOffset>=g_nBytesProLine*getLinesProPage())
             {
-                _goToOffset(nViewStart+g_nBytesProLine);
+                _goToOffset(nViewStart+g_nBytesProLine,true);
             }
             else if(nRelOffset<0)
             {
-                if(!_goToOffset(nViewStart-g_nBytesProLine))
+                if(!_goToOffset(nViewStart-g_nBytesProLine,true))
                 {
                     _goToOffset(0);
                 }
@@ -588,8 +588,6 @@ void XHexView::setScrollValue(qint64 nOffset)
     }
 
     verticalScrollBar()->setValue(nValue);
-
-    adjust(true);
 }
 
 void XHexView::adjustColumns()
