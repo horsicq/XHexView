@@ -41,7 +41,7 @@ public:
     void enableReadOnly(bool bState);
     void setEdited(bool bState);
     qint64 getStartAddress();
-    void setSelection(qint64 nOffset, qint64 nSize);
+    void setSelection(qint64 nOffset,qint64 nSize);
 
 private slots:
     void errorMessageSlot(QString sErrorMessage);
