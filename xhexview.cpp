@@ -656,12 +656,15 @@ void XHexView::_goToOffsetSlot()
 
 void XHexView::_goToAddressSlot()
 {
-    DialogGoToAddress da(this,g_options.nStartAddress,g_options.nStartAddress+g_nDataSize,DialogGoToAddress::TYPE_ADDRESS);
-    if(da.exec()==QDialog::Accepted)
+    if(g_options.nStartAddress)
     {
-        goToAddress(da.getValue());
-        setFocus();
-        viewport()->update();
+        DialogGoToAddress da(this,g_options.nStartAddress,g_options.nStartAddress+g_nDataSize,DialogGoToAddress::TYPE_ADDRESS);
+        if(da.exec()==QDialog::Accepted)
+        {
+            goToAddress(da.getValue());
+            setFocus();
+            viewport()->update();
+        }
     }
 }
 
