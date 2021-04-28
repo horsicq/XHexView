@@ -712,7 +712,7 @@ void XHexView::_findSlot()
         setSelection(g_searchData.nResultOffset,g_searchData.nResultSize);
         setFocus();
     }
-    else
+    else if(g_searchData.type!=SearchProcess::TYPE_UNKNOWN)
     {
         emit errorMessage(tr("Nothing found"));
     }
@@ -733,7 +733,7 @@ void XHexView::_findNextSlot()
             setSelection(g_searchData.nResultOffset,g_searchData.nResultSize);
             setFocus();
         }
-        else
+        else if(g_searchData.type!=SearchProcess::TYPE_UNKNOWN)
         {
             emit errorMessage(tr("Nothing found"));
         }
