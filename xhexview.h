@@ -21,14 +21,9 @@
 #ifndef XHEXVIEW_H
 #define XHEXVIEW_H
 
-#include "xabstracttableview.h"
-#include "dialoggotoaddress.h"
-#include "dialogsearch.h"
-#include "dialogdumpprocess.h"
-#include "dialogsearchprocess.h"
-#include "dialoghexsignature.h"
+#include "xdevicetableview.h"
 
-class XHexView : public XAbstractTableView
+class XHexView : public XDeviceTableView
 {
     Q_OBJECT
 
@@ -41,7 +36,7 @@ public:
         bool bMenu_Disasm;
         bool bMenu_MemoryMap;
         QString sSignaturesPath;
-        bool bSaveBackup; // TODO !!!
+        bool bSaveBackup; // TODO !!! mb Remove
     };
 
     explicit XHexView(QWidget *pParent=nullptr);
@@ -79,16 +74,6 @@ protected:
     virtual void registerShortcuts(bool bState);
 
 private slots:
-    void _goToOffsetSlot();
-    void _goToAddressSlot();
-    void _dumpToFileSlot();
-    void _signatureSlot();
-    void _findSlot();
-    void _findNextSlot();
-    void _selectAllSlot();
-    void _copyAsHexSlot();
-    void _copyCursorOffsetSlot();
-    void _copyCursorAddressSlot();
     void _disasmSlot();
     void _memoryMapSlot();
 
@@ -97,7 +82,6 @@ signals:
     void showOffsetMemoryMap(qint64 nOffset);
 
 private:
-    QIODevice *g_pDevice;
     OPTIONS g_options;
     qint64 g_nDataSize;
     qint32 g_nBytesProLine;
@@ -106,7 +90,6 @@ private:
     QByteArray g_baDataBuffer;
     QByteArray g_baDataHexBuffer;
     QList<QString> g_listAddresses;
-    SearchProcess::SEARCHDATA g_searchData;
     QShortcut *g_scGoToOffset;
     QShortcut *g_scGoToAddress;
     QShortcut *g_scDumpToFile;

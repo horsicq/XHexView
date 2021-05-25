@@ -20,16 +20,12 @@
 //
 #include "xhexview.h"
 
-XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
+XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
 {
-    g_pDevice=nullptr;
-
     g_nDataSize=0;
     g_nBytesProLine=16;
     g_nDataBlockSize=0;
     g_nViewStartDelta=0;
-    g_searchData={};
-
     g_scGoToOffset=nullptr;
     g_scGoToAddress=nullptr;
     g_scDumpToFile=nullptr;
@@ -54,8 +50,15 @@ XHexView::XHexView(QWidget *pParent) : XAbstractTableView(pParent)
 
 void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 {
-    g_pDevice=pDevice;
     g_options=options;
+
+    setDevice(pDevice);
+    setSignaturesPath(options.sSignaturesPath);
+
+    XBinary binary(pDevice,true,options.nStartAddress);
+    XBinary::_MEMORY_MAP memoryMap=binary.getMemoryMap();
+
+    setMemoryMap(memoryMap);
 
     g_nDataSize=pDevice->size();
 
@@ -187,7 +190,7 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_P
 
 void XHexView::updateData()
 {
-    if(g_pDevice)
+    if(getDevice())
     {
         // Update cursor position
         qint64 nBlockOffset=getViewStart();
@@ -202,13 +205,14 @@ void XHexView::updateData()
 
         g_listAddresses.clear();
 
-        if(g_pDevice->seek(nBlockOffset))
-        {
-            qint32 nDataBlockSize=g_nBytesProLine*getLinesProPage();
+        qint32 nDataBlockSize=g_nBytesProLine*getLinesProPage();
 
-            g_baDataBuffer.resize(nDataBlockSize);
-            g_nDataBlockSize=(int)g_pDevice->read(g_baDataBuffer.data(),nDataBlockSize);
-            g_baDataBuffer.resize(g_nDataBlockSize);
+        g_baDataBuffer=read_array(nBlockOffset,nDataBlockSize);
+
+        g_nDataBlockSize=g_baDataBuffer.size();
+
+        if(g_nDataBlockSize)
+        {
             g_baDataHexBuffer=QByteArray(g_baDataBuffer.toHex());
 
             for(int i=0;i<g_nDataBlockSize;i+=g_nBytesProLine)
@@ -332,7 +336,7 @@ void XHexView::contextMenu(const QPoint &pos)
 
     QAction actionSignature(tr("Signature"),this);
     actionSignature.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SIGNATURE));
-    connect(&actionSignature,SIGNAL(triggered()),this,SLOT(_signatureSlot()));
+    connect(&actionSignature,SIGNAL(triggered()),this,SLOT(_hexSignatureSlot()));
 
     QAction actionFind(tr("Find"),this);
     actionFind.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FIND));
@@ -641,133 +645,6 @@ void XHexView::registerShortcuts(bool bState)
         if(g_scDisasm)              {delete g_scDisasm;             g_scDisasm=nullptr;}
         if(g_scMemoryMap)           {delete g_scMemoryMap;          g_scMemoryMap=nullptr;}
     }
-}
-
-void XHexView::_goToOffsetSlot()
-{
-    DialogGoToAddress da(this,0,g_nDataSize,DialogGoToAddress::TYPE_OFFSET);
-    if(da.exec()==QDialog::Accepted)
-    {
-        goToOffset(da.getValue());
-        setFocus();
-        viewport()->update();
-    }
-}
-
-void XHexView::_goToAddressSlot()
-{
-    if(g_options.nStartAddress)
-    {
-        DialogGoToAddress da(this,g_options.nStartAddress,g_options.nStartAddress+g_nDataSize,DialogGoToAddress::TYPE_ADDRESS);
-        if(da.exec()==QDialog::Accepted)
-        {
-            goToAddress(da.getValue());
-            setFocus();
-            viewport()->update();
-        }
-    }
-}
-
-void XHexView::_dumpToFileSlot()
-{
-    QString sFilter;
-    sFilter+=QString("%1 (*.bin)").arg(tr("Raw data"));
-    QString sSaveFileName="dump.bin"; // TODO a function  // TODO !!!
-    QString sFileName=QFileDialog::getSaveFileName(this,tr("Save dump"),sSaveFileName,sFilter);
-
-    if(!sFileName.isEmpty())
-    {
-        STATE state=getState();
-
-        DialogDumpProcess dd(this,g_pDevice,state.nSelectionOffset,state.nSelectionSize,sFileName,DumpProcess::DT_OFFSET);
-
-        dd.exec();
-    }
-}
-
-void XHexView::_signatureSlot()
-{
-    STATE state=getState();
-
-    DialogHexSignature dhs(this,g_pDevice,state.nSelectionOffset,state.nSelectionSize,g_options.sSignaturesPath);
-
-    dhs.setShortcuts(getShortcuts());
-
-    dhs.exec();
-}
-
-void XHexView::_findSlot()
-{
-    STATE state=getState();
-
-    g_searchData={};
-    g_searchData.nResultOffset=-1;
-    g_searchData.nCurrentOffset=state.nCursorOffset;
-
-    DialogSearch dialogSearch(this,g_pDevice,&g_searchData);
-
-    if(dialogSearch.exec()==QDialog::Accepted)
-    {
-        _goToOffset(g_searchData.nResultOffset);
-        setSelection(g_searchData.nResultOffset,g_searchData.nResultSize);
-        setFocus();
-    }
-    else if(g_searchData.type!=SearchProcess::TYPE_UNKNOWN)
-    {
-        emit errorMessage(tr("Nothing found"));
-    }
-}
-
-void XHexView::_findNextSlot()
-{
-    if(g_searchData.bInit)
-    {
-        g_searchData.nCurrentOffset=g_searchData.nResultOffset+g_searchData.nResultSize;
-        g_searchData.startFrom=SearchProcess::SF_CURRENTOFFSET;
-
-        DialogSearchProcess dialogSearch(this,g_pDevice,&g_searchData);
-
-        if(dialogSearch.exec()==QDialog::Accepted)
-        {
-            _goToOffset(g_searchData.nResultOffset);
-            setSelection(g_searchData.nResultOffset,g_searchData.nResultSize);
-            setFocus();
-        }
-        else if(g_searchData.type!=SearchProcess::TYPE_UNKNOWN)
-        {
-            emit errorMessage(tr("Nothing found"));
-        }
-    }
-}
-
-void XHexView::_selectAllSlot()
-{
-    setSelection(0,g_nDataSize);
-}
-
-void XHexView::_copyAsHexSlot()
-{
-    STATE state=getState();
-
-    qint64 nSize=qMin(state.nSelectionSize,(qint64)0x10000);
-
-    QByteArray baData=XBinary::read_array(g_pDevice,state.nSelectionOffset,nSize);
-
-    QApplication::clipboard()->setText(baData.toHex());
-}
-
-void XHexView::_copyCursorOffsetSlot()
-{
-    STATE state=getState();
-
-    QApplication::clipboard()->setText(XBinary::valueToHex(XBinary::MODE_UNKNOWN,state.nCursorOffset));
-}
-
-void XHexView::_copyCursorAddressSlot()
-{
-    STATE state=getState();
-
-    QApplication::clipboard()->setText(XBinary::valueToHex(XBinary::MODE_UNKNOWN,state.nCursorOffset+g_options.nStartAddress));
 }
 
 void XHexView::_disasmSlot()
