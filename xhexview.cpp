@@ -212,6 +212,7 @@ void XHexView::updateData()
 
 void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
 {
+    Q_UNUSED(nWidth)
 //    g_pPainterText->drawRect(nLeft,nTop,nWidth,nHeight);
     if(nColumn==COLUMN_ADDRESS)
     {
