@@ -70,6 +70,11 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
         nTotalLineCount--;
     }
 
+//    if((getDataSize()>0)&&(getDataSize()<g_nBytesProLine))
+//    {
+//        nTotalLineCount=1;
+//    }
+
     setTotalLineCount(nTotalLineCount);
 
     if(options.nStartSelectionOffset)
