@@ -45,6 +45,9 @@ public:
 
 private slots:
     void errorMessageSlot(QString sErrorMessage);
+    void cursorChanged(qint64 nOffset);
+    void selectionChanged();
+    void adjust();
 
 signals:
     void editState(bool bState);

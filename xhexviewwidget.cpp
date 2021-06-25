@@ -30,6 +30,8 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) :
     connect(ui->scrollAreaHex,SIGNAL(showOffsetDisasm(qint64)),this,SIGNAL(showOffsetDisasm(qint64)));
     connect(ui->scrollAreaHex,SIGNAL(showOffsetMemoryMap(qint64)),this,SIGNAL(showOffsetMemoryMap(qint64)));
     connect(ui->scrollAreaHex,SIGNAL(errorMessage(QString)),this,SLOT(errorMessageSlot(QString)));
+    connect(ui->scrollAreaHex,SIGNAL(cursorChanged(qint64)),this,SLOT(cursorChanged(qint64)));
+    connect(ui->scrollAreaHex,SIGNAL(selectionChanged()),this,SLOT(selectionChanged()));
 }
 
 XHexViewWidget::~XHexViewWidget()
@@ -85,6 +87,27 @@ void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
 void XHexViewWidget::errorMessageSlot(QString sErrorMessage)
 {
     QMessageBox::critical(this,tr("Error"),sErrorMessage);
+}
+
+void XHexViewWidget::cursorChanged(qint64 nOffset)
+{
+    Q_UNUSED(nOffset)
+
+    adjust();
+}
+
+void XHexViewWidget::selectionChanged()
+{
+    adjust();
+}
+
+void XHexViewWidget::adjust()
+{
+    XAbstractTableView::STATE state=ui->scrollAreaHex->getState();
+
+    ui->lineEditCursor->setText(XBinary::valueToHexEx(state.nCursorOffset));
+    ui->lineEditSelectionStart->setText(XBinary::valueToHexEx(state.nSelectionOffset));
+    ui->lineEditSelectionSize->setText(XBinary::valueToHexEx(state.nSelectionSize));
 }
 
 void XHexViewWidget::registerShortcuts(bool bState)

@@ -612,7 +612,7 @@ void XHexView::registerShortcuts(bool bState)
         if(!g_scCopyCursorAddress)  g_scCopyCursorAddress   =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYCURSORADDRESS),   this,SLOT(_copyCursorAddressSlot()));
         if(!g_scFind)               g_scFind                =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FIND),                this,SLOT(_findSlot()));
         if(!g_scFindNext)           g_scFindNext            =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FINDNEXT),            this,SLOT(_findNextSlot()));
-        if(!g_scSignature)          g_scSignature           =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SIGNATURE),           this,SLOT(_signatureSlot()));
+        if(!g_scSignature)          g_scSignature           =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SIGNATURE),           this,SLOT(_hexSignatureSlot()));
         if(!g_scDisasm)             g_scDisasm              =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_DISASM),              this,SLOT(_disasmSlot()));
         if(!g_scMemoryMap)          g_scMemoryMap           =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_MEMORYMAP),           this,SLOT(_memoryMapSlot()));
     }
