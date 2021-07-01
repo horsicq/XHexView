@@ -37,6 +37,7 @@ public:
         bool bMenu_MemoryMap;
         QString sSignaturesPath;
         bool bSaveBackup; // TODO !!! mb Remove
+        QString sTitle; // For dialogs
     };
 
     explicit XHexView(QWidget *pParent=nullptr);
