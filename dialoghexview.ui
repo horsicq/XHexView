@@ -3,7 +3,7 @@
  <class>DialogHexView</class>
  <widget class="QDialog" name="DialogHexView">
   <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
+   <enum>Qt::ApplicationModal</enum>
   </property>
   <property name="geometry">
    <rect>
