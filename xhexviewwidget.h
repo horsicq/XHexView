@@ -48,6 +48,7 @@ private slots:
     void cursorChanged(qint64 nOffset);
     void selectionChanged();
     void adjust();
+    void on_checkBoxHex_stateChanged(int nState);
 
 signals:
     void editState(bool bState);

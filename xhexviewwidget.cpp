@@ -32,6 +32,8 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) :
     connect(ui->scrollAreaHex,SIGNAL(errorMessage(QString)),this,SLOT(errorMessageSlot(QString)));
     connect(ui->scrollAreaHex,SIGNAL(cursorChanged(qint64)),this,SLOT(cursorChanged(qint64)));
     connect(ui->scrollAreaHex,SIGNAL(selectionChanged()),this,SLOT(selectionChanged()));
+
+    ui->checkBoxHex->setChecked(true);
 }
 
 XHexViewWidget::~XHexViewWidget()
@@ -105,12 +107,36 @@ void XHexViewWidget::adjust()
 {
     XAbstractTableView::STATE state=ui->scrollAreaHex->getState();
 
-    ui->lineEditCursor->setText(XBinary::valueToHexEx(state.nCursorOffset));
-    ui->lineEditSelectionStart->setText(XBinary::valueToHexEx(state.nSelectionOffset));
-    ui->lineEditSelectionSize->setText(XBinary::valueToHexEx(state.nSelectionSize));
+    QString sCursor;
+    QString sSelectionStart;
+    QString sSelectionSize;
+
+    if(ui->checkBoxHex->isChecked())
+    {
+        sCursor=XBinary::valueToHexEx(state.nCursorOffset);
+        sSelectionStart=XBinary::valueToHexEx(state.nSelectionOffset);
+        sSelectionSize=XBinary::valueToHexEx(state.nSelectionSize);
+    }
+    else
+    {
+        sCursor=QString::number(state.nCursorOffset);
+        sSelectionStart=QString::number(state.nSelectionOffset);
+        sSelectionSize=QString::number(state.nSelectionSize);
+    }
+
+    ui->lineEditCursor->setText(sCursor);
+    ui->lineEditSelectionStart->setText(sSelectionStart);
+    ui->lineEditSelectionSize->setText(sSelectionSize);
 }
 
 void XHexViewWidget::registerShortcuts(bool bState)
 {
     Q_UNUSED(bState)
+}
+
+void XHexViewWidget::on_checkBoxHex_stateChanged(int nState)
+{
+    Q_UNUSED(nState)
+
+    adjust();
 }
