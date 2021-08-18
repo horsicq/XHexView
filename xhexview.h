@@ -38,6 +38,7 @@ public:
         QString sSignaturesPath;
         bool bSaveBackup; // TODO !!! mb Remove
         QString sTitle; // For dialogs
+        bool bOffset; // Offset title
     };
 
     explicit XHexView(QWidget *pParent=nullptr);

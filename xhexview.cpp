@@ -61,6 +61,11 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 
     resetCursorData();
 
+    if(options.bOffset)
+    {
+        setColumnTitle(0,tr("Offset"));
+    }
+
     adjustColumns();
 
     qint64 nTotalLineCount=getDataSize()/g_nBytesProLine;
