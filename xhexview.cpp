@@ -61,7 +61,7 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 
     resetCursorData();
 
-    if(options.bOffset)
+    if(options.bIsOffsetTitle)
     {
         setColumnTitle(0,tr("Offset"));
     }
