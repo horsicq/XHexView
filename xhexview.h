@@ -36,7 +36,6 @@ public:
         bool bMenu_Disasm;
         bool bMenu_MemoryMap;
         QString sSignaturesPath;
-        bool bSaveBackup; // TODO !!! mb Remove
         QString sTitle; // For dialogs
         bool bIsOffsetTitle;
     };
