@@ -217,6 +217,8 @@ void XHexView::updateData()
             g_baDataBuffer.clear();
             g_baDataHexBuffer.clear();
         }
+
+        setCurrentBlock(nBlockOffset,g_nDataBlockSize);
     }
 }
 
