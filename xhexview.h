@@ -30,7 +30,7 @@ class XHexView : public XDeviceTableView
 public:
     struct OPTIONS
     {
-        // mb TODO bIsSaveBackup
+        // TODO bIsSaveBackup
         qint64 nStartAddress;
         qint64 nStartSelectionOffset;
         qint64 nSizeOfSelection;
