@@ -28,6 +28,7 @@ class XHexView : public XDeviceTableView
     Q_OBJECT
 
 public:
+    // TODO edit function
     struct OPTIONS
     {
         // TODO bIsSaveBackup
