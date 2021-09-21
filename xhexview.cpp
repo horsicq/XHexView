@@ -38,6 +38,8 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
     g_scDisasm=nullptr;
     g_scMemoryMap=nullptr;
 
+    g_options={};
+
     g_nAddressWidth=8;
 
     addColumn(tr("Address"));
@@ -591,7 +593,7 @@ void XHexView::adjustColumns()
 {
     const QFontMetricsF fm(getTextFont());
 
-    if(XBinary::getWidthModeFromSize(getDataSize())==XBinary::MODE_64) // TODO Check adjust start address
+    if(XBinary::getWidthModeFromSize(getStartAddress()+getDataSize())==XBinary::MODE_64)
     {
         g_nAddressWidth=16;
         setColumnWidth(COLUMN_ADDRESS,2*getCharWidth()+fm.boundingRect("0000000000000000").width());
