@@ -43,6 +43,8 @@ DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPT
 void DialogHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 {
     ui->widgetHex->setData(pDevice,options);
+
+    setWindowTitle(options.sTitle);
 }
 
 DialogHexView::~DialogHexView()
