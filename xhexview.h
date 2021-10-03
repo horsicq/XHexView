@@ -32,7 +32,6 @@ public:
     // TODO setOptions
     struct OPTIONS
     {
-        // TODO bIsSaveBackup
         qint64 nStartAddress;
         qint64 nStartSelectionOffset;
         qint64 nSizeOfSelection;
@@ -41,6 +40,7 @@ public:
         QString sSignaturesPath;
         QString sTitle; // For dialogs
         bool bIsOffsetTitle;
+        bool bIsSaveBackup; // TODO
     };
 
     explicit XHexView(QWidget *pParent=nullptr);
