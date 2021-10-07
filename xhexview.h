@@ -40,7 +40,7 @@ public:
         QString sSignaturesPath;
         QString sTitle; // For dialogs
         bool bIsOffsetTitle;
-        bool bIsSaveBackup; // TODO
+        bool bIsSaveBackup; // TODO !!!
     };
 
     explicit XHexView(QWidget *pParent=nullptr);
