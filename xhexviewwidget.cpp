@@ -88,7 +88,7 @@ void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
 
 void XHexViewWidget::errorMessageSlot(QString sErrorMessage)
 {
-    QMessageBox::critical(this,tr("Error"),sErrorMessage);
+    QMessageBox::critical(XOptions::getMainWidget(this),tr("Error"),sErrorMessage);
 }
 
 void XHexViewWidget::cursorChanged(qint64 nOffset)
