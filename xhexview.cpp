@@ -207,7 +207,7 @@ void XHexView::updateData()
         {
             g_baDataHexBuffer=QByteArray(g_baDataBuffer.toHex());
 
-            for(int i=0;i<g_nDataBlockSize;i+=g_nBytesProLine)
+            for(qint32 i=0;i<g_nDataBlockSize;i+=g_nBytesProLine)
             {
                 QString sAddress=QString("%1").arg(i+g_options.nStartAddress+nBlockOffset,g_nAddressWidth,16,QChar('0'));
 
