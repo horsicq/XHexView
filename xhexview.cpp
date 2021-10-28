@@ -195,6 +195,8 @@ void XHexView::updateData()
 
         setCursorOffset(nCursorOffset);
 
+        XBinary::MODE mode=XBinary::getWidthModeFromByteSize(g_nAddressWidth);
+
         g_listAddresses.clear();
 
         qint32 nDataBlockSize=g_nBytesProLine*getLinesProPage();
@@ -209,7 +211,7 @@ void XHexView::updateData()
 
             for(qint32 i=0;i<g_nDataBlockSize;i+=g_nBytesProLine)
             {
-                QString sAddress=QString("%1").arg(i+g_options.nStartAddress+nBlockOffset,g_nAddressWidth,16,QChar('0'));
+                QString sAddress=XBinary::valueToHexColon(mode,i+g_options.nStartAddress+nBlockOffset);;
 
                 g_listAddresses.append(sAddress);
             }
@@ -596,7 +598,7 @@ void XHexView::adjustColumns()
     if(XBinary::getWidthModeFromSize(getStartAddress()+getDataSize())==XBinary::MODE_64)
     {
         g_nAddressWidth=16;
-        setColumnWidth(COLUMN_ADDRESS,2*getCharWidth()+fm.boundingRect("0000000000000000").width());
+        setColumnWidth(COLUMN_ADDRESS,2*getCharWidth()+fm.boundingRect("00000000:00000000").width());
     }
     else
     {
