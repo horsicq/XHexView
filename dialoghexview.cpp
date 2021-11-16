@@ -47,6 +47,11 @@ void DialogHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
     setWindowTitle(options.sTitle);
 }
 
+void DialogHexView::setGlobalOptions(XOptions *pXOptions)
+{
+    ui->widgetHex->setGlobalOptions(pXOptions);
+}
+
 DialogHexView::~DialogHexView()
 {
     delete ui;

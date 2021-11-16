@@ -35,6 +35,7 @@ public:
     explicit DialogHexView(QWidget *pParent);
     explicit DialogHexView(QWidget *pParent,QIODevice *pDevice,XHexView::OPTIONS options);
     void setData(QIODevice *pDevice,XHexView::OPTIONS options);
+    void setGlobalOptions(XOptions *pXOptions);
     ~DialogHexView();
     void setShortcuts(XShortcuts *pShortcuts);
 
