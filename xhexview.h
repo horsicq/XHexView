@@ -37,10 +37,8 @@ public:
         qint64 nSizeOfSelection;
         bool bMenu_Disasm;
         bool bMenu_MemoryMap;
-        QString sSignaturesPath;
         QString sTitle; // For dialogs
         bool bIsOffsetTitle;
-        bool bIsSaveBackup; // TODO !!!
     };
 
     explicit XHexView(QWidget *pParent=nullptr);

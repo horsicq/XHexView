@@ -54,7 +54,6 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
     g_options=options;
 
     setDevice(pDevice);
-    setSignaturesPath(options.sSignaturesPath);
 
     XBinary binary(pDevice,true,options.nStartAddress);
     XBinary::_MEMORY_MAP memoryMap=binary.getMemoryMap();

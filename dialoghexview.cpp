@@ -47,20 +47,15 @@ void DialogHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
     setWindowTitle(options.sTitle);
 }
 
-void DialogHexView::setGlobalOptions(XOptions *pXOptions)
-{
-    ui->widgetHex->setGlobalOptions(pXOptions);
-}
-
 DialogHexView::~DialogHexView()
 {
     delete ui;
 }
 
-void DialogHexView::setShortcuts(XShortcuts *pShortcuts)
+void DialogHexView::setGlobal(XShortcuts *pShortcuts,XOptions *pXOptions)
 {
-    ui->widgetHex->setShortcuts(pShortcuts);
-    XShortcutsDialog::setShortcuts(pShortcuts);
+    ui->widgetHex->setGlobal(pShortcuts,pXOptions);
+    XShortcutsDialog::setGlobal(pShortcuts,pXOptions);
 }
 
 void DialogHexView::on_pushButtonClose_clicked()
