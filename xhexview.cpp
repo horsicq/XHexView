@@ -131,6 +131,11 @@ void XHexView::setEdited(bool bState)
     // TODO
 }
 
+qint64 XHexView::getSelectionInitAddress()
+{
+    return getSelectionInitOffset()+g_options.nStartAddress;
+}
+
 QChar XHexView::filterSymbol(QChar cChar)
 {
     QChar cResult=cChar;

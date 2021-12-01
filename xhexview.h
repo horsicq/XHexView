@@ -51,6 +51,8 @@ public:
     void enableReadOnly(bool bState);
     void setEdited(bool bState);
 
+    qint64 getSelectionInitAddress();
+
 private:
     enum COLUMN
     {
