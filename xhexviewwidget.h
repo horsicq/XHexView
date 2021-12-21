@@ -34,6 +34,7 @@ class XHexViewWidget : public XShortcutsWidget
 public:
     explicit XHexViewWidget(QWidget *pParent=nullptr);
     ~XHexViewWidget();
+
     void setGlobal(XShortcuts *pShortcuts,XOptions *pXOptions);
     void setData(QIODevice *pDevice,XHexView::OPTIONS options);
     void reload();
