@@ -52,7 +52,6 @@ public:
     void setReadonly(bool bState);
     void enableReadOnly(bool bState);
     void setEdited(bool bState);
-
     qint64 getSelectionInitAddress();
 
 private:
