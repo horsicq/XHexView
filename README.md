@@ -1,3 +1,3 @@
 # XHexView
 
-HexWidget
+Hex Widgets
