@@ -3,15 +3,18 @@ DEPENDPATH += $$PWD
 
 HEADERS += \
     $$PWD/xhexview.h \
+    $$PWD/xhexviewoptionswidget.h \
     $$PWD/xhexviewwidget.h \
     $$PWD/dialoghexview.h
 
 SOURCES += \
     $$PWD/xhexview.cpp \
+    $$PWD/xhexviewoptionswidget.cpp \
     $$PWD/xhexviewwidget.cpp \
     $$PWD/dialoghexview.cpp
 
 FORMS += \
+    $$PWD/xhexviewoptionswidget.ui \
     $$PWD/xhexviewwidget.ui \
     $$PWD/dialoghexview.ui
     
