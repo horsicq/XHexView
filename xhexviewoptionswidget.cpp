@@ -26,6 +26,8 @@ XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) :
     ui(new Ui::XHexViewOptionsWidget)
 {
     ui->setupUi(this);
+
+    g_pOptions=nullptr;
 }
 
 XHexViewOptionsWidget::~XHexViewOptionsWidget()

@@ -44,7 +44,7 @@ public:
 
     explicit XHexView(QWidget *pParent=nullptr);
 
-    void setGlobal(XShortcuts *pShortcuts,XOptions *pXOptions);
+    void adjustView();
 
     void setData(QIODevice *pDevice,OPTIONS options);
     void goToAddress(qint64 nAddress);
