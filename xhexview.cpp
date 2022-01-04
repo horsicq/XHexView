@@ -670,9 +670,9 @@ void XHexView::registerShortcuts(bool bState)
     }
 }
 
-void XHexView::_headerClicked(qint32 nNumber)
+void XHexView::_headerClicked(qint32 nColumn)
 {
-    if(nNumber==COLUMN_ADDRESS)
+    if(nColumn==COLUMN_ADDRESS)
     {
         if(getAddressMode()==MODE_ADDRESS)
         {

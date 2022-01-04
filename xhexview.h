@@ -76,7 +76,7 @@ protected:
     virtual void setScrollValue(qint64 nOffset);
     virtual void adjustColumns();
     virtual void registerShortcuts(bool bState);
-    virtual void _headerClicked(qint32 nNumber);
+    virtual void _headerClicked(qint32 nColumn);
 
 private slots:
     void _disasmSlot();
