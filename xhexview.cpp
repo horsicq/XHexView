@@ -38,6 +38,8 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
     g_scDisasm=nullptr;
     g_scMemoryMap=nullptr;
 
+    g_nThisBase=0;
+
     g_options={};
 
     g_nAddressWidth=8;
@@ -212,7 +214,7 @@ void XHexView::updateData()
 
         XBinary::MODE mode=XBinary::getWidthModeFromByteSize(g_nAddressWidth);
 
-        g_listAddresses.clear();
+        g_listRecords.clear();
 
         qint32 nDataBlockSize=g_nBytesProLine*getLinesProPage();
 
@@ -228,18 +230,32 @@ void XHexView::updateData()
             {
                 qint64 nCurrentAddress=0;
 
-                if(getAddressMode()==MODE_ADDRESS)
+                RECORD record={};
+                record.nAddress=i+g_options.nStartAddress+nBlockOffset;
+
+                if(getAddressMode()==MODE_THIS)
                 {
-                    nCurrentAddress=i+g_options.nStartAddress+nBlockOffset;
+                    nCurrentAddress=record.nAddress;
+
+                    qint64 nDelta=nCurrentAddress-g_nThisBase;
+
+                    record.sAddress=XBinary::thisToString(nDelta);
                 }
-                else if(getAddressMode()==MODE_OFFSET)
+                else
                 {
-                    nCurrentAddress=i+nBlockOffset;
+                    if(getAddressMode()==MODE_ADDRESS)
+                    {
+                        nCurrentAddress=record.nAddress;
+                    }
+                    else if(getAddressMode()==MODE_OFFSET)
+                    {
+                        nCurrentAddress=i+nBlockOffset;
+                    }
+
+                    record.sAddress=XBinary::valueToHexColon(mode,nCurrentAddress);
                 }
 
-                QString sAddress=XBinary::valueToHexColon(mode,nCurrentAddress);
-
-                g_listAddresses.append(sAddress);
+                g_listRecords.append(record);
             }
         }
         else
@@ -258,11 +274,11 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
 //    g_pPainterText->drawRect(nLeft,nTop,nWidth,nHeight);
     if(nColumn==COLUMN_ADDRESS)
     {
-        if(nRow<g_listAddresses.count())
+        if(nRow<g_listRecords.count())
         {
 //            pPainter->save();
 //            pPainter->setPen(viewport()->palette().color(QPalette::Dark));
-            pPainter->drawText(nLeft+getCharWidth(),nTop+nHeight,g_listAddresses.at(nRow)); // TODO Text Optional
+            pPainter->drawText(nLeft+getCharWidth(),nTop+nHeight,g_listRecords.at(nRow).sAddress); // TODO Text Optional
 //            pPainter->restore();
         }
     }
@@ -679,10 +695,26 @@ void XHexView::_headerClicked(qint32 nColumn)
             setColumnTitle(COLUMN_ADDRESS,tr("Offset"));
             setAddressMode(MODE_OFFSET);
         }
-        else if(getAddressMode()==MODE_OFFSET)
+        else if((getAddressMode()==MODE_OFFSET)||(getAddressMode()==MODE_THIS))
         {
             setColumnTitle(COLUMN_ADDRESS,tr("Address"));
             setAddressMode(MODE_ADDRESS);
+        }
+
+        adjust(true);
+    }
+}
+
+void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
+{
+    if(nColumn==COLUMN_ADDRESS)
+    {
+        setColumnTitle(COLUMN_ADDRESS,"");
+        setAddressMode(MODE_THIS);
+
+        if(nRow<g_listRecords.count())
+        {
+            g_nThisBase=g_listRecords.at(nRow).nAddress;
         }
 
         adjust(true);

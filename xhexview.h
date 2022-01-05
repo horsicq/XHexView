@@ -63,6 +63,12 @@ private:
         COLUMN_SYMBOLS
     };
 
+    struct RECORD
+    {
+        QString sAddress;
+        qint64 nAddress;
+    };
+
     QChar filterSymbol(QChar cChar);
 
 protected:
@@ -77,6 +83,7 @@ protected:
     virtual void adjustColumns();
     virtual void registerShortcuts(bool bState);
     virtual void _headerClicked(qint32 nColumn);
+    virtual void _cellDoubleClicked(qint32 nRow, qint32 nColumn);
 
 private slots:
     void _disasmSlot();
@@ -93,7 +100,7 @@ private:
     qint32 g_nViewStartDelta;
     QByteArray g_baDataBuffer;
     QByteArray g_baDataHexBuffer;
-    QList<QString> g_listAddresses;
+    QList<RECORD> g_listRecords;
     QShortcut *g_scGoToOffset;
     QShortcut *g_scGoToAddress;
     QShortcut *g_scDumpToFile;
@@ -107,6 +114,7 @@ private:
     QShortcut *g_scDisasm;
     QShortcut *g_scMemoryMap;
     qint32 g_nAddressWidth;
+    qint64 g_nThisBase;
 };
 
 #endif // XHEXVIEW_H
