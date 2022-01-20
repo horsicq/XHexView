@@ -60,7 +60,7 @@ void XHexView::adjustView()
     {
         setTextFont(_font);
     }
-    // mb TODO errorString
+    // mb TODO errorString signal
 }
 
 void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
