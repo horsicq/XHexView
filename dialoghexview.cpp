@@ -34,7 +34,7 @@ DialogHexView::DialogHexView(QWidget *pParent):
     ui->widgetHex->enableReadOnly(true);
 }
 
-DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPTIONS options) :
+DialogHexView::DialogHexView(QWidget *pParent,QIODevice *pDevice,XHexView::OPTIONS options) :
     DialogHexView(pParent)
 {
     setData(pDevice,options);
