@@ -40,7 +40,7 @@ DialogHexView::DialogHexView(QWidget *pParent,QIODevice *pDevice,XHexView::OPTIO
     setData(pDevice,options);
 }
 
-void DialogHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options)
+void DialogHexView::setData(QIODevice *pDevice,XHexView::OPTIONS options)
 {
     ui->widgetHex->setData(pDevice,options);
 
