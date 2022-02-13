@@ -706,7 +706,7 @@ void XHexView::_headerClicked(qint32 nColumn)
     }
 }
 
-void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
+void XHexView::_cellDoubleClicked(qint32 nRow,qint32 nColumn)
 {
     if(nColumn==COLUMN_ADDRESS)
     {
