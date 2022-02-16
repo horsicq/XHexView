@@ -25,18 +25,8 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
     g_nBytesProLine=16;
     g_nDataBlockSize=0;
     g_nViewStartDelta=0;
-    g_scGoToOffset=nullptr;
-    g_scGoToAddress=nullptr;
-    g_scDumpToFile=nullptr;
-    g_scSelectAll=nullptr;
-    g_scCopyAsHex=nullptr;
-    g_scCopyCursorOffset=nullptr;
-    g_scCopyCursorAddress=nullptr;
-    g_scFind=nullptr;
-    g_scFindNext=nullptr;
-    g_scSignature=nullptr;
-    g_scDisasm=nullptr;
-    g_scMemoryMap=nullptr;
+
+    memset(shortCuts,0,sizeof shortCuts);
 
     g_nThisBase=0;
 
@@ -657,33 +647,29 @@ void XHexView::registerShortcuts(bool bState)
 {
     if(bState)
     {
-        if(!g_scGoToOffset)         g_scGoToOffset          =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_GOTOOFFSET),          this,SLOT(_goToOffsetSlot()));
-        if(!g_scGoToAddress)        g_scGoToAddress         =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_GOTOADDRESS),         this,SLOT(_goToAddressSlot()));
-        if(!g_scDumpToFile)         g_scDumpToFile          =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_DUMPTOFILE),          this,SLOT(_dumpToFileSlot()));
-        if(!g_scSelectAll)          g_scSelectAll           =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SELECTALL),           this,SLOT(_selectAllSlot()));
-        if(!g_scCopyAsHex)          g_scCopyAsHex           =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYASHEX),           this,SLOT(_copyAsHexSlot()));
-        if(!g_scCopyCursorOffset)   g_scCopyCursorOffset    =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYCURSOROFFSET),    this,SLOT(_copyCursorOffsetSlot()));
-        if(!g_scCopyCursorAddress)  g_scCopyCursorAddress   =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYCURSORADDRESS),   this,SLOT(_copyCursorAddressSlot()));
-        if(!g_scFind)               g_scFind                =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FIND),                this,SLOT(_findSlot()));
-        if(!g_scFindNext)           g_scFindNext            =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FINDNEXT),            this,SLOT(_findNextSlot()));
-        if(!g_scSignature)          g_scSignature           =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SIGNATURE),           this,SLOT(_hexSignatureSlot()));
-        if(!g_scDisasm)             g_scDisasm              =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_DISASM),              this,SLOT(_disasmSlot()));
-        if(!g_scMemoryMap)          g_scMemoryMap           =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_MEMORYMAP),           this,SLOT(_memoryMapSlot()));
+        if(!shortCuts[SC_GOTOOFFSET])               shortCuts[SC_GOTOOFFSET]                =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_GOTOOFFSET),              this,SLOT(_goToOffsetSlot()));
+        if(!shortCuts[SC_GOTOADDRESS])              shortCuts[SC_GOTOADDRESS]               =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_GOTOADDRESS),             this,SLOT(_goToAddressSlot()));
+        if(!shortCuts[SC_DUMPTOFILE])               shortCuts[SC_DUMPTOFILE]                =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_DUMPTOFILE),              this,SLOT(_dumpToFileSlot()));
+        if(!shortCuts[SC_SELECTALL])                shortCuts[SC_SELECTALL]                 =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SELECTALL),               this,SLOT(_selectAllSlot()));
+        if(!shortCuts[SC_COPYASHEX])                shortCuts[SC_COPYASHEX]                 =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYASHEX),               this,SLOT(_copyAsHexSlot()));
+        if(!shortCuts[SC_COPYCURSOROFFSET])         shortCuts[SC_COPYCURSOROFFSET]          =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYCURSOROFFSET),        this,SLOT(_copyCursorOffsetSlot()));
+        if(!shortCuts[SC_COPYCURSORADDRESS])        shortCuts[SC_COPYCURSORADDRESS]         =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYCURSORADDRESS),       this,SLOT(_copyCursorAddressSlot()));
+        if(!shortCuts[SC_FIND])                     shortCuts[SC_FIND]                      =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FIND),                    this,SLOT(_findSlot()));
+        if(!shortCuts[SC_FINDNEXT])                 shortCuts[SC_FINDNEXT]                  =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_FINDNEXT),                this,SLOT(_findNextSlot()));
+        if(!shortCuts[SC_SIGNATURE])                shortCuts[SC_SIGNATURE]                 =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SIGNATURE),               this,SLOT(_hexSignatureSlot()));
+        if(!shortCuts[SC_DISASM])                   shortCuts[SC_DISASM]                    =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_DISASM),                  this,SLOT(_disasmSlot()));
+        if(!shortCuts[SC_MEMORYMAP])                shortCuts[SC_MEMORYMAP]                 =new QShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_MEMORYMAP),               this,SLOT(_memoryMapSlot()));
     }
     else
     {
-        if(g_scGoToOffset)          {delete g_scGoToOffset;         g_scGoToOffset=nullptr;}
-        if(g_scGoToAddress)         {delete g_scGoToAddress;        g_scGoToAddress=nullptr;}
-        if(g_scDumpToFile)          {delete g_scDumpToFile;         g_scDumpToFile=nullptr;}
-        if(g_scSelectAll)           {delete g_scSelectAll;          g_scSelectAll=nullptr;}
-        if(g_scCopyAsHex)           {delete g_scCopyAsHex;          g_scCopyAsHex=nullptr;}
-        if(g_scCopyCursorOffset)    {delete g_scCopyCursorOffset;   g_scCopyCursorOffset=nullptr;}
-        if(g_scCopyCursorAddress)   {delete g_scCopyCursorAddress;  g_scCopyCursorAddress=nullptr;}
-        if(g_scFind)                {delete g_scFind;               g_scFind=nullptr;}
-        if(g_scFindNext)            {delete g_scFindNext;           g_scFindNext=nullptr;}
-        if(g_scSignature)           {delete g_scSignature;          g_scSignature=nullptr;}
-        if(g_scDisasm)              {delete g_scDisasm;             g_scDisasm=nullptr;}
-        if(g_scMemoryMap)           {delete g_scMemoryMap;          g_scMemoryMap=nullptr;}
+        for(qint32 i=0;i<__SC_SIZE;i++)
+        {
+            if(shortCuts[i])
+            {
+                delete shortCuts[i];
+                shortCuts[i]=nullptr;
+            }
+        }
     }
 }
 

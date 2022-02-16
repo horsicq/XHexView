@@ -47,7 +47,7 @@ void XHexViewWidget::setGlobal(XShortcuts *pShortcuts,XOptions *pXOptions)
     XShortcutsWidget::setGlobal(pShortcuts,pXOptions);
 }
 
-void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options)
+void XHexViewWidget::setData(QIODevice *pDevice,XHexView::OPTIONS options)
 {
     ui->scrollAreaHex->setData(pDevice,options);
 }

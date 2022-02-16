@@ -27,6 +27,23 @@ class XHexView : public XDeviceTableView
 {
     Q_OBJECT
 
+    enum SC
+    {
+        SC_GOTOOFFSET=0,
+        SC_GOTOADDRESS,
+        SC_DUMPTOFILE,
+        SC_SELECTALL,
+        SC_COPYASHEX,
+        SC_COPYCURSOROFFSET,
+        SC_COPYCURSORADDRESS,
+        SC_FIND,
+        SC_FINDNEXT,
+        SC_SIGNATURE,
+        SC_DISASM,
+        SC_MEMORYMAP,
+        __SC_SIZE
+    };
+
 public:
     // TODO edit function
     // TODO setOptions
@@ -101,18 +118,7 @@ private:
     QByteArray g_baDataBuffer;
     QByteArray g_baDataHexBuffer;
     QList<RECORD> g_listRecords;
-    QShortcut *g_scGoToOffset;
-    QShortcut *g_scGoToAddress;
-    QShortcut *g_scDumpToFile;
-    QShortcut *g_scSelectAll;
-    QShortcut *g_scCopyAsHex;
-    QShortcut *g_scCopyCursorOffset;
-    QShortcut *g_scCopyCursorAddress;
-    QShortcut *g_scFind;
-    QShortcut *g_scFindNext;
-    QShortcut *g_scSignature;
-    QShortcut *g_scDisasm;
-    QShortcut *g_scMemoryMap;
+    QShortcut *shortCuts[__SC_SIZE];
     qint32 g_nAddressWidth;
     qint64 g_nThisBase;
 };
