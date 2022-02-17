@@ -51,6 +51,8 @@ void XHexView::adjustView()
         setTextFont(_font);
     }
     // mb TODO errorString signal if invalid font
+
+    reload(true);
 }
 
 void XHexView::setData(QIODevice *pDevice,XHexView::OPTIONS options)
