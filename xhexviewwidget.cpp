@@ -80,7 +80,7 @@ qint64 XHexViewWidget::getStartAddress()
     return ui->scrollAreaHex->getStartAddress();
 }
 
-void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
+void XHexViewWidget::setSelection(qint64 nOffset,qint64 nSize)
 {
     ui->scrollAreaHex->setSelection(nOffset,nSize);
     ui->scrollAreaHex->goToOffset(nOffset);
