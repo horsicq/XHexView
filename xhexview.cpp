@@ -25,6 +25,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
     g_nBytesProLine=16;
     g_nDataBlockSize=0;
     g_nViewStartDelta=0;
+    g_smode=SMODE_ANSI;
 
     memset(shortCuts,0,sizeof shortCuts);
 
@@ -36,7 +37,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
 
     addColumn(tr("Address"),0,true);
     addColumn(tr("Hex"));
-    addColumn(tr("Symbols"));
+    addColumn(tr("Symbols"),0,true);
 
     setTextFont(getMonoFont());
 }
@@ -142,13 +143,30 @@ qint64 XHexView::getSelectionInitAddress()
     return getSelectionInitOffset()+g_options.nStartAddress;
 }
 
-QChar XHexView::filterSymbol(QChar cChar)
+QChar XHexView::filterSymbol(QChar cChar, SMODE smode)
 {
     QChar cResult=cChar;
 
-    if((cResult<QChar(0x20))||(cResult>QChar(0x7e)))
+    if(smode==SMODE_ANSI)
     {
-        cResult='.';
+        if((cResult<QChar(0x20))||(cResult>QChar(0x7e)))
+        {
+            cResult='.';
+        }
+    }
+    else if(smode==SMODE_SYMBOLS)
+    {
+        if(cResult<QChar(0x20))
+        {
+            cResult='.';
+        }
+    }
+    else if(smode==SMODE_UNICODE)
+    {
+        if(cResult<QChar(0x20))
+        {
+            cResult='.';
+        }
     }
 
     return cResult;
@@ -288,10 +306,14 @@ void XHexView::paintCell(QPainter *pPainter,qint32 nRow,qint32 nColumn,qint32 nL
             {
                 qint32 nIndex=nRow*g_nBytesProLine+i;
 
-                QString sHex=g_baDataHexBuffer.mid(nIndex*2,2);
+                QString sHex;
                 QString sSymbol;
+                bool bBold=false;
+                QRect rectSymbol;
 
-                bool bBold=(sHex!="00");
+                sHex=g_baDataHexBuffer.mid(nIndex*2,2);
+                bBold=(sHex!="00");
+
                 bool bSelected=isOffsetSelected(nDataBlockStartOffset+nIndex);
                 bool bCursor=(state.nCursorOffset==(nDataBlockStartOffset+nIndex));
 
@@ -303,22 +325,43 @@ void XHexView::paintCell(QPainter *pPainter,qint32 nRow,qint32 nColumn,qint32 nL
                     pPainter->setFont(font);
                 }
 
-                QRect rectSymbol;
-
                 if(nColumn==COLUMN_HEX)
                 {
                     rectSymbol.setRect(nLeft+getCharWidth()+(i*2)*getCharWidth()+i*getLineDelta(),nTop,2*getCharWidth()+getLineDelta(),nHeight);
+
                     sSymbol=sHex;
                 }
                 else if(nColumn==COLUMN_SYMBOLS)
                 {
                     rectSymbol.setRect(nLeft+(i+1)*getCharWidth(),nTop,getCharWidth(),nHeight);
-                    QByteArray baChar=g_baDataBuffer.mid(nIndex,1); // TODO Check
 
-                    if(baChar.size())
+                    if((getSmode()==SMODE_ANSI)||(getSmode()==SMODE_SYMBOLS))
                     {
-                        QChar cChar=g_baDataBuffer.mid(nIndex,1).at(0); // TODO Check
-                        sSymbol=filterSymbol(cChar);
+                        QByteArray baChar=g_baDataBuffer.mid(nIndex,1); // TODO Check
+
+                        if(baChar.size())
+                        {
+                            QChar cChar;
+
+                            cChar=g_baDataBuffer.mid(nIndex,1).at(0); // TODO Check
+                            sSymbol=filterSymbol(cChar,getSmode());
+                        }
+                    }
+                    else if(getSmode()==SMODE_UNICODE)
+                    {
+                        if((nDataBlockStartOffset+nIndex)%2==0)
+                        {
+                            QByteArray baChar=g_baDataBuffer.mid(nIndex,2); // TODO Check
+
+                            if(baChar.size()==2)
+                            {
+                                quint16 nCode=XBinary::_read_uint16(baChar.data());
+
+                                QChar cChar(nCode);
+
+                                sSymbol=filterSymbol(cChar,getSmode());
+                            }
+                        }
                     }
                 }
 
@@ -692,6 +735,26 @@ void XHexView::_headerClicked(qint32 nColumn)
 
         adjust(true);
     }
+    else if(nColumn==COLUMN_SYMBOLS)
+    {
+        if(getSmode()==SMODE_SYMBOLS)
+        {
+            setColumnTitle(COLUMN_SYMBOLS,QString("ANSI"));
+            setSmode(SMODE_ANSI);
+        }
+        else if(getSmode()==SMODE_ANSI)
+        {
+            setColumnTitle(COLUMN_SYMBOLS,QString("Unicode"));
+            setSmode(SMODE_UNICODE);
+        }
+        else if(getSmode()==SMODE_UNICODE)
+        {
+            setColumnTitle(COLUMN_SYMBOLS,tr("Symbols"));
+            setSmode(SMODE_SYMBOLS);
+        }
+
+        adjust(true);
+    }
 }
 
 void XHexView::_cellDoubleClicked(qint32 nRow,qint32 nColumn)
@@ -708,6 +771,16 @@ void XHexView::_cellDoubleClicked(qint32 nRow,qint32 nColumn)
 
         adjust(true);
     }
+}
+
+XHexView::SMODE XHexView::getSmode()
+{
+    return g_smode;
+}
+
+void XHexView::setSmode(SMODE smode)
+{
+    g_smode=smode;
 }
 
 void XHexView::_disasmSlot()

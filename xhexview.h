@@ -44,6 +44,13 @@ class XHexView : public XDeviceTableView
         __SC_SIZE
     };
 
+    enum SMODE
+    {
+        SMODE_SYMBOLS=0,
+        SMODE_ANSI,
+        SMODE_UNICODE
+    };
+
 public:
     // TODO edit function
     // TODO setOptions
@@ -86,7 +93,7 @@ private:
         qint64 nAddress;
     };
 
-    QChar filterSymbol(QChar cChar);
+    QChar filterSymbol(QChar cChar,SMODE smode);
 
 protected:
     virtual OS cursorPositionToOS(CURSOR_POSITION cursorPosition);
@@ -101,6 +108,8 @@ protected:
     virtual void registerShortcuts(bool bState);
     virtual void _headerClicked(qint32 nColumn);
     virtual void _cellDoubleClicked(qint32 nRow,qint32 nColumn);
+    SMODE getSmode();
+    void setSmode(SMODE smode);
 
 private slots:
     void _disasmSlot();
@@ -121,6 +130,7 @@ private:
     QShortcut *shortCuts[__SC_SIZE];
     qint32 g_nAddressWidth;
     qint64 g_nThisBase;
+    SMODE g_smode;
 };
 
 #endif // XHEXVIEW_H
