@@ -143,7 +143,7 @@ qint64 XHexView::getSelectionInitAddress()
     return getSelectionInitOffset()+g_options.nStartAddress;
 }
 
-QChar XHexView::filterSymbol(QChar cChar, SMODE smode)
+QChar XHexView::filterSymbol(QChar cChar,SMODE smode)
 {
     QChar cResult=cChar;
 
