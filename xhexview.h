@@ -74,9 +74,6 @@ public:
     void goToAddress(qint64 nAddress);
     void goToOffset(qint64 nOffset);
     qint64 getStartAddress();
-    void setReadonly(bool bState);
-    void enableReadOnly(bool bState);
-    void setEdited(bool bState);
     qint64 getSelectionInitAddress();
 
 private:

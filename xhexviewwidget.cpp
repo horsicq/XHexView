@@ -59,20 +59,17 @@ void XHexViewWidget::reload()
 
 void XHexViewWidget::setReadonly(bool bState)
 {
-    Q_UNUSED(bState)
-    // TODO
+    ui->scrollAreaHex->setReadonly(bState);
 }
 
 void XHexViewWidget::enableReadOnly(bool bState)
 {
-    Q_UNUSED(bState)
-    // TODO
+    ui->scrollAreaHex->enableReadOnly(bState);
 }
 
 void XHexViewWidget::setEdited(bool bState)
 {
-    Q_UNUSED(bState)
-    // TODO
+    ui->scrollAreaHex->setEdited(bState);
 }
 
 qint64 XHexViewWidget::getStartAddress()

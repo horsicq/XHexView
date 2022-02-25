@@ -117,27 +117,6 @@ qint64 XHexView::getStartAddress()
     return g_options.nStartAddress;
 }
 
-void XHexView::setReadonly(bool bState)
-{
-    Q_UNUSED(bState)
-
-    // TODO
-}
-
-void XHexView::enableReadOnly(bool bState)
-{
-    Q_UNUSED(bState)
-
-    // TODO
-}
-
-void XHexView::setEdited(bool bState)
-{
-    Q_UNUSED(bState)
-
-    // TODO
-}
-
 qint64 XHexView::getSelectionInitAddress()
 {
     return getSelectionInitOffset()+g_options.nStartAddress;
