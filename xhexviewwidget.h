@@ -39,8 +39,7 @@ public:
     void setData(QIODevice *pDevice,XHexView::OPTIONS options);
     void reload();
     void setReadonly(bool bState);
-    void enableReadOnly(bool bState);
-    void setEdited(bool bState);
+    void setEdited();
     qint64 getStartAddress();
     void setSelection(qint64 nOffset,qint64 nSize);
 
@@ -52,7 +51,7 @@ private slots:
     void on_checkBoxHex_stateChanged(int nState);
 
 signals:
-    void editState(bool bState);
+    void changed();
     void showOffsetDisasm(qint64 nOffset);
     void showOffsetMemoryMap(qint64 nOffset);
 

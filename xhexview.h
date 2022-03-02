@@ -22,6 +22,7 @@
 #define XHEXVIEW_H
 
 #include "xdevicetableview.h"
+#include "dialoghexedit.h"
 
 class XHexView : public XDeviceTableView
 {
@@ -111,6 +112,7 @@ protected:
 private slots:
     void _disasmSlot();
     void _memoryMapSlot();
+    void _editHex();
 
 signals:
     void showOffsetDisasm(qint64 nOffset);

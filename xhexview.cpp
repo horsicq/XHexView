@@ -404,15 +404,15 @@ void XHexView::contextMenu(const QPoint &pos)
     actionSelectAll.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_SELECTALL));
     connect(&actionSelectAll,SIGNAL(triggered()),this,SLOT(_selectAllSlot()));
 
-    QAction actionCopyAsHex(tr("Copy as hex"),this);
+    QAction actionCopyAsHex(tr("Data as hex"),this);
     actionCopyAsHex.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYASHEX));
     connect(&actionCopyAsHex,SIGNAL(triggered()),this,SLOT(_copyAsHexSlot()));
 
-    QAction actionCopyCursorOffset(tr("Copy cursor offset"),this);
+    QAction actionCopyCursorOffset(tr("Offset"),this);
     actionCopyCursorOffset.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYCURSOROFFSET));
     connect(&actionCopyCursorOffset,SIGNAL(triggered()),this,SLOT(_copyCursorOffsetSlot()));
 
-    QAction actionCopyCursorAddress(tr("Copy cursor address"),this);
+    QAction actionCopyCursorAddress(tr("Address"),this);
     actionCopyCursorAddress.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_COPYCURSORADDRESS));
     connect(&actionCopyCursorAddress,SIGNAL(triggered()),this,SLOT(_copyCursorAddressSlot()));
 
@@ -424,30 +424,27 @@ void XHexView::contextMenu(const QPoint &pos)
     actionMemoryMap.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_MEMORYMAP));
     connect(&actionMemoryMap,SIGNAL(triggered()),this,SLOT(_memoryMapSlot()));
 
+    QAction actionEditHex(tr("Hex"),this);
+    actionEditHex.setShortcut(getShortcuts()->getShortcut(XShortcuts::ID_HEX_EDITHEX));
+    connect(&actionEditHex,SIGNAL(triggered()),this,SLOT(_editHex()));
+
     STATE state=getState();
 
     QMenu contextMenu(this);
     QMenu menuGoTo(tr("Go to"),this);
     QMenu menuSelect(tr("Select"),this);
     QMenu menuCopy(tr("Copy"),this);
+    QMenu menuEdit(tr("Edit"),this);
 
     menuGoTo.addAction(&actionGoToOffset);
-
-    if(g_options.nStartAddress)
-    {
-        menuGoTo.addAction(&actionGoToAddress);
-    }
+    menuGoTo.addAction(&actionGoToAddress);
 
     contextMenu.addMenu(&menuGoTo);
 
     contextMenu.addAction(&actionFind);
     contextMenu.addAction(&actionFindNext);
     menuCopy.addAction(&actionCopyCursorOffset);
-
-    if(g_options.nStartAddress)
-    {
-        menuCopy.addAction(&actionCopyCursorAddress);
-    }
+    menuCopy.addAction(&actionCopyCursorAddress);
 
     if(state.nSelectionSize)
     {
@@ -468,6 +465,15 @@ void XHexView::contextMenu(const QPoint &pos)
     }
 
     contextMenu.addMenu(&menuCopy);
+
+    menuEdit.setEnabled(!isReadonly());
+
+    if(state.nSelectionSize)
+    {
+        menuEdit.addAction(&actionEditHex);
+
+        contextMenu.addMenu(&menuEdit);
+    }
 
     menuSelect.addAction(&actionSelectAll);
     contextMenu.addMenu(&menuSelect);
@@ -779,5 +785,29 @@ void XHexView::_memoryMapSlot()
         STATE state=getState();
 
         emit showOffsetMemoryMap(state.nCursorOffset);
+    }
+}
+
+void XHexView::_editHex()
+{
+    STATE state=getState();
+
+    SubDevice sd(getDevice(),state.nSelectionOffset,state.nSelectionSize);
+
+    if(sd.open(QIODevice::ReadWrite))
+    {
+        DialogHexEdit dialogHexEdit(this);
+
+        dialogHexEdit.setGlobal(getShortcuts(),getGlobalOptions());
+
+//        connect(&dialogHexEdit,SIGNAL(changed()),this,SLOT(_setEdited()));
+
+        dialogHexEdit.setData(&sd,state.nSelectionOffset);
+
+        dialogHexEdit.exec();
+
+        _setEdited();
+
+        sd.close();
     }
 }

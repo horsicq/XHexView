@@ -63,6 +63,11 @@ FORMS += \
     include($$PWD/../Formats/xbinary.pri)
 }
 
+!contains(XCONFIG, xhexedit) {
+    XCONFIG += xhexedit
+    include($$PWD/../XHexEdit/xhexedit.pri)
+}
+
 DISTFILES += \
     $$PWD/LICENSE \
     $$PWD/README.md \

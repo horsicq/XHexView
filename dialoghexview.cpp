@@ -29,9 +29,7 @@ DialogHexView::DialogHexView(QWidget *pParent):
 
     setWindowFlags(Qt::Window);
 
-    connect(ui->widgetHex,SIGNAL(editState(bool)),this,SIGNAL(editState(bool)));
-
-    ui->widgetHex->enableReadOnly(true);
+    connect(ui->widgetHex,SIGNAL(changed()),this,SIGNAL(changed()));
 }
 
 DialogHexView::DialogHexView(QWidget *pParent,QIODevice *pDevice,XHexView::OPTIONS options) :
