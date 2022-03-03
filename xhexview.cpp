@@ -53,7 +53,10 @@ void XHexView::adjustView()
     }
     // mb TODO errorString signal if invalid font
 
-    reload(true);
+    if(getDevice())
+    {
+        reload(true);
+    }
 }
 
 void XHexView::setData(QIODevice *pDevice,XHexView::OPTIONS options)
@@ -803,6 +806,7 @@ void XHexView::_editHex()
 //        connect(&dialogHexEdit,SIGNAL(changed()),this,SLOT(_setEdited()));
 
         dialogHexEdit.setData(&sd,state.nSelectionOffset);
+        dialogHexEdit.setBackupDevice(getBackupDevice());
 
         dialogHexEdit.exec();
 

@@ -37,6 +37,8 @@ public:
 
     void setGlobal(XShortcuts *pShortcuts,XOptions *pXOptions);
     void setData(QIODevice *pDevice,XHexView::OPTIONS options);
+    void setDevice(QIODevice *pDevice);
+    void setBackupDevice(QIODevice *pDevice);
     void reload();
     void setReadonly(bool bState);
     void setEdited();

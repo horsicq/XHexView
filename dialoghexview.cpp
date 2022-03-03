@@ -32,15 +32,16 @@ DialogHexView::DialogHexView(QWidget *pParent):
     connect(ui->widgetHex,SIGNAL(changed()),this,SIGNAL(changed()));
 }
 
-DialogHexView::DialogHexView(QWidget *pParent,QIODevice *pDevice,XHexView::OPTIONS options) :
+DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice) :
     DialogHexView(pParent)
 {
-    setData(pDevice,options);
+    setData(pDevice,options,pBackupDevice);
 }
 
-void DialogHexView::setData(QIODevice *pDevice,XHexView::OPTIONS options)
+void DialogHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice)
 {
     ui->widgetHex->setData(pDevice,options);
+    ui->widgetHex->setBackupDevice(pBackupDevice);
 
     setWindowTitle(options.sTitle);
 }
