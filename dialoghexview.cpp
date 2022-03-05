@@ -32,7 +32,7 @@ DialogHexView::DialogHexView(QWidget *pParent):
     connect(ui->widgetHex,SIGNAL(changed()),this,SIGNAL(changed()));
 }
 
-DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice) :
+DialogHexView::DialogHexView(QWidget *pParent,QIODevice *pDevice,XHexView::OPTIONS options,QIODevice *pBackupDevice) :
     DialogHexView(pParent)
 {
     setData(pDevice,options,pBackupDevice);
