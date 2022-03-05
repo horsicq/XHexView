@@ -38,7 +38,7 @@ DialogHexView::DialogHexView(QWidget *pParent,QIODevice *pDevice,XHexView::OPTIO
     setData(pDevice,options,pBackupDevice);
 }
 
-void DialogHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice)
+void DialogHexView::setData(QIODevice *pDevice,XHexView::OPTIONS options,QIODevice *pBackupDevice)
 {
     ui->widgetHex->setData(pDevice,options);
     ui->widgetHex->setBackupDevice(pBackupDevice);
