@@ -793,25 +793,28 @@ void XHexView::_memoryMapSlot()
 
 void XHexView::_editHex()
 {
-    STATE state=getState();
-
-    SubDevice sd(getDevice(),state.nSelectionOffset,state.nSelectionSize);
-
-    if(sd.open(QIODevice::ReadWrite))
+    if(!isReadonly())
     {
-        DialogHexEdit dialogHexEdit(this);
+        STATE state=getState();
 
-        dialogHexEdit.setGlobal(getShortcuts(),getGlobalOptions());
+        SubDevice sd(getDevice(),state.nSelectionOffset,state.nSelectionSize);
 
-//        connect(&dialogHexEdit,SIGNAL(changed()),this,SLOT(_setEdited()));
+        if(sd.open(QIODevice::ReadWrite))
+        {
+            DialogHexEdit dialogHexEdit(this);
 
-        dialogHexEdit.setData(&sd,state.nSelectionOffset);
-        dialogHexEdit.setBackupDevice(getBackupDevice());
+            dialogHexEdit.setGlobal(getShortcuts(),getGlobalOptions());
 
-        dialogHexEdit.exec();
+    //        connect(&dialogHexEdit,SIGNAL(changed()),this,SLOT(_setEdited()));
 
-        _setEdited();
+            dialogHexEdit.setData(&sd,state.nSelectionOffset);
+            dialogHexEdit.setBackupDevice(getBackupDevice());
 
-        sd.close();
+            dialogHexEdit.exec();
+
+            _setEdited();
+
+            sd.close();
+        }
     }
 }
