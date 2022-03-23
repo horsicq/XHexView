@@ -21,8 +21,8 @@
 #ifndef XHEXVIEW_H
 #define XHEXVIEW_H
 
-#include "xdevicetableview.h"
 #include "dialoghexedit.h"
+#include "xdevicetableview.h"
 
 class XHexView : public XDeviceTableView
 {
