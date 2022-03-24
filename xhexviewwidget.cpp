@@ -32,6 +32,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) :
     connect(ui->scrollAreaHex,SIGNAL(errorMessage(QString)),this,SLOT(errorMessageSlot(QString)));
     connect(ui->scrollAreaHex,SIGNAL(cursorChanged(qint64)),this,SLOT(cursorChanged(qint64)));
     connect(ui->scrollAreaHex,SIGNAL(selectionChanged()),this,SLOT(selectionChanged()));
+    connect(ui->scrollAreaHex,SIGNAL(dataChanged()),this,SIGNAL(dataChanged()));
 
     ui->checkBoxHex->setChecked(true);
 }

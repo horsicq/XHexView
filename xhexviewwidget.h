@@ -53,7 +53,7 @@ private slots:
     void on_checkBoxHex_stateChanged(int nState);
 
 signals:
-    void changed();
+    void dataChanged();
     void showOffsetDisasm(qint64 nOffset);
     void showOffsetMemoryMap(qint64 nOffset);
 
