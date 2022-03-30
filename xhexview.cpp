@@ -33,7 +33,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
 
     g_options={};
 
-    g_nAddressWidth=8;
+    g_nAddressWidth=8;  // TODO Set/Get
 
     addColumn(tr("Address"),0,true);
     addColumn(tr("Hex"));

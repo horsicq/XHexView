@@ -41,7 +41,8 @@ public:
     void setGlobal(XShortcuts *pShortcuts,XOptions *pXOptions);
 
 signals:
-    void editState(bool bState);
+//    void editState(bool bState);
+    void dataChanged();
 
 private slots:
     void on_pushButtonClose_clicked();

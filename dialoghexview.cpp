@@ -29,7 +29,7 @@ DialogHexView::DialogHexView(QWidget *pParent):
 
     setWindowFlags(Qt::Window);
 
-    connect(ui->widgetHex,SIGNAL(changed()),this,SIGNAL(changed()));
+    connect(ui->widgetHex,SIGNAL(dataChanged()),this,SIGNAL(dataChanged()));
 }
 
 DialogHexView::DialogHexView(QWidget *pParent,QIODevice *pDevice,XHexView::OPTIONS options,QIODevice *pBackupDevice) :
