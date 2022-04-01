@@ -26,14 +26,11 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
     g_nDataBlockSize=0;
     g_nViewStartDelta=0;
     g_smode=SMODE_ANSI;
+    g_nThisBase=0;
+    g_options={};
+    g_nAddressWidth=8;  // TODO Set/Get
 
     memset(shortCuts,0,sizeof shortCuts);
-
-    g_nThisBase=0;
-
-    g_options={};
-
-    g_nAddressWidth=8;  // TODO Set/Get
 
     addColumn(tr("Address"),0,true);
     addColumn(tr("Hex"));
