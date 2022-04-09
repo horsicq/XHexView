@@ -25,7 +25,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
     g_nBytesProLine=16; // TODO set/Get
     g_nDataBlockSize=0;
     g_nViewStartDelta=0;
-    g_smode=SMODE_ANSI;
+    g_smode=SMODE_ANSI;  // TODO Set/Get
     g_nThisBase=0;
     g_options={};
     g_nAddressWidth=8;  // TODO Set/Get
