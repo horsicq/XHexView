@@ -56,7 +56,7 @@ void XHexView::adjustView()
     }
 }
 
-void XHexView::setData(QIODevice *pDevice,XHexView::OPTIONS options)
+void XHexView::setData(QIODevice *pDevice,XHexView::OPTIONS options,bool bReload)
 {
     g_options=options;
 
@@ -98,7 +98,10 @@ void XHexView::setData(QIODevice *pDevice,XHexView::OPTIONS options)
     setSelection(options.nStartSelectionOffset,options.nSizeOfSelection);
     setCursorOffset(options.nStartSelectionOffset,COLUMN_HEX);
 
-    reload(true);
+    if(bReload)
+    {
+        reload(true);
+    }
 }
 
 void XHexView::goToAddress(qint64 nAddress)

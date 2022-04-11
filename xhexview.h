@@ -71,7 +71,7 @@ public:
 
     void adjustView();
 
-    void setData(QIODevice *pDevice,OPTIONS options);
+    void setData(QIODevice *pDevice,OPTIONS options,bool bReload=true);
     void goToAddress(qint64 nAddress);
     void goToOffset(qint64 nOffset);
     qint64 getStartAddress();
