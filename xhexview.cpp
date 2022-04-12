@@ -194,6 +194,12 @@ void XHexView::updateData()
 {
     if(getDevice())
     {
+        if(getXInfoDB())
+        {
+            QList<XBinary::MEMORY_REPLACE> listMR=getXInfoDB()->getMemoryReplaces(getMemoryMap()->nModuleAddress,getMemoryMap()->nImageSize);
+
+            setMemoryReplaces(listMR);
+        }
         // Update cursor position
         qint64 nBlockOffset=getViewStart();
         qint64 nCursorOffset=nBlockOffset+getCursorDelta();
