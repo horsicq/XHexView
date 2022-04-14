@@ -49,6 +49,7 @@ void XHexView::adjustView()
         setTextFont(_font);
     }
     // mb TODO errorString signal if invalid font
+    // TODO Check
 
     if(getDevice())
     {
