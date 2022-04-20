@@ -58,7 +58,7 @@ public:
     // TODO follow functions
     struct OPTIONS
     {
-        qint64 nStartAddress;
+        XADDR nStartAddress;
         qint64 nStartSelectionOffset;
         qint64 nSizeOfSelection;
         bool bMenu_Disasm;
@@ -72,10 +72,10 @@ public:
     void adjustView();
 
     void setData(QIODevice *pDevice,OPTIONS options,bool bReload=true);
-    void goToAddress(qint64 nAddress);
+    void goToAddress(XADDR nAddress);
     void goToOffset(qint64 nOffset);
-    qint64 getStartAddress();
-    qint64 getSelectionInitAddress();
+    XADDR getStartAddress();
+    XADDR getSelectionInitAddress();
 
 private:
     enum COLUMN
@@ -88,7 +88,7 @@ private:
     struct RECORD
     {
         QString sAddress;
-        qint64 nAddress;
+        XADDR nAddress;
     };
 
     QChar filterSymbol(QChar cChar,SMODE smode);

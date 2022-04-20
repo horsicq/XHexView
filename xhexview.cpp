@@ -105,7 +105,7 @@ void XHexView::setData(QIODevice *pDevice,XHexView::OPTIONS options,bool bReload
     }
 }
 
-void XHexView::goToAddress(qint64 nAddress)
+void XHexView::goToAddress(XADDR nAddress)
 {
     _goToOffset(nAddress-g_options.nStartAddress);
     // TODO reload
@@ -116,12 +116,12 @@ void XHexView::goToOffset(qint64 nOffset)
     _goToOffset(nOffset);
 }
 
-qint64 XHexView::getStartAddress()
+XADDR XHexView::getStartAddress()
 {
     return g_options.nStartAddress;
 }
 
-qint64 XHexView::getSelectionInitAddress()
+XADDR XHexView::getSelectionInitAddress()
 {
     return getSelectionInitOffset()+g_options.nStartAddress;
 }
@@ -228,7 +228,7 @@ void XHexView::updateData()
 
             for(qint32 i=0;i<g_nDataBlockSize;i+=g_nBytesProLine)
             {
-                qint64 nCurrentAddress=0;
+                XADDR nCurrentAddress=0;
 
                 RECORD record={};
                 record.nAddress=i+g_options.nStartAddress+nBlockOffset;
@@ -237,7 +237,7 @@ void XHexView::updateData()
                 {
                     nCurrentAddress=record.nAddress;
 
-                    qint64 nDelta=nCurrentAddress-g_nThisBase;
+                    qint64 nDelta=(qint64)nCurrentAddress-(qint64)g_nThisBase;
 
                     record.sAddress=XBinary::thisToString(nDelta);
                 }
