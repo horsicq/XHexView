@@ -39,7 +39,7 @@ void XHexViewOptionsWidget::setOptions(XOptions *pOptions)
 {
     g_pOptions=pOptions;
 
-    g_pOptions->setLineEdit(ui->lineEditHexFont,XOptions::ID_HEX_FONT);
+    reload();
 }
 
 void XHexViewOptionsWidget::save()
@@ -58,6 +58,11 @@ void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions)
 #ifdef Q_OS_OSX
     pOptions->addID(XOptions::ID_HEX_FONT,"Menlo,10,-1,5,50,0,0,0,0,0"); // TODO Check
 #endif
+}
+
+void XHexViewOptionsWidget::reload()
+{
+    g_pOptions->setLineEdit(ui->lineEditHexFont,XOptions::ID_HEX_FONT);
 }
 
 void XHexViewOptionsWidget::on_toolButtonHexFont_clicked()

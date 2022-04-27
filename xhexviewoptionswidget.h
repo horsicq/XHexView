@@ -37,8 +37,11 @@ public:
     ~XHexViewOptionsWidget();
 
     void setOptions(XOptions *pOptions);
-    void save();
     static void setDefaultValues(XOptions *pOptions);
+
+public slots:
+    void save();
+    void reload();
 
 private slots:
     void on_toolButtonHexFont_clicked();
