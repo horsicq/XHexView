@@ -252,7 +252,7 @@ void XHexView::updateData()
                         nCurrentAddress=i+nBlockOffset;
                     }
 
-                    record.sAddress=XBinary::valueToHexColon(mode,nCurrentAddress);
+                    record.sAddress=XBinary::valueToHexColon(mode,nCurrentAddress); // TODO Settings
                 }
 
                 g_listRecords.append(record);
