@@ -69,6 +69,7 @@ public:
 
     explicit XHexView(QWidget *pParent=nullptr);
 
+    void _adjustView();
     void adjustView();
 
     void setData(QIODevice *pDevice,OPTIONS options,bool bReload=true);
@@ -130,6 +131,7 @@ private:
     qint32 g_nAddressWidth;
     qint64 g_nThisBase;
     SMODE g_smode;
+    bool g_bIsAddressColon;
 };
 
 #endif // XHEXVIEW_H

@@ -29,6 +29,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
     g_nThisBase=0;
     g_options={};
     g_nAddressWidth=8;  // TODO Set/Get
+    g_bIsAddressColon=false;
 
     memset(shortCuts,0,sizeof shortCuts);
 
@@ -39,7 +40,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
     setTextFont(getMonoFont()); // mb TODO move to XDeviceTableView
 }
 
-void XHexView::adjustView()
+void XHexView::_adjustView()
 {
     QFont _font;
     QString sFont=getGlobalOptions()->getValue(XOptions::ID_HEX_FONT).toString();
@@ -50,6 +51,13 @@ void XHexView::adjustView()
     }
     // mb TODO errorString signal if invalid font
     // TODO Check
+
+    g_bIsAddressColon=getGlobalOptions()->getValue(XOptions::ID_HEX_ADDRESSCOLON).toBool();
+}
+
+void XHexView::adjustView()
+{
+    _adjustView();
 
     if(getDevice())
     {
@@ -98,6 +106,8 @@ void XHexView::setData(QIODevice *pDevice,XHexView::OPTIONS options,bool bReload
 
     setSelection(options.nStartSelectionOffset,options.nSizeOfSelection);
     setCursorOffset(options.nStartSelectionOffset,COLUMN_HEX);
+
+    _adjustView();
 
     if(bReload)
     {
@@ -252,7 +262,14 @@ void XHexView::updateData()
                         nCurrentAddress=i+nBlockOffset;
                     }
 
-                    record.sAddress=XBinary::valueToHexColon(mode,nCurrentAddress); // TODO Settings
+                    if(g_bIsAddressColon)
+                    {
+                        record.sAddress=XBinary::valueToHexColon(mode,nCurrentAddress);
+                    }
+                    else
+                    {
+                        record.sAddress=XBinary::valueToHex(mode,nCurrentAddress);
+                    }
                 }
 
                 g_listRecords.append(record);
