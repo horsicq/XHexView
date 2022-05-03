@@ -53,7 +53,6 @@ class XHexView : public XDeviceTableView
     };
 
 public:
-    // TODO edit function
     // TODO setOptions
     // TODO follow functions
     struct OPTIONS
