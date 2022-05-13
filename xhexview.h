@@ -34,14 +34,17 @@ class XHexView : public XDeviceTableView
         SC_GOTOADDRESS,
         SC_DUMPTOFILE,
         SC_SELECTALL,
-        SC_COPYASHEX,
-        SC_COPYCURSOROFFSET,
-        SC_COPYCURSORADDRESS,
-        SC_FIND,
+        SC_COPYHEX,
+        SC_COPYOFFSET,
+        SC_COPYADDRESS,
+        SC_FINDSTRING,
+        SC_FINDSIGNATURE,
+        SC_FINDVALUE,
         SC_FINDNEXT,
         SC_SIGNATURE,
         SC_DISASM,
         SC_MEMORYMAP,
+        SC_EDITHEX,
         __SC_SIZE
     };
 
@@ -112,7 +115,7 @@ protected:
 private slots:
     void _disasmSlot();
     void _memoryMapSlot();
-    void _editHex();
+    void _editHex(); // TODO move to XDeviceTableView
 
 signals:
     void showOffsetDisasm(qint64 nOffset);
