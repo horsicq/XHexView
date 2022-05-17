@@ -479,6 +479,8 @@ void XHexView::contextMenu(const QPoint &pos)
 
     contextMenu.addMenu(&menuGoTo);
 
+    menuFind.addAction(&actionFindString);
+    menuFind.addAction(&actionFindSignature);
     menuFind.addAction(&actionFindValue);
     menuFind.addAction(&actionFindNext);
 
