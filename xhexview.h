@@ -115,7 +115,7 @@ protected:
 private slots:
     void _disasmSlot();
     void _memoryMapSlot();
-    void _editHex(); // TODO move to XDeviceTableView
+    void _editHex();
 
 signals:
     void showOffsetDisasm(qint64 nOffset);

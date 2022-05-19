@@ -463,7 +463,7 @@ void XHexView::contextMenu(const QPoint &pos)
     actionEditHex.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_HEX));
     connect(&actionEditHex,SIGNAL(triggered()),this,SLOT(_editHex()));
 
-    STATE state=getState();
+    STATE menuState=getState();
 
     // TODO string from XShortcuts
     QMenu contextMenu(this);
@@ -489,7 +489,7 @@ void XHexView::contextMenu(const QPoint &pos)
     menuCopy.addAction(&actionCopyCursorOffset);
     menuCopy.addAction(&actionCopyCursorAddress);
 
-    if(state.nSelectionSize)
+    if(menuState.nSelectionSize)
     {
         contextMenu.addAction(&actionDumpToFile);
         contextMenu.addAction(&actionSignature);
@@ -516,7 +516,7 @@ void XHexView::contextMenu(const QPoint &pos)
 
     menuEdit.setEnabled(!isReadonly());
 
-    if(state.nSelectionSize)
+    if(menuState.nSelectionSize)
     {
         menuEdit.addAction(&actionEditHex);
 
