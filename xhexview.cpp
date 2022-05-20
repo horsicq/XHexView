@@ -403,11 +403,11 @@ void XHexView::paintCell(QPainter *pPainter,qint32 nRow,qint32 nColumn,qint32 nL
 
 void XHexView::contextMenu(const QPoint &pos)
 {
-    QAction actionGoToOffset(tr("Go to offset"),this);
+    QAction actionGoToOffset(tr("Offset"),this);
     actionGoToOffset.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET));
     connect(&actionGoToOffset,SIGNAL(triggered()),this,SLOT(_goToOffsetSlot()));
 
-    QAction actionGoToAddress(tr("Go to address"),this);
+    QAction actionGoToAddress(tr("Address"),this);
     actionGoToAddress.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS));
     connect(&actionGoToAddress,SIGNAL(triggered()),this,SLOT(_goToAddressSlot()));
 
