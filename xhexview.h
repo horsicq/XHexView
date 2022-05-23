@@ -30,8 +30,8 @@ class XHexView : public XDeviceTableView
 
     enum SC
     {
-        SC_GOTOOFFSET=0,
-        SC_GOTOADDRESS,
+        SC_GOTO_OFFSET=0,
+        SC_GOTO_ADDRESS,
         SC_DUMPTOFILE,
         SC_SELECTALL,
         SC_COPYHEX,

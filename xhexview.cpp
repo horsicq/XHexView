@@ -725,8 +725,8 @@ void XHexView::registerShortcuts(bool bState)
 {
     if(bState)
     {
-        if(!shortCuts[SC_GOTOOFFSET])               shortCuts[SC_GOTOOFFSET]                =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET),           this,SLOT(_goToOffsetSlot()));
-        if(!shortCuts[SC_GOTOADDRESS])              shortCuts[SC_GOTOADDRESS]               =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS),          this,SLOT(_goToAddressSlot()));
+        if(!shortCuts[SC_GOTO_OFFSET])              shortCuts[SC_GOTO_OFFSET]               =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET),           this,SLOT(_goToOffsetSlot()));
+        if(!shortCuts[SC_GOTO_ADDRESS])             shortCuts[SC_GOTO_ADDRESS]              =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS),          this,SLOT(_goToAddressSlot()));
         if(!shortCuts[SC_DUMPTOFILE])               shortCuts[SC_DUMPTOFILE]                =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DUMPTOFILE),            this,SLOT(_dumpToFileSlot()));
         if(!shortCuts[SC_SELECTALL])                shortCuts[SC_SELECTALL]                 =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_SELECT_ALL),            this,SLOT(_selectAllSlot()));
         if(!shortCuts[SC_COPYHEX])                  shortCuts[SC_COPYHEX]                   =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_HEX),              this,SLOT(_copyHexSlot()));
