@@ -20,7 +20,7 @@
  */
 #include "xhexview.h"
 
-XHexView::XHexView(QWidget *pParent) : XDeviceTableView(pParent)
+XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 {
     g_nBytesProLine=16; // TODO Set/Get
     g_nDataBlockSize=0;
@@ -854,33 +854,5 @@ void XHexView::_memoryMapSlot()
         }
 
         emit showOffsetMemoryMap(nOffset);
-    }
-}
-
-void XHexView::_editHex()
-{
-    if(!isReadonly())
-    {
-        STATE state=getState();
-
-        SubDevice sd(getDevice(),state.nSelectionOffset,state.nSelectionSize);
-
-        if(sd.open(QIODevice::ReadWrite))
-        {
-            DialogHexEdit dialogHexEdit(this);
-
-            dialogHexEdit.setGlobal(getShortcuts(),getGlobalOptions());
-
-    //        connect(&dialogHexEdit,SIGNAL(changed()),this,SLOT(_setEdited()));
-
-            dialogHexEdit.setData(&sd,state.nSelectionOffset);
-            dialogHexEdit.setBackupDevice(getBackupDevice());
-
-            dialogHexEdit.exec();
-
-            _setEdited();
-
-            sd.close();
-        }
     }
 }

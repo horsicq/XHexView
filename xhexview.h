@@ -22,9 +22,9 @@
 #define XHEXVIEW_H
 
 #include "dialoghexedit.h"
-#include "xdevicetableview.h"
+#include "xdevicetableeditview.h"
 
-class XHexView : public XDeviceTableView
+class XHexView : public XDeviceTableEditView
 {
     Q_OBJECT
 
@@ -115,7 +115,6 @@ protected:
 private slots:
     void _disasmSlot();
     void _memoryMapSlot();
-    void _editHex();
 
 signals:
     void showOffsetDisasm(qint64 nOffset);
