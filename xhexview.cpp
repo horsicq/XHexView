@@ -823,18 +823,7 @@ void XHexView::_disasmSlot()
 {
     if(g_options.bMenu_Disasm)
     {
-        STATE state=getState();
-
-        qint64 nOffset=state.nCursorOffset;
-
-        SubDevice *pSubDevice=static_cast<SubDevice *>(getDevice());
-
-        if(pSubDevice)
-        {
-            nOffset+=pSubDevice->getInitOffset();
-        }
-
-        emit showOffsetDisasm(nOffset);
+        emit showOffsetDisasm(getStateOffset());
     }
 }
 
@@ -842,17 +831,6 @@ void XHexView::_memoryMapSlot()
 {
     if(g_options.bMenu_MemoryMap)
     {
-        STATE state=getState();
-
-        qint64 nOffset=state.nCursorOffset;
-
-        SubDevice *pSubDevice=static_cast<SubDevice *>(getDevice());
-
-        if(pSubDevice)
-        {
-            nOffset+=pSubDevice->getInitOffset();
-        }
-
-        emit showOffsetMemoryMap(nOffset);
+        emit showOffsetMemoryMap(getStateOffset());
     }
 }
