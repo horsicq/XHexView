@@ -639,10 +639,10 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
         adjust();
         viewport()->update();
     }
-    else if(pEvent->matches(QKeySequence::SelectAll))
-    {
-        _selectAllSlot();
-    }
+//    else if(pEvent->matches(QKeySequence::SelectAll))
+//    {
+//        _selectAllSlot();
+//    }
     else
     {
         XAbstractTableView::keyPressEvent(pEvent);
