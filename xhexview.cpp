@@ -30,6 +30,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     g_options={};
     g_nAddressWidth=8;  // TODO Set/Get
     g_bIsAddressColon=false;
+    g_nPieceSize=1;
 
     memset(shortCuts,0,sizeof shortCuts);
 
@@ -178,18 +179,23 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_P
         if(cursorPosition.nColumn==COLUMN_ADDRESS)
         {
             osResult.nOffset=nBlockOffset;
+//            osResult.nSize=g_nPieceSize;
             osResult.nSize=1;
         }
         else if(cursorPosition.nColumn==COLUMN_HEX)
         {
             osResult.nOffset=nBlockOffset+(cursorPosition.nCellLeft-getLineDelta())/(getCharWidth()*2+getLineDelta());
+//            osResult.nSize=g_nPieceSize;
             osResult.nSize=1;
         }
         else if(cursorPosition.nColumn==COLUMN_SYMBOLS)
         {
             osResult.nOffset=nBlockOffset+(cursorPosition.nCellLeft-getLineDelta())/getCharWidth();
+//            osResult.nSize=g_nPieceSize;
             osResult.nSize=1;
         }
+
+//        osResult.nOffset=S_ALIGN_DOWN(osResult.nOffset,g_nPieceSize);
 
         if(!isOffsetValid(osResult.nOffset))
         {
@@ -374,6 +380,7 @@ void XHexView::paintCell(QPainter *pPainter,qint32 nRow,qint32 nColumn,qint32 nL
                 if(bSelected||bCursor)
                 {
                     QRect rectSelected;
+//                    rectSelected.setRect(rectSymbol.x(),rectSymbol.y()+getLineDelta(),rectSymbol.width()*g_nPieceSize,rectSymbol.height());
                     rectSelected.setRect(rectSymbol.x(),rectSymbol.y()+getLineDelta(),rectSymbol.width(),rectSymbol.height());
 
                     if(bCursor)
@@ -817,6 +824,15 @@ XHexView::SMODE XHexView::getSmode()
 void XHexView::setSmode(SMODE smode)
 {
     g_smode=smode;
+
+    if(smode==SMODE_UNICODE)
+    {
+        g_nPieceSize=2;
+    }
+    else
+    {
+        g_nPieceSize=1;
+    }
 }
 
 void XHexView::_disasmSlot()

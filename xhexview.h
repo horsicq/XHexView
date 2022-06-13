@@ -133,6 +133,7 @@ private:
     qint64 g_nThisBase;
     SMODE g_smode;
     bool g_bIsAddressColon;
+    qint32 g_nPieceSize;
 };
 
 #endif // XHEXVIEW_H
