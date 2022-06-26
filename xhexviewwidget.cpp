@@ -91,11 +91,6 @@ void XHexViewWidget::setSelection(qint64 nOffset,qint64 nSize)
     ui->scrollAreaHex->goToOffset(nOffset);
 }
 
-void XHexViewWidget::errorMessageSlot(QString sErrorMessage)
-{
-    QMessageBox::critical(XOptions::getMainWidget(this),tr("Error"),sErrorMessage);
-}
-
 void XHexViewWidget::cursorChanged(qint64 nOffset)
 {
     Q_UNUSED(nOffset)

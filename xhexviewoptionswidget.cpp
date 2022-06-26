@@ -28,6 +28,8 @@ XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) :
     ui->setupUi(this);
 
     g_pOptions=nullptr;
+
+    setProperty("GROUPID",XOptions::GROUPID_HEX);
 }
 
 XHexViewOptionsWidget::~XHexViewOptionsWidget()

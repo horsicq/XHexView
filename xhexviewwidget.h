@@ -46,7 +46,6 @@ public:
     void setSelection(qint64 nOffset,qint64 nSize);
 
 private slots:
-    void errorMessageSlot(QString sErrorMessage);
     void cursorChanged(qint64 nOffset);
     void selectionChanged();
     void adjust();
