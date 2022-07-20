@@ -58,7 +58,7 @@ void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions)
 #ifdef Q_OS_LINUX
     pOptions->addID(XOptions::ID_HEX_FONT,"DejaVu Sans Mono,10,-1,5,50,0,0,0,0,0");
 #endif
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
     pOptions->addID(XOptions::ID_HEX_FONT,"Menlo,10,-1,5,50,0,0,0,0,0"); // TODO Check
 #endif
     pOptions->addID(XOptions::ID_HEX_ADDRESSCOLON,true);
