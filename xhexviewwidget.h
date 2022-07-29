@@ -41,6 +41,7 @@ public:
     void setBackupDevice(QIODevice *pDevice);
     void reload();
     void setReadonly(bool bState);
+    void setReadonlyVisible(bool bState);
     void setEdited();
     qint64 getStartAddress();
     void setSelection(qint64 nOffset,qint64 nSize);
@@ -49,7 +50,8 @@ private slots:
     void cursorChanged(qint64 nOffset);
     void selectionChanged();
     void adjust();
-    void on_checkBoxHex_stateChanged(int nState);
+    void on_checkBoxReadonly_toggled(bool bChecked);
+    void on_checkBoxHex_toggled(bool bChecked);
 
 signals:
     void dataChanged();

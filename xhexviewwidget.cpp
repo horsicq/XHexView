@@ -35,6 +35,9 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) :
     connect(ui->scrollAreaHex,SIGNAL(dataChanged()),this,SIGNAL(dataChanged()));
 
     ui->checkBoxHex->setChecked(true);
+
+    setReadonlyVisible(false);
+    ui->checkBoxReadonly->setChecked(true);
 }
 
 XHexViewWidget::~XHexViewWidget()
@@ -50,6 +53,8 @@ void XHexViewWidget::setGlobal(XShortcuts *pShortcuts,XOptions *pXOptions)
 
 void XHexViewWidget::setData(QIODevice *pDevice,XHexView::OPTIONS options)
 {
+    ui->checkBoxReadonly->setEnabled(pDevice->isWritable());
+
     ui->scrollAreaHex->setData(pDevice,options);
 }
 
@@ -71,6 +76,20 @@ void XHexViewWidget::reload()
 void XHexViewWidget::setReadonly(bool bState)
 {
     ui->scrollAreaHex->setReadonly(bState);
+
+    ui->checkBoxReadonly->setChecked(bState);
+}
+
+void XHexViewWidget::setReadonlyVisible(bool bState)
+{
+    if(bState)
+    {
+        ui->checkBoxReadonly->show();
+    }
+    else
+    {
+        ui->checkBoxReadonly->hide();
+    }
 }
 
 void XHexViewWidget::setEdited()
@@ -134,9 +153,14 @@ void XHexViewWidget::registerShortcuts(bool bState)
     Q_UNUSED(bState)
 }
 
-void XHexViewWidget::on_checkBoxHex_stateChanged(int nState)
+void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
 {
-    Q_UNUSED(nState)
+    ui->scrollAreaHex->setReadonly(bChecked);
+}
+
+void XHexViewWidget::on_checkBoxHex_toggled(bool bChecked)
+{
+    Q_UNUSED(bChecked)
 
     adjust();
 }
