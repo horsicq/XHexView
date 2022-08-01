@@ -25,12 +25,12 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     g_nBytesProLine=16; // TODO Set/Get
     g_nDataBlockSize=0;
     g_nViewStartDelta=0;
-    g_smode=SMODE_ANSI;  // TODO Set/Get
+//    g_smode=SMODE_ANSI;  // TODO Set/Get
     g_nThisBase=0;
     g_options={};
     g_nAddressWidth=8;  // TODO Set/Get
     g_bIsAddressColon=false;
-    g_nPieceSize=1;
+//    g_nPieceSize=1;
 
     memset(shortCuts,0,sizeof shortCuts);
 
@@ -39,6 +39,12 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     addColumn(tr("Symbols"),0,true);
 
     setTextFont(getMonoFont()); // mb TODO move to XDeviceTableView
+
+    g_sCodePage="";
+
+    g_pCodePageMenu=g_xOptions.createCodePagesMenu(this,true);
+
+    connect(&g_xOptions,SIGNAL(setCodePage(QString)),this,SLOT(_setCodePage(QString)));
 }
 
 void XHexView::_adjustView()
@@ -137,34 +143,34 @@ XADDR XHexView::getSelectionInitAddress()
     return getSelectionInitOffset()+g_options.nStartAddress;
 }
 
-QChar XHexView::filterSymbol(QChar cChar,SMODE smode)
-{
-    QChar cResult=cChar;
+//QChar XHexView::filterSymbol(QChar cChar,SMODE smode)
+//{
+//    QChar cResult=cChar;
 
-    if(smode==SMODE_ANSI)
-    {
-        if((cResult<QChar(0x20))||(cResult>QChar(0x7e)))
-        {
-            cResult='.';
-        }
-    }
-    else if(smode==SMODE_SYMBOLS)
-    {
-        if(cResult<QChar(0x20))
-        {
-            cResult='.';
-        }
-    }
-    else if(smode==SMODE_UNICODE)
-    {
-        if(cResult<QChar(0x20))
-        {
-            cResult='.';
-        }
-    }
+//    if(smode==SMODE_ANSI)
+//    {
+//        if((cResult<QChar(0x20))||(cResult>QChar(0x7e)))
+//        {
+//            cResult='.';
+//        }
+//    }
+////    else if(smode==SMODE_SYMBOLS)
+////    {
+////        if(cResult<QChar(0x20))
+////        {
+////            cResult='.';
+////        }
+////    }
+////    else if(smode==SMODE_UNICODE)
+////    {
+////        if(cResult<QChar(0x20))
+////        {
+////            cResult='.';
+////        }
+////    }
 
-    return cResult;
-}
+//    return cResult;
+//}
 
 XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_POSITION cursorPosition)
 {
@@ -235,6 +241,7 @@ void XHexView::updateData()
         qint32 nDataBlockSize=g_nBytesProLine*getLinesProPage();
 
         g_baDataBuffer=read_array(nBlockOffset,nDataBlockSize);
+        g_sStringBuffer=getStringBuffer(&g_baDataBuffer);
 
         g_nDataBlockSize=g_baDataBuffer.size();
 
@@ -347,34 +354,38 @@ void XHexView::paintCell(QPainter *pPainter,qint32 nRow,qint32 nColumn,qint32 nL
                 {
                     rectSymbol.setRect(nLeft+(i+1)*getCharWidth(),nTop,getCharWidth(),nHeight);
 
-                    if((getSmode()==SMODE_ANSI)||(getSmode()==SMODE_SYMBOLS))
-                    {
-                        QByteArray baChar=g_baDataBuffer.mid(nIndex,1); // TODO Check
+                    sSymbol=g_sStringBuffer.mid(nIndex,1);
 
-                        if(baChar.size())
-                        {
-                            QChar cChar;
+                    // TODO
 
-                            cChar=g_baDataBuffer.mid(nIndex,1).at(0); // TODO Check
-                            sSymbol=filterSymbol(cChar,getSmode());
-                        }
-                    }
-                    else if(getSmode()==SMODE_UNICODE)
-                    {
-                        if((nDataBlockStartOffset+nIndex)%2==0)
-                        {
-                            QByteArray baChar=g_baDataBuffer.mid(nIndex,2); // TODO Check
+//                    if((getSmode()==SMODE_ANSI)||(getSmode()==SMODE_SYMBOLS))
+//                    {
+//                        QByteArray baChar=g_baDataBuffer.mid(nIndex,1); // TODO Check
 
-                            if(baChar.size()==2)
-                            {
-                                quint16 nCode=XBinary::_read_uint16(baChar.data());
+//                        if(baChar.size())
+//                        {
+//                            QChar cChar;
 
-                                QChar cChar(nCode);
+//                            cChar=g_baDataBuffer.mid(nIndex,1).at(0); // TODO Check
+//                            sSymbol=filterSymbol(cChar,getSmode());
+//                        }
+//                    }
+//                    else if(getSmode()==SMODE_UNICODE)
+//                    {
+//                        if((nDataBlockStartOffset+nIndex)%2==0)
+//                        {
+//                            QByteArray baChar=g_baDataBuffer.mid(nIndex,2); // TODO Check
 
-                                sSymbol=filterSymbol(cChar,getSmode());
-                            }
-                        }
-                    }
+//                            if(baChar.size()==2)
+//                            {
+//                                quint16 nCode=XBinary::_read_uint16(baChar.data());
+
+//                                QChar cChar(nCode);
+
+//                                sSymbol=filterSymbol(cChar,getSmode());
+//                            }
+//                        }
+//                    }
                 }
 
                 if(bSelected||bCursor)
@@ -780,23 +791,27 @@ void XHexView::_headerClicked(qint32 nColumn)
     }
     else if(nColumn==COLUMN_SYMBOLS)
     {
-        if(getSmode()==SMODE_SYMBOLS)
-        {
-            setColumnTitle(COLUMN_SYMBOLS,QString("ANSI"));
-            setSmode(SMODE_ANSI);
-        }
-        else if(getSmode()==SMODE_ANSI)
-        {
-            setColumnTitle(COLUMN_SYMBOLS,QString("Unicode"));
-            setSmode(SMODE_UNICODE);
-        }
-        else if(getSmode()==SMODE_UNICODE)
-        {
-            setColumnTitle(COLUMN_SYMBOLS,tr("Symbols"));
-            setSmode(SMODE_SYMBOLS);
-        }
+        g_pCodePageMenu->exec(QCursor::pos());
 
-        adjust(true);
+//        delete pMenu; // TODO !!!
+        // TODO
+//        if(getSmode()==SMODE_SYMBOLS)
+//        {
+//            setColumnTitle(COLUMN_SYMBOLS,QString("ANSI"));
+//            setSmode(SMODE_ANSI);
+//        }
+//        else if(getSmode()==SMODE_ANSI)
+//        {
+//            setColumnTitle(COLUMN_SYMBOLS,QString("Unicode"));
+//            setSmode(SMODE_UNICODE);
+//        }
+//        else if(getSmode()==SMODE_UNICODE)
+//        {
+//            setColumnTitle(COLUMN_SYMBOLS,tr("Symbols"));
+//            setSmode(SMODE_SYMBOLS);
+//        }
+
+//        adjust(true);
     }
 }
 
@@ -816,24 +831,141 @@ void XHexView::_cellDoubleClicked(qint32 nRow,qint32 nColumn)
     }
 }
 
-XHexView::SMODE XHexView::getSmode()
+QString XHexView::getStringBuffer(QByteArray *pbaData)
 {
-    return g_smode;
-}
+    QString sResult;
 
-void XHexView::setSmode(SMODE smode)
-{
-    g_smode=smode;
+    qint32 nSize=pbaData->size();
 
-    if(smode==SMODE_UNICODE)
+    if(g_sCodePage=="")
     {
-        g_nPieceSize=2;
+        for(qint32 i=0;i<nSize;i++)
+        {
+            QChar _char=pbaData->at(i);
+
+            if((_char<QChar(0x20))||(_char>QChar(0x7e)))
+            {
+                _char='.';
+            }
+
+            sResult.append(_char);
+        }
     }
     else
     {
-        g_nPieceSize=1;
+    #if (QT_VERSION_MAJOR<6)||defined(QT_CORE5COMPAT_LIB)
+        QTextCodec *pCodec=QTextCodec::codecForName(g_sCodePage.toLatin1().data());
+
+        if(pCodec)
+        {
+            QString _sResult=pCodec->toUnicode(*pbaData);
+            QVector<uint> vecSymbols=_sResult.toUcs4();
+            qint32 _nSize=vecSymbols.size();
+
+            if(_nSize==nSize)
+            {
+                for(qint32 i=0;i<nSize;i++)
+                {
+                    QChar _char=_sResult.at(i);
+
+                    if(_char<QChar(0x20))
+                    {
+                        _char='.';
+                    }
+
+                    sResult.append(_char);
+                }
+            }
+            else
+            {
+//                QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme,_sResult);
+
+//                qint32 nCurrentPosition=0;
+
+//                while(true)
+//                {
+//                    qint32 _nCurrentPosition=finder.toNextBoundary();
+
+//                    QString _sChar=_sResult.mid(nCurrentPosition,_nCurrentPosition-nCurrentPosition);
+//                    QByteArray _baData=pCodec->fromUnicode(_sChar);
+
+//                    if(_sChar.size()==1)
+//                    {
+//                        if(_sChar.at(0)<QChar(0x20))
+//                        {
+//                            _sChar='.';
+//                        }
+//                    }
+
+//                    sResult.append(_sChar);
+
+//                    if(_baData.size()>1)
+//                    {
+//                        qint32 nAppendSize=_baData.size()-1;
+
+//                        for(qint32 j=0;j<nAppendSize;j++)
+//                        {
+//                            sResult.append(" "); // mb TODO another symbol
+//                        }
+//                    }
+
+//                    nCurrentPosition=_nCurrentPosition;
+
+//                    if(nCurrentPosition==-1)
+//                    {
+//                        break;
+//                    }
+//                }
+
+                for(qint32 i=0;i<_nSize;i++)
+                {
+                    QString _sChar=_sResult.mid(i,1);
+
+                    QByteArray _baData=pCodec->fromUnicode(_sChar);
+
+                    if(_sChar.at(0)<QChar(0x20))
+                    {
+                        _sChar='.';
+                    }
+
+                    sResult.append(_sChar);
+
+                    if(_baData.size()>1)
+                    {
+                        qint32 nAppendSize=_baData.size()-1;
+
+                        for(qint32 j=0;j<nAppendSize;j++)
+                        {
+                            sResult.append(" "); // mb TODO another symbol
+                        }
+                    }
+                }
+            }
+        }
+    #endif
     }
+
+    return sResult;
 }
+
+//XHexView::SMODE XHexView::getSmode()
+//{
+//    return g_smode;
+//}
+
+//void XHexView::setSmode(SMODE smode)
+//{
+//    g_smode=smode;
+
+////    if(smode==SMODE_UNICODE)
+////    {
+////        g_nPieceSize=2;
+////    }
+////    else
+////    {
+////        g_nPieceSize=1;
+////    }
+//}
 
 void XHexView::_disasmSlot()
 {
@@ -849,4 +981,20 @@ void XHexView::_memoryMapSlot()
     {
         emit showOffsetMemoryMap(getStateOffset());
     }
+}
+
+void XHexView::_setCodePage(QString sCodePage)
+{
+    g_sCodePage=sCodePage;
+
+    QString sTitle=tr("Symbols");
+
+    if(sCodePage!="")
+    {
+        sTitle=sCodePage;
+    }
+
+    setColumnTitle(COLUMN_SYMBOLS,sTitle);
+
+    adjust(true);
 }

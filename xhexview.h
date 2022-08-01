@@ -21,6 +21,7 @@
 #ifndef XHEXVIEW_H
 #define XHEXVIEW_H
 
+#include <QTextBoundaryFinder>
 #include "dialoghexedit.h"
 #include "xdevicetableeditview.h"
 
@@ -48,12 +49,11 @@ class XHexView : public XDeviceTableEditView
         __SC_SIZE
     };
 
-    enum SMODE
-    {
-        SMODE_SYMBOLS=0,
-        SMODE_ANSI,
-        SMODE_UNICODE
-    };
+//    enum SMODE
+//    {
+//        SMODE_ANSI=0,
+//        SMODE_CODEPAGE
+//    };
 
 public:
     // TODO setOptions
@@ -94,7 +94,7 @@ private:
         XADDR nAddress;
     };
 
-    QChar filterSymbol(QChar cChar,SMODE smode);
+//    QChar filterSymbol(QChar cChar,SMODE smode);
 
 protected:
     virtual OS cursorPositionToOS(CURSOR_POSITION cursorPosition);
@@ -109,12 +109,16 @@ protected:
     virtual void registerShortcuts(bool bState);
     virtual void _headerClicked(qint32 nColumn);
     virtual void _cellDoubleClicked(qint32 nRow,qint32 nColumn);
-    SMODE getSmode();
-    void setSmode(SMODE smode);
+//    SMODE getSmode();
+//    void setSmode(SMODE smode);
+
+private:
+    QString getStringBuffer(QByteArray *pbaData);
 
 private slots:
     void _disasmSlot();
     void _memoryMapSlot();
+    void _setCodePage(QString sCodePage);
 
 signals:
     void showOffsetDisasm(qint64 nOffset);
@@ -127,13 +131,17 @@ private:
     qint32 g_nViewStartDelta;
     QByteArray g_baDataBuffer;
     QByteArray g_baDataHexBuffer;
+    QString g_sStringBuffer;
     QList<RECORD> g_listRecords;
     QShortcut *shortCuts[__SC_SIZE];
     qint32 g_nAddressWidth;
     qint64 g_nThisBase;
-    SMODE g_smode;
+//    SMODE g_smode;
     bool g_bIsAddressColon;
-    qint32 g_nPieceSize;
+//    qint32 g_nPieceSize;
+    QString g_sCodePage;
+    QMenu *g_pCodePageMenu;
+    XOptions g_xOptions;
 };
 
 #endif // XHEXVIEW_H
