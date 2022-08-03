@@ -51,7 +51,6 @@ private slots:
     void selectionChanged();
     void adjust();
     void on_checkBoxReadonly_toggled(bool bChecked);
-    void on_checkBoxHex_toggled(bool bChecked);
 
 signals:
     void dataChanged();

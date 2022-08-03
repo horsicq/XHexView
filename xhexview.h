@@ -45,6 +45,7 @@ class XHexView : public XDeviceTableEditView
         SC_SIGNATURE,
         SC_DISASM,
         SC_MEMORYMAP,
+        SC_MAINHEX,
         SC_EDITHEX,
         __SC_SIZE
     };
@@ -65,6 +66,7 @@ public:
         qint64 nSizeOfSelection;
         bool bMenu_Disasm;
         bool bMenu_MemoryMap;
+        bool bMenu_MainHex;
         QString sTitle; // For dialogs
         bool bIsOffsetTitle;
     };
@@ -118,11 +120,13 @@ private:
 private slots:
     void _disasmSlot();
     void _memoryMapSlot();
+    void _mainHexSlot();
     void _setCodePage(QString sCodePage);
 
 signals:
     void showOffsetDisasm(qint64 nOffset);
     void showOffsetMemoryMap(qint64 nOffset);
+    void showOffsetMainHex(qint64 nOffset,qint64 nSize);
 
 private:
     OPTIONS g_options;

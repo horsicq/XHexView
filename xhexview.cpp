@@ -477,6 +477,10 @@ void XHexView::contextMenu(const QPoint &pos)
     actionMemoryMap.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_MEMORYMAP));
     connect(&actionMemoryMap,SIGNAL(triggered()),this,SLOT(_memoryMapSlot()));
 
+    QAction actionMainHex(tr("Hex"),this);
+    actionMainHex.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_HEX));
+    connect(&actionMainHex,SIGNAL(triggered()),this,SLOT(_mainHexSlot()));
+
     QAction actionEditHex(tr("Hex"),this);
     actionEditHex.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_HEX));
     connect(&actionEditHex,SIGNAL(triggered()),this,SLOT(_editHex()));
@@ -525,6 +529,11 @@ void XHexView::contextMenu(const QPoint &pos)
     if(g_options.bMenu_MemoryMap)
     {
         menuFollowIn.addAction(&actionMemoryMap);
+    }
+
+    if(g_options.bMenu_MainHex)
+    {
+        menuFollowIn.addAction(&actionMainHex);
     }
 
     if((g_options.bMenu_Disasm)||(g_options.bMenu_MemoryMap))
@@ -757,6 +766,7 @@ void XHexView::registerShortcuts(bool bState)
         if(!shortCuts[SC_SIGNATURE])                shortCuts[SC_SIGNATURE]                 =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_SIGNATURE),             this,SLOT(_hexSignatureSlot()));
         if(!shortCuts[SC_DISASM])                   shortCuts[SC_DISASM]                    =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_DISASM),       this,SLOT(_disasmSlot()));
         if(!shortCuts[SC_MEMORYMAP])                shortCuts[SC_MEMORYMAP]                 =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_MEMORYMAP),    this,SLOT(_memoryMapSlot()));
+        if(!shortCuts[SC_MAINHEX])                  shortCuts[SC_MAINHEX]                   =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_HEX),          this,SLOT(_mainHexSlot()));
         if(!shortCuts[SC_EDITHEX])                  shortCuts[SC_EDITHEX]                   =new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_HEX),              this,SLOT(_editHex()));
     }
     else
@@ -980,6 +990,14 @@ void XHexView::_memoryMapSlot()
     if(g_options.bMenu_MemoryMap)
     {
         emit showOffsetMemoryMap(getStateOffset());
+    }
+}
+
+void XHexView::_mainHexSlot()
+{
+    if(g_options.bMenu_MainHex)
+    {
+        emit showOffsetMainHex(getStateOffset(),getState().nSelectionSize);
     }
 }
 
