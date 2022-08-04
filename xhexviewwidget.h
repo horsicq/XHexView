@@ -22,6 +22,7 @@
 #define XHEXVIEWWIDGET_H
 
 #include "xhexview.h"
+#include "xlineedithex.h"
 
 namespace Ui {
 class XHexViewWidget;
@@ -30,6 +31,25 @@ class XHexViewWidget;
 class XHexViewWidget : public XShortcutsWidget
 {
     Q_OBJECT
+
+    enum DATAINS
+    {
+//        DATAINS_BINARY=0,
+        DATAINS_BYTE,
+        DATAINS_WORD,
+        DATAINS_DWORD,
+        DATAINS_QWORD
+    };
+
+    enum LIED
+    {
+//        LIED_BINARY,
+        LIED_BYTE,
+        LIED_WORD,
+        LIED_DWORD,
+        LIED_QWORD,
+        __LIED_size
+    };
 
 public:
     explicit XHexViewWidget(QWidget *pParent=nullptr);
@@ -45,12 +65,15 @@ public:
     void setEdited();
     qint64 getStartAddress();
     void setSelection(qint64 nOffset,qint64 nSize);
+    void blockSignals(bool bState);
 
 private slots:
     void cursorChanged(qint64 nOffset);
     void selectionChanged();
     void adjust();
     void on_checkBoxReadonly_toggled(bool bChecked);
+    void hexValueChanged(quint64 nValue);
+    void setValue(quint64 nValue,DATAINS nType);
 
 signals:
     void dataChanged();
@@ -62,6 +85,8 @@ protected:
 
 private:
     Ui::XHexViewWidget *ui;
+    bool g_bIsEdited;
+    XLineEditHEX *g_lineEdit[__LIED_size];
 };
 
 #endif // XHEXVIEWWIDGET_H

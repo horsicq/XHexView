@@ -27,6 +27,9 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) :
 {
     ui->setupUi(this);
 
+    memset(g_lineEdit,0,sizeof g_lineEdit);
+    g_bIsEdited=false;
+
     connect(ui->scrollAreaHex,SIGNAL(showOffsetDisasm(qint64)),this,SIGNAL(showOffsetDisasm(qint64)));
     connect(ui->scrollAreaHex,SIGNAL(showOffsetMemoryMap(qint64)),this,SIGNAL(showOffsetMemoryMap(qint64)));
     connect(ui->scrollAreaHex,SIGNAL(errorMessage(QString)),this,SLOT(errorMessageSlot(QString)));
@@ -35,7 +38,69 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) :
     connect(ui->scrollAreaHex,SIGNAL(dataChanged()),this,SIGNAL(dataChanged()));
 
     setReadonlyVisible(false);
-    ui->checkBoxReadonly->setChecked(true);
+    setReadonly(true);
+
+    ui->tableWidget->setColumnCount(2);
+    ui->tableWidget->setRowCount(__LIED_size);
+
+    QStringList slHeader;
+    slHeader.append(tr("Name"));
+    slHeader.append(tr("Value"));
+
+    ui->tableWidget->setHorizontalHeaderLabels(slHeader);
+    ui->tableWidget->horizontalHeader()->setVisible(true);
+
+    ui->tableWidget->setColumnWidth(0,100);
+
+    // TODO make a function !!!
+    {
+        QTableWidgetItem *pItemName=new QTableWidgetItem;
+        pItemName->setText("BYTE");
+        ui->tableWidget->setItem(DATAINS_BYTE,0,pItemName);
+
+        g_lineEdit[LIED_BYTE]=new XLineEditHEX(this);
+        g_lineEdit[LIED_BYTE]->setProperty("STYPE",DATAINS_BYTE);
+
+        connect(g_lineEdit[LIED_BYTE],SIGNAL(valueChanged(quint64)),this,SLOT(hexValueChanged(quint64)));
+
+        ui->tableWidget->setCellWidget(DATAINS_BYTE,1,g_lineEdit[LIED_BYTE]);
+    }
+    {
+        QTableWidgetItem *pItemName=new QTableWidgetItem;
+        pItemName->setText("WORD");
+        ui->tableWidget->setItem(DATAINS_WORD,0,pItemName);
+
+        g_lineEdit[LIED_WORD]=new XLineEditHEX(this);
+        g_lineEdit[LIED_WORD]->setProperty("STYPE",DATAINS_WORD);
+
+        connect(g_lineEdit[LIED_WORD],SIGNAL(valueChanged(quint64)),this,SLOT(hexValueChanged(quint64)));
+
+        ui->tableWidget->setCellWidget(DATAINS_WORD,1,g_lineEdit[LIED_WORD]);
+    }
+    {
+        QTableWidgetItem *pItemName=new QTableWidgetItem;
+        pItemName->setText("DWORD");
+        ui->tableWidget->setItem(DATAINS_DWORD,0,pItemName);
+
+        g_lineEdit[LIED_DWORD]=new XLineEditHEX(this);
+        g_lineEdit[LIED_DWORD]->setProperty("STYPE",DATAINS_DWORD);
+
+        connect(g_lineEdit[LIED_DWORD],SIGNAL(valueChanged(quint64)),this,SLOT(hexValueChanged(quint64)));
+
+        ui->tableWidget->setCellWidget(DATAINS_DWORD,1,g_lineEdit[LIED_DWORD]);
+    }
+    {
+        QTableWidgetItem *pItemName=new QTableWidgetItem;
+        pItemName->setText("QWORD");
+        ui->tableWidget->setItem(DATAINS_QWORD,0,pItemName);
+
+        g_lineEdit[LIED_QWORD]=new XLineEditHEX(this);
+        g_lineEdit[LIED_QWORD]->setProperty("STYPE",DATAINS_QWORD);
+
+        connect(g_lineEdit[LIED_QWORD],SIGNAL(valueChanged(quint64)),this,SLOT(hexValueChanged(quint64)));
+
+        ui->tableWidget->setCellWidget(DATAINS_QWORD,1,g_lineEdit[LIED_QWORD]);
+    }
 }
 
 XHexViewWidget::~XHexViewWidget()
@@ -51,6 +116,8 @@ void XHexViewWidget::setGlobal(XShortcuts *pShortcuts,XOptions *pXOptions)
 
 void XHexViewWidget::setData(QIODevice *pDevice,XHexView::OPTIONS options)
 {
+    g_bIsEdited=false;
+
     ui->checkBoxReadonly->setEnabled(pDevice->isWritable());
 
     ui->scrollAreaHex->setData(pDevice,options);
@@ -76,6 +143,14 @@ void XHexViewWidget::setReadonly(bool bState)
     ui->scrollAreaHex->setReadonly(bState);
 
     ui->checkBoxReadonly->setChecked(bState);
+
+    for(int i=0;i<__LIED_size;i++)
+    {
+        if(g_lineEdit[i])
+        {
+            g_lineEdit[i]->setReadOnly(bState);
+        }
+    }
 }
 
 void XHexViewWidget::setReadonlyVisible(bool bState)
@@ -108,6 +183,11 @@ void XHexViewWidget::setSelection(qint64 nOffset,qint64 nSize)
     ui->scrollAreaHex->goToOffset(nOffset);
 }
 
+void XHexViewWidget::blockSignals(bool bState)
+{
+    _blockSignals((QObject **)g_lineEdit,__LIED_size,bState);
+}
+
 void XHexViewWidget::cursorChanged(qint64 nOffset)
 {
     Q_UNUSED(nOffset)
@@ -135,6 +215,18 @@ void XHexViewWidget::adjust()
     ui->labelSelectionStatus->setText(sSelection);
 
     // TODO Data Inspector
+    //ui->scrollAreaHex->getDevice();
+    // TODO optimize
+    blockSignals(true);
+
+    XBinary binary(ui->scrollAreaHex->getDevice());
+
+    g_lineEdit[LIED_BYTE]->setValue(binary.read_uint8(state.nSelectionOffset));
+    g_lineEdit[LIED_WORD]->setValue(binary.read_uint16(state.nSelectionOffset));
+    g_lineEdit[LIED_DWORD]->setValue(binary.read_uint32(state.nSelectionOffset));
+    g_lineEdit[LIED_QWORD]->setValue(binary.read_uint64(state.nSelectionOffset));
+
+    blockSignals(false);
 }
 
 void XHexViewWidget::registerShortcuts(bool bState)
@@ -145,5 +237,57 @@ void XHexViewWidget::registerShortcuts(bool bState)
 void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
 {
     ui->scrollAreaHex->setReadonly(bChecked);
+}
+
+void XHexViewWidget::hexValueChanged(quint64 nValue)
+{
+    XLineEditHEX *pLineEdit=qobject_cast<XLineEditHEX *>(sender());
+
+    DATAINS nStype=(DATAINS)(pLineEdit->property("STYPE").toInt());
+
+    setValue(nValue,nStype);
+}
+
+void XHexViewWidget::setValue(quint64 nValue, DATAINS nType)
+{
+    QIODevice *pDevice=ui->scrollAreaHex->getDevice();
+
+    bool bSuccess=true;
+
+    if((getGlobalOptions()->isSaveBackup())&&(!g_bIsEdited))
+    {
+        bSuccess=XBinary::saveBackup(pDevice);
+    }
+
+    if(bSuccess)
+    {
+        if(pDevice->isWritable())
+        {
+            qint64 nOffset=ui->scrollAreaHex->getState().nSelectionOffset;
+
+            XBinary binary(pDevice);
+
+            if(nType==DATAINS_BYTE)
+            {
+                binary.write_uint8(nOffset,(quint8)nValue);
+            }
+            else if(nType==DATAINS_WORD)
+            {
+                binary.write_uint16(nOffset,(quint16)nValue);
+            }
+            else if(nType==DATAINS_DWORD)
+            {
+                binary.write_uint32(nOffset,(quint32)nValue);
+            }
+            else if(nType==DATAINS_QWORD)
+            {
+                binary.write_uint64(nOffset,(quint64)nValue);
+            }
+
+            g_bIsEdited=true;
+
+            ui->scrollAreaHex->reload(true);
+        }
+    }
 }
 
