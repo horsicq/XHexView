@@ -311,9 +311,16 @@ void XHexView::paintCell(QPainter *pPainter,qint32 nRow,qint32 nColumn,qint32 nL
     {
         if(nRow<g_listRecords.count())
         {
+            QRect rectSymbol;
+
+            rectSymbol.setLeft(nLeft+getCharWidth());
+            rectSymbol.setTop(nTop+getLineDelta());
+            rectSymbol.setWidth(nWidth);
+            rectSymbol.setHeight(nHeight-getLineDelta());
+
 //            pPainter->save();
 //            pPainter->setPen(viewport()->palette().color(QPalette::Dark));
-            pPainter->drawText(nLeft+getCharWidth(),nTop,g_listRecords.at(nRow).sAddress); // TODO Text Optional
+            pPainter->drawText(rectSymbol,g_listRecords.at(nRow).sAddress); // TODO Text Optional
 //            pPainter->restore();
         }
     }
