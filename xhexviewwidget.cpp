@@ -248,7 +248,7 @@ void XHexViewWidget::hexValueChanged(quint64 nValue)
     setValue(nValue,nStype);
 }
 
-void XHexViewWidget::setValue(quint64 nValue, DATAINS nType)
+void XHexViewWidget::setValue(quint64 nValue,DATAINS nType)
 {
     QIODevice *pDevice=ui->scrollAreaHex->getDevice();
 
