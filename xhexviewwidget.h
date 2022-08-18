@@ -38,7 +38,15 @@ class XHexViewWidget : public XShortcutsWidget
         DATAINS_BYTE,
         DATAINS_WORD,
         DATAINS_DWORD,
-        DATAINS_QWORD
+        DATAINS_QWORD,
+        DATAINS_UINT8,
+        DATAINS_INT8,
+        DATAINS_UINT16,
+        DATAINS_INT16,
+        DATAINS_UINT32,
+        DATAINS_INT32,
+        DATAINS_UINT64,
+        DATAINS_INT64,
     };
 
     enum LIED
@@ -48,6 +56,14 @@ class XHexViewWidget : public XShortcutsWidget
         LIED_WORD,
         LIED_DWORD,
         LIED_QWORD,
+        LIED_UINT8,
+        LIED_INT8,
+        LIED_UINT16,
+        LIED_INT16,
+        LIED_UINT32,
+        LIED_INT32,
+        LIED_UINT64,
+        LIED_INT64,
         __LIED_size
     };
 
@@ -67,12 +83,14 @@ public:
     void setSelection(qint64 nOffset,qint64 nSize);
     void blockSignals(bool bState);
 
+    void addValue(QString sTitle,DATAINS datains,LIED lied);
+
 private slots:
     void cursorChanged(qint64 nOffset);
     void selectionChanged();
     void adjust();
     void on_checkBoxReadonly_toggled(bool bChecked);
-    void hexValueChanged(quint64 nValue);
+    void valueChangedSlot(quint64 nValue);
     void setValue(quint64 nValue,DATAINS nType);
 
 signals:
