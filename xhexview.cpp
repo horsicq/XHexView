@@ -39,6 +39,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     addColumn(tr("Symbols"),0,true);
 
     setTextFont(getMonoFont()); // mb TODO move to XDeviceTableView
+    setBlinkingCursorEnable(true);
 
     g_sCodePage="";
 
@@ -60,6 +61,8 @@ void XHexView::_adjustView()
     // TODO Check
 
     g_bIsAddressColon=getGlobalOptions()->getValue(XOptions::ID_HEX_ADDRESSCOLON).toBool();
+
+    setBlinkingCursorEnable(getGlobalOptions()->getValue(XOptions::ID_HEX_BLINKINGCURSOR).toBool());
 }
 
 void XHexView::adjustView()

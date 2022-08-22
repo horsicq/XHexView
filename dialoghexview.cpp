@@ -45,7 +45,10 @@ void DialogHexView::setData(QIODevice *pDevice,XHexView::OPTIONS options,QIODevi
     ui->widgetHex->setData(pDevice,options);
     ui->widgetHex->setBackupDevice(pBackupDevice);
 
-    setWindowTitle(options.sTitle);
+    if(options.sTitle!="")
+    {
+        setWindowTitle(options.sTitle);
+    }
 }
 
 DialogHexView::~DialogHexView()

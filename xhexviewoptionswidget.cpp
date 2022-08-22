@@ -48,6 +48,7 @@ void XHexViewOptionsWidget::save()
 {
     g_pOptions->getLineEdit(ui->lineEditHexFont,XOptions::ID_HEX_FONT);
     g_pOptions->getCheckBox(ui->checkBoxHexAddressColon,XOptions::ID_HEX_ADDRESSCOLON);
+    g_pOptions->getCheckBox(ui->checkBoxHexBlinkingCursor,XOptions::ID_HEX_BLINKINGCURSOR);
 }
 
 void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions)
@@ -62,12 +63,14 @@ void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions)
     pOptions->addID(XOptions::ID_HEX_FONT,"Menlo,10,-1,5,50,0,0,0,0,0"); // TODO Check
 #endif
     pOptions->addID(XOptions::ID_HEX_ADDRESSCOLON,true);
+    pOptions->addID(XOptions::ID_HEX_BLINKINGCURSOR,true);
 }
 
 void XHexViewOptionsWidget::reload()
 {
     g_pOptions->setLineEdit(ui->lineEditHexFont,XOptions::ID_HEX_FONT);
     g_pOptions->setCheckBox(ui->checkBoxHexAddressColon,XOptions::ID_HEX_ADDRESSCOLON);
+    g_pOptions->setCheckBox(ui->checkBoxHexBlinkingCursor,XOptions::ID_HEX_BLINKINGCURSOR);
 }
 
 void XHexViewOptionsWidget::on_toolButtonHexFont_clicked()
