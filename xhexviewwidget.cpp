@@ -152,7 +152,7 @@ void XHexViewWidget::blockSignals(bool bState)
     _blockSignals((QObject **)g_lineEdit,__LIED_size,bState);
 }
 
-void XHexViewWidget::addValue(QString sTitle, DATAINS datains, LIED lied)
+void XHexViewWidget::addValue(QString sTitle,DATAINS datains,LIED lied)
 {
     QTableWidgetItem *pItemName=new QTableWidgetItem;
     pItemName->setText(sTitle);
