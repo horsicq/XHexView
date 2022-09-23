@@ -108,7 +108,7 @@ void XHexViewWidget::setReadonly(bool bState)
 
     ui->checkBoxReadonly->setChecked(bState);
 
-    for(int i=0;i<__LIED_size;i++)
+    for(qint32 i=0;i<__LIED_size;i++)
     {
         if(g_lineEdit[i])
         {
