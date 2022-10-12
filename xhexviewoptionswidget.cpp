@@ -75,14 +75,5 @@ void XHexViewOptionsWidget::reload()
 
 void XHexViewOptionsWidget::on_toolButtonHexFont_clicked()
 {
-    QFont _font;
-    _font.fromString(ui->lineEditHexFont->text());
-
-    bool bOK=false;
-    _font=QFontDialog::getFont(&bOK,_font,this);
-
-    if(bOK)
-    {
-        ui->lineEditHexFont->setText(_font.toString());
-    }
+    XOptions::handleFontButton(this,ui->lineEditHexFont);
 }
