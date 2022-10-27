@@ -38,7 +38,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     addColumn(tr("Hex"));
     addColumn(tr("Symbols"),0,true);
 
-    setTextFont(getMonoFont()); // mb TODO move to XDeviceTableView
+    setTextFont(getMonoFont()); // mb TODO move to XDeviceTableView !!!
     setBlinkingCursorEnable(true);
 
     g_sCodePage="";
