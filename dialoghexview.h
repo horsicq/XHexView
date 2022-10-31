@@ -37,7 +37,6 @@ public:
     ~DialogHexView();
 
     void setData(QIODevice *pDevice,XHexView::OPTIONS options,QIODevice *pBackupDevice=nullptr);
-
     void setGlobal(XShortcuts *pShortcuts,XOptions *pXOptions);
 
 signals:
