@@ -49,7 +49,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) :
     ui->tableWidget->setHorizontalHeaderLabels(slHeader);
     ui->tableWidget->horizontalHeader()->setVisible(true);
 
-    ui->tableWidget->setColumnWidth(0,100);
+    ui->tableWidget->setColumnWidth(0,100);  // TODO consts
 
     addValue("BYTE",DATAINS_BYTE,LIED_BYTE);
     addValue("WORD",DATAINS_WORD,LIED_WORD);
