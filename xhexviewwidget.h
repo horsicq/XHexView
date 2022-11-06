@@ -82,7 +82,6 @@ public:
     qint64 getStartAddress();
     void setSelection(qint64 nOffset,qint64 nSize);
     void blockSignals(bool bState);
-
     void addValue(QString sTitle,DATAINS datains,LIED lied);
 
 private slots:
