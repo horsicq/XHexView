@@ -133,7 +133,7 @@ void XHexViewWidget::setEdited()
 {
     ui->scrollAreaHex->setEdited();
 
-//    emit changed();
+//    emit changed(); // TODO Check
 }
 
 qint64 XHexViewWidget::getStartAddress()
