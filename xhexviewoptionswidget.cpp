@@ -19,61 +19,53 @@
  * SOFTWARE.
  */
 #include "xhexviewoptionswidget.h"
+
 #include "ui_xhexviewoptionswidget.h"
 
-XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) :
-    QWidget(pParent),
-    ui(new Ui::XHexViewOptionsWidget)
-{
+XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) : QWidget(pParent), ui(new Ui::XHexViewOptionsWidget) {
     ui->setupUi(this);
 
-    g_pOptions=nullptr;
+    g_pOptions = nullptr;
 
-    setProperty("GROUPID",XOptions::GROUPID_HEX);
+    setProperty("GROUPID", XOptions::GROUPID_HEX);
 }
 
-XHexViewOptionsWidget::~XHexViewOptionsWidget()
-{
+XHexViewOptionsWidget::~XHexViewOptionsWidget() {
     delete ui;
 }
 
-void XHexViewOptionsWidget::setOptions(XOptions *pOptions)
-{
-    g_pOptions=pOptions;
+void XHexViewOptionsWidget::setOptions(XOptions *pOptions) {
+    g_pOptions = pOptions;
 
     reload();
 }
 
-void XHexViewOptionsWidget::save()
-{
-    g_pOptions->getLineEdit(ui->lineEditHexFont,XOptions::ID_HEX_FONT);
-    g_pOptions->getCheckBox(ui->checkBoxHexAddressColon,XOptions::ID_HEX_ADDRESSCOLON);
-    g_pOptions->getCheckBox(ui->checkBoxHexBlinkingCursor,XOptions::ID_HEX_BLINKINGCURSOR);
+void XHexViewOptionsWidget::save() {
+    g_pOptions->getLineEdit(ui->lineEditHexFont, XOptions::ID_HEX_FONT);
+    g_pOptions->getCheckBox(ui->checkBoxHexAddressColon, XOptions::ID_HEX_ADDRESSCOLON);
+    g_pOptions->getCheckBox(ui->checkBoxHexBlinkingCursor, XOptions::ID_HEX_BLINKINGCURSOR);
 }
 
-void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions)
-{       
+void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions) {
 #ifdef Q_OS_WIN
-    pOptions->addID(XOptions::ID_HEX_FONT,"Courier,10,-1,5,50,0,0,0,0,0");
+    pOptions->addID(XOptions::ID_HEX_FONT, "Courier,10,-1,5,50,0,0,0,0,0");
 #endif
 #ifdef Q_OS_LINUX
-    pOptions->addID(XOptions::ID_HEX_FONT,"DejaVu Sans Mono,10,-1,5,50,0,0,0,0,0");
+    pOptions->addID(XOptions::ID_HEX_FONT, "DejaVu Sans Mono,10,-1,5,50,0,0,0,0,0");
 #endif
 #ifdef Q_OS_MACOS
-    pOptions->addID(XOptions::ID_HEX_FONT,"Menlo,10,-1,5,50,0,0,0,0,0"); // TODO Check
+    pOptions->addID(XOptions::ID_HEX_FONT, "Menlo,10,-1,5,50,0,0,0,0,0");  // TODO Check
 #endif
-    pOptions->addID(XOptions::ID_HEX_ADDRESSCOLON,true);
-    pOptions->addID(XOptions::ID_HEX_BLINKINGCURSOR,true);
+    pOptions->addID(XOptions::ID_HEX_ADDRESSCOLON, true);
+    pOptions->addID(XOptions::ID_HEX_BLINKINGCURSOR, true);
 }
 
-void XHexViewOptionsWidget::reload()
-{
-    g_pOptions->setLineEdit(ui->lineEditHexFont,XOptions::ID_HEX_FONT);
-    g_pOptions->setCheckBox(ui->checkBoxHexAddressColon,XOptions::ID_HEX_ADDRESSCOLON);
-    g_pOptions->setCheckBox(ui->checkBoxHexBlinkingCursor,XOptions::ID_HEX_BLINKINGCURSOR);
+void XHexViewOptionsWidget::reload() {
+    g_pOptions->setLineEdit(ui->lineEditHexFont, XOptions::ID_HEX_FONT);
+    g_pOptions->setCheckBox(ui->checkBoxHexAddressColon, XOptions::ID_HEX_ADDRESSCOLON);
+    g_pOptions->setCheckBox(ui->checkBoxHexBlinkingCursor, XOptions::ID_HEX_BLINKINGCURSOR);
 }
 
-void XHexViewOptionsWidget::on_toolButtonHexFont_clicked()
-{
-    XOptions::handleFontButton(this,ui->lineEditHexFont);
+void XHexViewOptionsWidget::on_toolButtonHexFont_clicked() {
+    XOptions::handleFontButton(this, ui->lineEditHexFont);
 }

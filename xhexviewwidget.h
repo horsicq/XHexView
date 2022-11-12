@@ -28,13 +28,11 @@ namespace Ui {
 class XHexViewWidget;
 }
 
-class XHexViewWidget : public XShortcutsWidget
-{
+class XHexViewWidget : public XShortcutsWidget {
     Q_OBJECT
 
-    enum DATAINS
-    {
-//        DATAINS_BINARY=0,
+    enum DATAINS {
+        //        DATAINS_BINARY=0,
         DATAINS_BYTE,
         DATAINS_WORD,
         DATAINS_DWORD,
@@ -49,9 +47,8 @@ class XHexViewWidget : public XShortcutsWidget
         DATAINS_INT64,
     };
 
-    enum LIED
-    {
-//        LIED_BINARY,
+    enum LIED {
+        //        LIED_BINARY,
         LIED_BYTE,
         LIED_WORD,
         LIED_DWORD,
@@ -68,11 +65,11 @@ class XHexViewWidget : public XShortcutsWidget
     };
 
 public:
-    explicit XHexViewWidget(QWidget *pParent=nullptr);
+    explicit XHexViewWidget(QWidget *pParent = nullptr);
     ~XHexViewWidget();
 
-    void setGlobal(XShortcuts *pShortcuts,XOptions *pXOptions);
-    void setData(QIODevice *pDevice,XHexView::OPTIONS options);
+    void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions);
+    void setData(QIODevice *pDevice, XHexView::OPTIONS options);
     void setDevice(QIODevice *pDevice);
     void setBackupDevice(QIODevice *pDevice);
     void reload();
@@ -80,9 +77,9 @@ public:
     void setReadonlyVisible(bool bState);
     void setEdited();
     qint64 getStartAddress();
-    void setSelection(qint64 nOffset,qint64 nSize);
+    void setSelection(qint64 nOffset, qint64 nSize);
     void blockSignals(bool bState);
-    void addValue(QString sTitle,DATAINS datains,LIED lied);
+    void addValue(QString sTitle, DATAINS datains, LIED lied);
 
 private slots:
     void cursorChanged(qint64 nOffset);
@@ -90,7 +87,7 @@ private slots:
     void adjust();
     void on_checkBoxReadonly_toggled(bool bChecked);
     void valueChangedSlot(quint64 nValue);
-    void setValue(quint64 nValue,DATAINS nType);
+    void setValue(quint64 nValue, DATAINS nType);
 
 signals:
     void dataChanged();
@@ -106,4 +103,4 @@ private:
     XLineEditHEX *g_lineEdit[__LIED_size];
 };
 
-#endif // XHEXVIEWWIDGET_H
+#endif  // XHEXVIEWWIDGET_H

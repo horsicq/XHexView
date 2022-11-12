@@ -22,18 +22,18 @@
 #define XHEXVIEWOPTIONSWIDGET_H
 
 #include <QFontDialog>
+
 #include "xoptions.h"
 
 namespace Ui {
 class XHexViewOptionsWidget;
 }
 
-class XHexViewOptionsWidget : public QWidget
-{
+class XHexViewOptionsWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit XHexViewOptionsWidget(QWidget *pParent=nullptr);
+    explicit XHexViewOptionsWidget(QWidget *pParent = nullptr);
     ~XHexViewOptionsWidget();
 
     void setOptions(XOptions *pOptions);
@@ -51,4 +51,4 @@ private:
     XOptions *g_pOptions;
 };
 
-#endif // XHEXVIEWOPTIONSWIDGET_H
+#endif  // XHEXVIEWOPTIONSWIDGET_H

@@ -27,20 +27,19 @@ namespace Ui {
 class DialogHexView;
 }
 
-class DialogHexView : public XShortcutsDialog
-{
+class DialogHexView : public XShortcutsDialog {
     Q_OBJECT
 
 public:
     explicit DialogHexView(QWidget *pParent);
-    explicit DialogHexView(QWidget *pParent,QIODevice *pDevice,XHexView::OPTIONS options,QIODevice *pBackupDevice=nullptr);
+    explicit DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice = nullptr);
     ~DialogHexView();
 
-    void setData(QIODevice *pDevice,XHexView::OPTIONS options,QIODevice *pBackupDevice=nullptr);
-    void setGlobal(XShortcuts *pShortcuts,XOptions *pXOptions);
+    void setData(QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice = nullptr);
+    void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions);
 
 signals:
-//    void editState(bool bState);
+    //    void editState(bool bState);
     void dataChanged();
 
 private slots:
@@ -50,4 +49,4 @@ private:
     Ui::DialogHexView *ui;
 };
 
-#endif // DIALOGHEXVIEW_H
+#endif  // DIALOGHEXVIEW_H
