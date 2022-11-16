@@ -22,7 +22,8 @@
 
 #include "ui_dialoghexview.h"
 
-DialogHexView::DialogHexView(QWidget *pParent) : XShortcutsDialog(pParent), ui(new Ui::DialogHexView) {
+DialogHexView::DialogHexView(QWidget *pParent) : XShortcutsDialog(pParent), ui(new Ui::DialogHexView)
+{
     ui->setupUi(this);
 
     setWindowFlags(Qt::Window);
@@ -32,11 +33,13 @@ DialogHexView::DialogHexView(QWidget *pParent) : XShortcutsDialog(pParent), ui(n
     ui->widgetHex->setReadonlyVisible(true);
 }
 
-DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice) : DialogHexView(pParent) {
+DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice) : DialogHexView(pParent)
+{
     setData(pDevice, options, pBackupDevice);
 }
 
-void DialogHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice) {
+void DialogHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice)
+{
     ui->widgetHex->setData(pDevice, options);
     ui->widgetHex->setBackupDevice(pBackupDevice);
 
@@ -45,15 +48,18 @@ void DialogHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, QIODe
     }
 }
 
-DialogHexView::~DialogHexView() {
+DialogHexView::~DialogHexView()
+{
     delete ui;
 }
 
-void DialogHexView::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions) {
+void DialogHexView::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
+{
     ui->widgetHex->setGlobal(pShortcuts, pXOptions);
     XShortcutsDialog::setGlobal(pShortcuts, pXOptions);
 }
 
-void DialogHexView::on_pushButtonClose_clicked() {
+void DialogHexView::on_pushButtonClose_clicked()
+{
     this->close();
 }

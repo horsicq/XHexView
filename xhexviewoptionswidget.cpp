@@ -22,7 +22,8 @@
 
 #include "ui_xhexviewoptionswidget.h"
 
-XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) : QWidget(pParent), ui(new Ui::XHexViewOptionsWidget) {
+XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) : QWidget(pParent), ui(new Ui::XHexViewOptionsWidget)
+{
     ui->setupUi(this);
 
     g_pOptions = nullptr;
@@ -30,23 +31,27 @@ XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) : QWidget(pParent
     setProperty("GROUPID", XOptions::GROUPID_HEX);
 }
 
-XHexViewOptionsWidget::~XHexViewOptionsWidget() {
+XHexViewOptionsWidget::~XHexViewOptionsWidget()
+{
     delete ui;
 }
 
-void XHexViewOptionsWidget::setOptions(XOptions *pOptions) {
+void XHexViewOptionsWidget::setOptions(XOptions *pOptions)
+{
     g_pOptions = pOptions;
 
     reload();
 }
 
-void XHexViewOptionsWidget::save() {
+void XHexViewOptionsWidget::save()
+{
     g_pOptions->getLineEdit(ui->lineEditHexFont, XOptions::ID_HEX_FONT);
     g_pOptions->getCheckBox(ui->checkBoxHexAddressColon, XOptions::ID_HEX_ADDRESSCOLON);
     g_pOptions->getCheckBox(ui->checkBoxHexBlinkingCursor, XOptions::ID_HEX_BLINKINGCURSOR);
 }
 
-void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions) {
+void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions)
+{
 #ifdef Q_OS_WIN
     pOptions->addID(XOptions::ID_HEX_FONT, "Courier,10,-1,5,50,0,0,0,0,0");
 #endif
@@ -60,12 +65,14 @@ void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions) {
     pOptions->addID(XOptions::ID_HEX_BLINKINGCURSOR, true);
 }
 
-void XHexViewOptionsWidget::reload() {
+void XHexViewOptionsWidget::reload()
+{
     g_pOptions->setLineEdit(ui->lineEditHexFont, XOptions::ID_HEX_FONT);
     g_pOptions->setCheckBox(ui->checkBoxHexAddressColon, XOptions::ID_HEX_ADDRESSCOLON);
     g_pOptions->setCheckBox(ui->checkBoxHexBlinkingCursor, XOptions::ID_HEX_BLINKINGCURSOR);
 }
 
-void XHexViewOptionsWidget::on_toolButtonHexFont_clicked() {
+void XHexViewOptionsWidget::on_toolButtonHexFont_clicked()
+{
     XOptions::handleFontButton(this, ui->lineEditHexFont);
 }

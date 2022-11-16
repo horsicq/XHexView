@@ -20,7 +20,8 @@
  */
 #include "xhexview.h"
 
-XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent) {
+XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
+{
     g_nBytesProLine = 16;  // TODO Set/Get
     g_nDataBlockSize = 0;
     g_nViewStartDelta = 0;
@@ -47,7 +48,8 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent) {
     connect(&g_xOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
 }
 
-void XHexView::_adjustView() {
+void XHexView::_adjustView()
+{
     setTextFontFromOptions(XOptions::ID_HEX_FONT);
 
     g_bIsAddressColon = getGlobalOptions()->getValue(XOptions::ID_HEX_ADDRESSCOLON).toBool();
@@ -55,7 +57,8 @@ void XHexView::_adjustView() {
     setBlinkingCursorEnable(getGlobalOptions()->getValue(XOptions::ID_HEX_BLINKINGCURSOR).toBool());
 }
 
-void XHexView::adjustView() {
+void XHexView::adjustView()
+{
     _adjustView();
 
     if (getDevice()) {
@@ -63,7 +66,8 @@ void XHexView::adjustView() {
     }
 }
 
-void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bReload) {
+void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bReload)
+{
     g_options = options;
 
     setDevice(pDevice);
@@ -108,20 +112,24 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bRelo
     }
 }
 
-void XHexView::goToAddress(XADDR nAddress) {
+void XHexView::goToAddress(XADDR nAddress)
+{
     _goToOffset(nAddress - g_options.nStartAddress);
     // TODO reload
 }
 
-void XHexView::goToOffset(qint64 nOffset) {
+void XHexView::goToOffset(qint64 nOffset)
+{
     _goToOffset(nOffset);
 }
 
-XADDR XHexView::getStartAddress() {
+XADDR XHexView::getStartAddress()
+{
     return g_options.nStartAddress;
 }
 
-XADDR XHexView::getSelectionInitAddress() {
+XADDR XHexView::getSelectionInitAddress()
+{
     return getSelectionInitOffset() + g_options.nStartAddress;
 }
 
@@ -154,7 +162,8 @@ XADDR XHexView::getSelectionInitAddress() {
 //    return cResult;
 //}
 
-XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_POSITION cursorPosition) {
+XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_POSITION cursorPosition)
+{
     OS osResult = {};
 
     osResult.nOffset = -1;
@@ -192,7 +201,8 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_P
     return osResult;
 }
 
-void XHexView::updateData() {
+void XHexView::updateData()
+{
     if (getDevice()) {
         if (getXInfoDB()) {
             QList<XBinary::MEMORY_REPLACE> listMR = getXInfoDB()->getMemoryReplaces(getMemoryMap()->nModuleAddress, getMemoryMap()->nImageSize);
@@ -260,7 +270,8 @@ void XHexView::updateData() {
     }
 }
 
-void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight) {
+void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
+{
     Q_UNUSED(nWidth)
     //    g_pPainterText->drawRect(nLeft,nTop,nWidth,nHeight);
     if (nColumn == COLUMN_ADDRESS) {
@@ -382,7 +393,8 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
     }
 }
 
-void XHexView::contextMenu(const QPoint &pos) {
+void XHexView::contextMenu(const QPoint &pos)
+{
     if (isContextMenuEnable()) {
         QAction actionGoToOffset(tr("Offset"), this);
         actionGoToOffset.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET));
@@ -516,7 +528,8 @@ void XHexView::contextMenu(const QPoint &pos) {
     }
 }
 
-void XHexView::wheelEvent(QWheelEvent *pEvent) {
+void XHexView::wheelEvent(QWheelEvent *pEvent)
+{
     if ((g_nViewStartDelta) && (pEvent->angleDelta().y() > 0)) {
         if (getScrollValue() == g_nViewStartDelta) {
             setScrollValue(0);
@@ -528,7 +541,8 @@ void XHexView::wheelEvent(QWheelEvent *pEvent) {
     XAbstractTableView::wheelEvent(pEvent);
 }
 
-void XHexView::keyPressEvent(QKeyEvent *pEvent) {
+void XHexView::keyPressEvent(QKeyEvent *pEvent)
+{
     // Move commands
     if (pEvent->matches(QKeySequence::MoveToNextChar) || pEvent->matches(QKeySequence::MoveToPreviousChar) || pEvent->matches(QKeySequence::MoveToNextLine) ||
         pEvent->matches(QKeySequence::MoveToPreviousLine) || pEvent->matches(QKeySequence::MoveToStartOfLine) || pEvent->matches(QKeySequence::MoveToEndOfLine) ||
@@ -594,7 +608,8 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent) {
     }
 }
 
-qint64 XHexView::getScrollValue() {
+qint64 XHexView::getScrollValue()
+{
     qint64 nResult = 0;
 
     qint32 nValue = verticalScrollBar()->value();
@@ -614,7 +629,8 @@ qint64 XHexView::getScrollValue() {
     return nResult;
 }
 
-void XHexView::setScrollValue(qint64 nOffset) {
+void XHexView::setScrollValue(qint64 nOffset)
+{
     setViewStart(nOffset);
     g_nViewStartDelta = (nOffset) % g_nBytesProLine;
 
@@ -633,7 +649,8 @@ void XHexView::setScrollValue(qint64 nOffset) {
     verticalScrollBar()->setValue(nValue);
 }
 
-void XHexView::adjustColumns() {
+void XHexView::adjustColumns()
+{
     const QFontMetricsF fm(getTextFont());
 
     if (XBinary::getWidthModeFromSize(getStartAddress() + getDataSize()) == XBinary::MODE_64) {
@@ -648,7 +665,8 @@ void XHexView::adjustColumns() {
     setColumnWidth(COLUMN_SYMBOLS, (g_nBytesProLine + 2) * getCharWidth());
 }
 
-void XHexView::registerShortcuts(bool bState) {
+void XHexView::registerShortcuts(bool bState)
+{
     if (bState) {
         if (!shortCuts[SC_GOTO_OFFSET]) shortCuts[SC_GOTO_OFFSET] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET), this, SLOT(_goToOffsetSlot()));
         if (!shortCuts[SC_GOTO_ADDRESS]) shortCuts[SC_GOTO_ADDRESS] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS), this, SLOT(_goToAddressSlot()));
@@ -676,7 +694,8 @@ void XHexView::registerShortcuts(bool bState) {
     }
 }
 
-void XHexView::_headerClicked(qint32 nColumn) {
+void XHexView::_headerClicked(qint32 nColumn)
+{
     if (nColumn == COLUMN_ADDRESS) {
         if (getAddressMode() == MODE_ADDRESS) {
             setColumnTitle(COLUMN_ADDRESS, tr("Offset"));
@@ -712,7 +731,8 @@ void XHexView::_headerClicked(qint32 nColumn) {
     }
 }
 
-void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn) {
+void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
+{
     if (nColumn == COLUMN_ADDRESS) {
         setColumnTitle(COLUMN_ADDRESS, "");
         setAddressMode(MODE_THIS);
@@ -725,7 +745,8 @@ void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn) {
     }
 }
 
-QString XHexView::getStringBuffer(QByteArray *pbaData) {
+QString XHexView::getStringBuffer(QByteArray *pbaData)
+{
     QString sResult;
 
     qint32 nSize = pbaData->size();
@@ -845,25 +866,29 @@ QString XHexView::getStringBuffer(QByteArray *pbaData) {
 ////    }
 //}
 
-void XHexView::_disasmSlot() {
+void XHexView::_disasmSlot()
+{
     if (g_options.bMenu_Disasm) {
         emit showOffsetDisasm(getStateOffset());
     }
 }
 
-void XHexView::_memoryMapSlot() {
+void XHexView::_memoryMapSlot()
+{
     if (g_options.bMenu_MemoryMap) {
         emit showOffsetMemoryMap(getStateOffset());
     }
 }
 
-void XHexView::_mainHexSlot() {
+void XHexView::_mainHexSlot()
+{
     if (g_options.bMenu_MainHex) {
         emit showOffsetMainHex(getStateOffset(), getState().nSelectionSize);
     }
 }
 
-void XHexView::_setCodePage(QString sCodePage) {
+void XHexView::_setCodePage(QString sCodePage)
+{
     g_sCodePage = sCodePage;
 
     QString sTitle = tr("Symbols");

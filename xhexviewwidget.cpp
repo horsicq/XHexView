@@ -22,7 +22,8 @@
 
 #include "ui_xhexviewwidget.h"
 
-XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui(new Ui::XHexViewWidget) {
+XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui(new Ui::XHexViewWidget)
+{
     ui->setupUi(this);
 
     memset(g_lineEdit, 0, sizeof g_lineEdit);
@@ -65,16 +66,19 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     setReadonly(true);
 }
 
-XHexViewWidget::~XHexViewWidget() {
+XHexViewWidget::~XHexViewWidget()
+{
     delete ui;
 }
 
-void XHexViewWidget::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions) {
+void XHexViewWidget::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
+{
     ui->scrollAreaHex->setGlobal(pShortcuts, pXOptions);
     XShortcutsWidget::setGlobal(pShortcuts, pXOptions);
 }
 
-void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options) {
+void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options)
+{
     g_bIsEdited = false;
 
     ui->checkBoxReadonly->setEnabled(pDevice->isWritable());
@@ -82,19 +86,23 @@ void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options) {
     ui->scrollAreaHex->setData(pDevice, options);
 }
 
-void XHexViewWidget::setDevice(QIODevice *pDevice) {
+void XHexViewWidget::setDevice(QIODevice *pDevice)
+{
     ui->scrollAreaHex->setDevice(pDevice);
 }
 
-void XHexViewWidget::setBackupDevice(QIODevice *pDevice) {
+void XHexViewWidget::setBackupDevice(QIODevice *pDevice)
+{
     ui->scrollAreaHex->setBackupDevice(pDevice);
 }
 
-void XHexViewWidget::reload() {
+void XHexViewWidget::reload()
+{
     ui->scrollAreaHex->reload(true);
 }
 
-void XHexViewWidget::setReadonly(bool bState) {
+void XHexViewWidget::setReadonly(bool bState)
+{
     ui->scrollAreaHex->setReadonly(bState);
 
     ui->checkBoxReadonly->setChecked(bState);
@@ -106,7 +114,8 @@ void XHexViewWidget::setReadonly(bool bState) {
     }
 }
 
-void XHexViewWidget::setReadonlyVisible(bool bState) {
+void XHexViewWidget::setReadonlyVisible(bool bState)
+{
     if (bState) {
         ui->checkBoxReadonly->show();
     } else {
@@ -114,26 +123,31 @@ void XHexViewWidget::setReadonlyVisible(bool bState) {
     }
 }
 
-void XHexViewWidget::setEdited() {
+void XHexViewWidget::setEdited()
+{
     ui->scrollAreaHex->setEdited();
 
     //    emit changed(); // TODO Check
 }
 
-qint64 XHexViewWidget::getStartAddress() {
+qint64 XHexViewWidget::getStartAddress()
+{
     return ui->scrollAreaHex->getStartAddress();
 }
 
-void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize) {
+void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
+{
     ui->scrollAreaHex->setSelection(nOffset, nSize);
     ui->scrollAreaHex->goToOffset(nOffset);
 }
 
-void XHexViewWidget::blockSignals(bool bState) {
+void XHexViewWidget::blockSignals(bool bState)
+{
     _blockSignals((QObject **)g_lineEdit, __LIED_size, bState);
 }
 
-void XHexViewWidget::addValue(QString sTitle, DATAINS datains, LIED lied) {
+void XHexViewWidget::addValue(QString sTitle, DATAINS datains, LIED lied)
+{
     QTableWidgetItem *pItemName = new QTableWidgetItem;
     pItemName->setText(sTitle);
     ui->tableWidget->setItem(datains, 0, pItemName);
@@ -146,17 +160,20 @@ void XHexViewWidget::addValue(QString sTitle, DATAINS datains, LIED lied) {
     ui->tableWidget->setCellWidget(datains, 1, g_lineEdit[lied]);
 }
 
-void XHexViewWidget::cursorChanged(qint64 nOffset) {
+void XHexViewWidget::cursorChanged(qint64 nOffset)
+{
     Q_UNUSED(nOffset)
 
     adjust();
 }
 
-void XHexViewWidget::selectionChanged() {
+void XHexViewWidget::selectionChanged()
+{
     adjust();
 }
 
-void XHexViewWidget::adjust() {
+void XHexViewWidget::adjust()
+{
     XAbstractTableView::STATE state = ui->scrollAreaHex->getState();
 
     QString sCursor = XBinary::valueToHex(state.nCursorOffset);
@@ -192,16 +209,19 @@ void XHexViewWidget::adjust() {
     blockSignals(false);
 }
 
-void XHexViewWidget::registerShortcuts(bool bState) {
+void XHexViewWidget::registerShortcuts(bool bState)
+{
     Q_UNUSED(bState)
 }
 
-void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked) {
+void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
+{
     ui->scrollAreaHex->setReadonly(bChecked);
     setReadonly(bChecked);
 }
 
-void XHexViewWidget::valueChangedSlot(quint64 nValue) {
+void XHexViewWidget::valueChangedSlot(quint64 nValue)
+{
     XLineEditHEX *pLineEdit = qobject_cast<XLineEditHEX *>(sender());
 
     DATAINS nStype = (DATAINS)(pLineEdit->property("STYPE").toInt());
@@ -209,7 +229,8 @@ void XHexViewWidget::valueChangedSlot(quint64 nValue) {
     setValue(nValue, nStype);
 }
 
-void XHexViewWidget::setValue(quint64 nValue, DATAINS nType) {
+void XHexViewWidget::setValue(quint64 nValue, DATAINS nType)
+{
     QIODevice *pDevice = ui->scrollAreaHex->getDevice();
 
     bool bSuccess = true;
