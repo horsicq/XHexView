@@ -20,7 +20,8 @@
  */
 #include "xhexview.h"
 
-XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
+XHexView::XHexView(QWidget *pParent)
+    : XDeviceTableEditView(pParent)
 {
     g_nBytesProLine = 16;  // TODO Set/Get
     g_nDataBlockSize = 0;

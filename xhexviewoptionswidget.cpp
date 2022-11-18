@@ -22,7 +22,8 @@
 
 #include "ui_xhexviewoptionswidget.h"
 
-XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) : QWidget(pParent), ui(new Ui::XHexViewOptionsWidget)
+XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent)
+    : QWidget(pParent), ui(new Ui::XHexViewOptionsWidget)
 {
     ui->setupUi(this);
 
