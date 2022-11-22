@@ -22,8 +22,7 @@
 
 #include "ui_xhexviewwidget.h"
 
-XHexViewWidget::XHexViewWidget(QWidget *pParent)
-    : XShortcutsWidget(pParent), ui(new Ui::XHexViewWidget)
+XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui(new Ui::XHexViewWidget)
 {
     ui->setupUi(this);
 

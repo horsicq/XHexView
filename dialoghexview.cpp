@@ -22,8 +22,7 @@
 
 #include "ui_dialoghexview.h"
 
-DialogHexView::DialogHexView(QWidget *pParent)
-    : XShortcutsDialog(pParent), ui(new Ui::DialogHexView)
+DialogHexView::DialogHexView(QWidget *pParent) : XShortcutsDialog(pParent), ui(new Ui::DialogHexView)
 {
     ui->setupUi(this);
 
@@ -34,8 +33,7 @@ DialogHexView::DialogHexView(QWidget *pParent)
     ui->widgetHex->setReadonlyVisible(true);
 }
 
-DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice)
-    : DialogHexView(pParent)
+DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice) : DialogHexView(pParent)
 {
     setData(pDevice, options, pBackupDevice);
 }
