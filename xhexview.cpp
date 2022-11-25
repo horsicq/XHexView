@@ -646,7 +646,14 @@ void XHexView::setScrollValue(qint64 nOffset)
         nValue = (nOffset) / g_nBytesProLine;
     }
 
-    verticalScrollBar()->setValue(nValue);
+    {
+        const bool bBlocked1 = verticalScrollBar()->blockSignals(true);
+
+        verticalScrollBar()->setValue(nValue);
+        _verticalScroll();
+
+        verticalScrollBar()->blockSignals(bBlocked1);
+    }
 }
 
 void XHexView::adjustColumns()
