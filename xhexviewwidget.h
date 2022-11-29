@@ -88,6 +88,8 @@ private slots:
     void on_checkBoxReadonly_toggled(bool bChecked);
     void valueChangedSlot(quint64 nValue);
     void setValue(quint64 nValue, DATAINS nType);
+    void on_pushButtonDataInspector_toggled(bool bChecked);
+    void showDataInspector(bool bState);
 
 signals:
     void dataChanged();
@@ -101,6 +103,7 @@ private:
     Ui::XHexViewWidget *ui;
     bool g_bIsEdited;
     XLineEditHEX *g_lineEdit[__LIED_size];
+    bool g_bIsDataInspector;
 };
 
 #endif  // XHEXVIEWWIDGET_H

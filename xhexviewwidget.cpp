@@ -28,6 +28,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 
     memset(g_lineEdit, 0, sizeof g_lineEdit);
     g_bIsEdited = false;
+    g_bIsDataInspector = false;
 
     connect(ui->scrollAreaHex, SIGNAL(showOffsetDisasm(qint64)), this, SIGNAL(showOffsetDisasm(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(showOffsetMemoryMap(qint64)), this, SIGNAL(showOffsetMemoryMap(qint64)));
@@ -38,17 +39,17 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 
     setReadonlyVisible(false);
 
-    ui->tableWidget->setColumnCount(2);
-    ui->tableWidget->setRowCount(__LIED_size);
+    ui->tableWidgetDataInspector->setColumnCount(2);
+    ui->tableWidgetDataInspector->setRowCount(__LIED_size);
 
     QStringList slHeader;
     slHeader.append(tr("Name"));
     slHeader.append(tr("Value"));
 
-    ui->tableWidget->setHorizontalHeaderLabels(slHeader);
-    ui->tableWidget->horizontalHeader()->setVisible(true);
+    ui->tableWidgetDataInspector->setHorizontalHeaderLabels(slHeader);
+    ui->tableWidgetDataInspector->horizontalHeader()->setVisible(true);
 
-    ui->tableWidget->setColumnWidth(0, 100);  // TODO consts
+    ui->tableWidgetDataInspector->setColumnWidth(0, 100);  // TODO consts
 
     addValue("BYTE", DATAINS_BYTE, LIED_BYTE);
     addValue("WORD", DATAINS_WORD, LIED_WORD);
@@ -64,6 +65,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     addValue("int64", DATAINS_INT64, LIED_INT64);
 
     setReadonly(true);
+    showDataInspector(false);
 }
 
 XHexViewWidget::~XHexViewWidget()
@@ -150,14 +152,14 @@ void XHexViewWidget::addValue(QString sTitle, DATAINS datains, LIED lied)
 {
     QTableWidgetItem *pItemName = new QTableWidgetItem;
     pItemName->setText(sTitle);
-    ui->tableWidget->setItem(datains, 0, pItemName);
+    ui->tableWidgetDataInspector->setItem(datains, 0, pItemName);
 
     g_lineEdit[lied] = new XLineEditHEX(this);
     g_lineEdit[lied]->setProperty("STYPE", datains);
 
     connect(g_lineEdit[lied], SIGNAL(valueChanged(quint64)), this, SLOT(valueChangedSlot(quint64)));
 
-    ui->tableWidget->setCellWidget(datains, 1, g_lineEdit[lied]);
+    ui->tableWidgetDataInspector->setCellWidget(datains, 1, g_lineEdit[lied]);
 }
 
 void XHexViewWidget::cursorChanged(qint64 nOffset)
@@ -189,24 +191,27 @@ void XHexViewWidget::adjust()
     // TODO Data Inspector
     // ui->scrollAreaHex->getDevice();
     // TODO optimize
-    blockSignals(true);
 
-    XBinary binary(ui->scrollAreaHex->getDevice());
+    if (g_bIsDataInspector) {
+        blockSignals(true);
 
-    g_lineEdit[LIED_BYTE]->setValue(binary.read_uint8(state.nSelectionOffset));
-    g_lineEdit[LIED_WORD]->setValue(binary.read_uint16(state.nSelectionOffset));
-    g_lineEdit[LIED_DWORD]->setValue(binary.read_uint32(state.nSelectionOffset));
-    g_lineEdit[LIED_QWORD]->setValue(binary.read_uint64(state.nSelectionOffset));
-    g_lineEdit[LIED_UINT8]->setValue(binary.read_uint8(state.nSelectionOffset), HEXValidator::MODE_DEC);
-    g_lineEdit[LIED_INT8]->setValue(binary.read_int8(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
-    g_lineEdit[LIED_UINT16]->setValue(binary.read_uint16(state.nSelectionOffset), HEXValidator::MODE_DEC);
-    g_lineEdit[LIED_INT16]->setValue(binary.read_int16(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
-    g_lineEdit[LIED_UINT32]->setValue(binary.read_uint32(state.nSelectionOffset), HEXValidator::MODE_DEC);
-    g_lineEdit[LIED_INT32]->setValue(binary.read_int32(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
-    g_lineEdit[LIED_UINT64]->setValue(binary.read_uint64(state.nSelectionOffset), HEXValidator::MODE_DEC);
-    g_lineEdit[LIED_INT64]->setValue(binary.read_int64(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
+        XBinary binary(ui->scrollAreaHex->getDevice());
 
-    blockSignals(false);
+        g_lineEdit[LIED_BYTE]->setValue(binary.read_uint8(state.nSelectionOffset));
+        g_lineEdit[LIED_WORD]->setValue(binary.read_uint16(state.nSelectionOffset));
+        g_lineEdit[LIED_DWORD]->setValue(binary.read_uint32(state.nSelectionOffset));
+        g_lineEdit[LIED_QWORD]->setValue(binary.read_uint64(state.nSelectionOffset));
+        g_lineEdit[LIED_UINT8]->setValue(binary.read_uint8(state.nSelectionOffset), HEXValidator::MODE_DEC);
+        g_lineEdit[LIED_INT8]->setValue(binary.read_int8(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
+        g_lineEdit[LIED_UINT16]->setValue(binary.read_uint16(state.nSelectionOffset), HEXValidator::MODE_DEC);
+        g_lineEdit[LIED_INT16]->setValue(binary.read_int16(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
+        g_lineEdit[LIED_UINT32]->setValue(binary.read_uint32(state.nSelectionOffset), HEXValidator::MODE_DEC);
+        g_lineEdit[LIED_INT32]->setValue(binary.read_int32(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
+        g_lineEdit[LIED_UINT64]->setValue(binary.read_uint64(state.nSelectionOffset), HEXValidator::MODE_DEC);
+        g_lineEdit[LIED_INT64]->setValue(binary.read_int64(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
+
+        blockSignals(false);
+    }
 }
 
 void XHexViewWidget::registerShortcuts(bool bState)
@@ -277,4 +282,22 @@ void XHexViewWidget::setValue(quint64 nValue, DATAINS nType)
             adjust();
         }
     }
+}
+
+void XHexViewWidget::on_pushButtonDataInspector_toggled(bool bChecked)
+{
+    showDataInspector(bChecked);
+}
+
+void XHexViewWidget::showDataInspector(bool bState)
+{
+    g_bIsDataInspector = bState;
+
+    if (g_bIsDataInspector) {
+        ui->groupBoxDataInspector->show();
+    } else {
+        ui->groupBoxDataInspector->hide();
+    }
+
+    adjust();
 }
