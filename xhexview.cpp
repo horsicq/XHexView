@@ -393,6 +393,27 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
     }
 }
 
+void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight, QString sTitle)
+{
+    if (nColumn == COLUMN_HEX) {
+        for (qint8 i = 0; i < g_nBytesProLine; i++) {
+
+            QString sSymbol = XBinary::valueToHex(i);
+
+            QRect rectSymbol;
+
+            rectSymbol.setLeft(nLeft + getCharWidth() + (i * 2) * getCharWidth() + i * getSideDelta());
+            rectSymbol.setTop(nTop);
+            rectSymbol.setWidth(2 * getCharWidth() + getSideDelta());
+            rectSymbol.setHeight(nHeight);
+
+            pPainter->drawText(rectSymbol, Qt::AlignVCenter | Qt::AlignLeft, sSymbol);
+        }
+    } else {
+        XAbstractTableView::paintTitle(pPainter, nColumn, nLeft, nTop, nWidth, nHeight, sTitle);
+    }
+}
+
 void XHexView::contextMenu(const QPoint &pos)
 {
     if (isContextMenuEnable()) {
