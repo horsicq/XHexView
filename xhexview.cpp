@@ -39,7 +39,8 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     addColumn(tr("Symbols"), 0, true);
 
     setTextFont(getMonoFont());  // mb TODO move to XDeviceTableView !!!
-    setBlinkingCursorEnable(true);
+    //setBlinkingCursorEnable(true);
+    setBlinkingCursorEnable(false);
 
     g_sCodePage = "";
 
@@ -425,6 +426,14 @@ void XHexView::contextMenu(const QPoint &pos)
         actionGoToAddress.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS));
         connect(&actionGoToAddress, SIGNAL(triggered()), this, SLOT(_goToAddressSlot()));
 
+        QAction actionGoToSelectionStart(tr("Start"), this);
+        actionGoToSelectionStart.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_SELECTION_START));
+        connect(&actionGoToSelectionStart, SIGNAL(triggered()), this, SLOT(_goToSelectionStart()));
+
+        QAction actionGoToSelectionEnd(tr("End"), this);
+        actionGoToSelectionEnd.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_SELECTION_END));
+        connect(&actionGoToSelectionEnd, SIGNAL(triggered()), this, SLOT(_goToSelectionEnd()));
+
         QAction actionDumpToFile(tr("Dump to file"), this);
         actionDumpToFile.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_DUMPTOFILE));
         connect(&actionDumpToFile, SIGNAL(triggered()), this, SLOT(_dumpToFileSlot()));
@@ -486,6 +495,7 @@ void XHexView::contextMenu(const QPoint &pos)
         // TODO string from XShortcuts
         QMenu contextMenu(this);
         QMenu menuGoTo(tr("Go to"), this);
+        QMenu menuGoToSelection(tr("Selection"), this);
         QMenu menuFind(tr("Find"), this);
         QMenu menuSelect(tr("Select"), this);
         QMenu menuCopy(tr("Copy"), this);
@@ -494,6 +504,9 @@ void XHexView::contextMenu(const QPoint &pos)
 
         menuGoTo.addAction(&actionGoToOffset);
         menuGoTo.addAction(&actionGoToAddress);
+        menuGoTo.addMenu(&menuGoToSelection);
+        menuGoToSelection.addAction(&actionGoToSelectionStart);
+        menuGoToSelection.addAction(&actionGoToSelectionEnd);
 
         contextMenu.addMenu(&menuGoTo);
 
