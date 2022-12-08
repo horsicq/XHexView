@@ -195,20 +195,22 @@ void XHexViewWidget::adjust()
     if (g_bIsDataInspector) {
         blockSignals(true);
 
+        qint64 nCurrentOffset = state.nCursorOffset;
+
         XBinary binary(ui->scrollAreaHex->getDevice());
 
-        g_lineEdit[LIED_BYTE]->setValue(binary.read_uint8(state.nSelectionOffset));
-        g_lineEdit[LIED_WORD]->setValue(binary.read_uint16(state.nSelectionOffset));
-        g_lineEdit[LIED_DWORD]->setValue(binary.read_uint32(state.nSelectionOffset));
-        g_lineEdit[LIED_QWORD]->setValue(binary.read_uint64(state.nSelectionOffset));
-        g_lineEdit[LIED_UINT8]->setValue(binary.read_uint8(state.nSelectionOffset), HEXValidator::MODE_DEC);
-        g_lineEdit[LIED_INT8]->setValue(binary.read_int8(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
-        g_lineEdit[LIED_UINT16]->setValue(binary.read_uint16(state.nSelectionOffset), HEXValidator::MODE_DEC);
-        g_lineEdit[LIED_INT16]->setValue(binary.read_int16(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
-        g_lineEdit[LIED_UINT32]->setValue(binary.read_uint32(state.nSelectionOffset), HEXValidator::MODE_DEC);
-        g_lineEdit[LIED_INT32]->setValue(binary.read_int32(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
-        g_lineEdit[LIED_UINT64]->setValue(binary.read_uint64(state.nSelectionOffset), HEXValidator::MODE_DEC);
-        g_lineEdit[LIED_INT64]->setValue(binary.read_int64(state.nSelectionOffset), HEXValidator::MODE_SIGN_DEC);
+        g_lineEdit[LIED_BYTE]->setValue(binary.read_uint8(nCurrentOffset));
+        g_lineEdit[LIED_WORD]->setValue(binary.read_uint16(nCurrentOffset));
+        g_lineEdit[LIED_DWORD]->setValue(binary.read_uint32(nCurrentOffset));
+        g_lineEdit[LIED_QWORD]->setValue(binary.read_uint64(nCurrentOffset));
+        g_lineEdit[LIED_UINT8]->setValue(binary.read_uint8(nCurrentOffset), HEXValidator::MODE_DEC);
+        g_lineEdit[LIED_INT8]->setValue(binary.read_int8(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
+        g_lineEdit[LIED_UINT16]->setValue(binary.read_uint16(nCurrentOffset), HEXValidator::MODE_DEC);
+        g_lineEdit[LIED_INT16]->setValue(binary.read_int16(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
+        g_lineEdit[LIED_UINT32]->setValue(binary.read_uint32(nCurrentOffset), HEXValidator::MODE_DEC);
+        g_lineEdit[LIED_INT32]->setValue(binary.read_int32(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
+        g_lineEdit[LIED_UINT64]->setValue(binary.read_uint64(nCurrentOffset), HEXValidator::MODE_DEC);
+        g_lineEdit[LIED_INT64]->setValue(binary.read_int64(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
 
         blockSignals(false);
     }

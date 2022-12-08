@@ -48,13 +48,6 @@
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBoxReadonly">
-       <property name="text">
-        <string>Readonly</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="pushButtonDataInspector">
        <property name="text">
         <string>Data inspector</string>
@@ -64,6 +57,13 @@
        </property>
        <property name="checked">
         <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBoxReadonly">
+       <property name="text">
+        <string>Readonly</string>
        </property>
       </widget>
      </item>
