@@ -40,7 +40,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 
     setTextFont(getMonoFont());  // mb TODO move to XDeviceTableView !!!
     setBlinkingCursorEnable(true);
-    //setBlinkingCursorEnable(false);
+    // setBlinkingCursorEnable(false);
 
     g_sCodePage = "";
 
@@ -398,7 +398,6 @@ void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint
 {
     if (nColumn == COLUMN_HEX) {
         for (qint8 i = 0; i < g_nBytesProLine; i++) {
-
             QString sSymbol = XBinary::valueToHex(i);
 
             QRect rectSymbol;
