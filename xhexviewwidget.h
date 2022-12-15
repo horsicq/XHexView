@@ -45,6 +45,7 @@ class XHexViewWidget : public XShortcutsWidget {
         DATAINS_INT32,
         DATAINS_UINT64,
         DATAINS_INT64,
+        // TODO Strings
     };
 
     enum LIED {
