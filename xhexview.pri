@@ -17,7 +17,7 @@ FORMS += \
     $$PWD/xhexviewoptionswidget.ui \
     $$PWD/xhexviewwidget.ui \
     $$PWD/dialoghexview.ui
-    
+
 !contains(XCONFIG, xabstracttableview) {
     XCONFIG += xabstracttableview
     include($$PWD/../Controls/xabstracttableview.pri)
