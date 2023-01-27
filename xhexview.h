@@ -34,7 +34,7 @@ class XHexView : public XDeviceTableEditView {
         SC_GOTO_ADDRESS,
         SC_DUMPTOFILE,
         SC_SELECTALL,
-        SC_COPYHEX,
+        SC_COPYASDATA,
         SC_COPYOFFSET,
         SC_COPYADDRESS,
         SC_FINDSTRING,

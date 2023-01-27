@@ -38,6 +38,11 @@ FORMS += \
     include($$PWD/../FormatDialogs/dialogsearch.pri)
 }
 
+!contains(XCONFIG, dialogshowdata) {
+    XCONFIG += dialogshowdata
+    include($$PWD/../FormatDialogs/dialogshowdata.pri)
+}
+
 !contains(XCONFIG, dialoggotoaddress) {
     XCONFIG += dialoggotoaddress
     include($$PWD/../FormatDialogs/dialoggotoaddress.pri)

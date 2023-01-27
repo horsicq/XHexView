@@ -62,7 +62,7 @@ void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions)
     pOptions->addID(XOptions::ID_HEX_FONT, "Menlo,10,-1,5,50,0,0,0,0,0");  // TODO Check
 #endif
     pOptions->addID(XOptions::ID_HEX_ADDRESSCOLON, true);
-    pOptions->addID(XOptions::ID_HEX_BLINKINGCURSOR, true);
+    pOptions->addID(XOptions::ID_HEX_BLINKINGCURSOR, false);
 }
 
 void XHexViewOptionsWidget::reload()

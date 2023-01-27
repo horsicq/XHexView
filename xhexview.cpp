@@ -461,9 +461,9 @@ void XHexView::contextMenu(const QPoint &pos)
         actionSelectAll.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_SELECT_ALL));
         connect(&actionSelectAll, SIGNAL(triggered()), this, SLOT(_selectAllSlot()));
 
-        QAction actionCopyHex(tr("Hex"), this);
-        actionCopyHex.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_HEX));
-        connect(&actionCopyHex, SIGNAL(triggered()), this, SLOT(_copyHexSlot()));
+        QAction actionCopyData(tr("Data"), this);
+        actionCopyData.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_DATA));
+        connect(&actionCopyData, SIGNAL(triggered()), this, SLOT(_copyDataSlot()));
 
         QAction actionCopyCursorOffset(tr("Offset"), this);
         actionCopyCursorOffset.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_OFFSET));
@@ -523,7 +523,7 @@ void XHexView::contextMenu(const QPoint &pos)
             contextMenu.addAction(&actionDumpToFile);
             contextMenu.addAction(&actionSignature);
 
-            menuCopy.addAction(&actionCopyHex);
+            menuCopy.addAction(&actionCopyData);
         }
 
         contextMenu.addMenu(&menuCopy);
@@ -712,7 +712,7 @@ void XHexView::registerShortcuts(bool bState)
         if (!shortCuts[SC_GOTO_ADDRESS]) shortCuts[SC_GOTO_ADDRESS] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS), this, SLOT(_goToAddressSlot()));
         if (!shortCuts[SC_DUMPTOFILE]) shortCuts[SC_DUMPTOFILE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DUMPTOFILE), this, SLOT(_dumpToFileSlot()));
         if (!shortCuts[SC_SELECTALL]) shortCuts[SC_SELECTALL] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_SELECT_ALL), this, SLOT(_selectAllSlot()));
-        if (!shortCuts[SC_COPYHEX]) shortCuts[SC_COPYHEX] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_HEX), this, SLOT(_copyHexSlot()));
+        if (!shortCuts[SC_COPYASDATA]) shortCuts[SC_COPYASDATA] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_DATA), this, SLOT(_copyDataSlot()));
         if (!shortCuts[SC_COPYOFFSET]) shortCuts[SC_COPYOFFSET] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_OFFSET), this, SLOT(_copyOffsetSlot()));
         if (!shortCuts[SC_COPYADDRESS]) shortCuts[SC_COPYADDRESS] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_ADDRESS), this, SLOT(_copyAddressSlot()));
         if (!shortCuts[SC_FINDSTRING]) shortCuts[SC_FINDSTRING] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FIND_STRING), this, SLOT(_findStringSlot()));
