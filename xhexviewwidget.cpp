@@ -178,9 +178,9 @@ void XHexViewWidget::adjust()
 {
     XAbstractTableView::STATE state = ui->scrollAreaHex->getState();
 
-    QString sCursor = XBinary::valueToHex(state.nCursorOffset);
-    QString sSelectionStart = XBinary::valueToHex(state.nSelectionOffset);
-    QString sSelectionSize = XBinary::valueToHex(state.nSelectionSize);
+    QString sCursor = XBinary::valueToHex(state.nCursorViewOffset);
+    QString sSelectionStart = XBinary::valueToHex(state.nSelectionViewOffset);
+    QString sSelectionSize = XBinary::valueToHex(state.nSelectionViewSize);
 
     QString sSelection;
 
@@ -195,7 +195,7 @@ void XHexViewWidget::adjust()
     if (g_bIsDataInspector) {
         blockSignals(true);
 
-        qint64 nCurrentOffset = state.nCursorOffset;
+        qint64 nCurrentOffset = state.nCursorViewOffset;
 
         XBinary binary(ui->scrollAreaHex->getDevice());
 
@@ -248,7 +248,7 @@ void XHexViewWidget::setValue(quint64 nValue, DATAINS nType)
 
     if (bSuccess) {
         if (pDevice->isWritable()) {
-            qint64 nOffset = ui->scrollAreaHex->getState().nSelectionOffset;
+            qint64 nOffset = ui->scrollAreaHex->getState().nSelectionViewOffset;
 
             XBinary binary(pDevice);
 

@@ -102,8 +102,8 @@ protected:
     virtual void contextMenu(const QPoint &pos);
     virtual void wheelEvent(QWheelEvent *pEvent);
     virtual void keyPressEvent(QKeyEvent *pEvent);
-    virtual qint64 getScrollValue();
-    virtual void setScrollValue(qint64 nOffset);
+    virtual qint64 getCurrentLineFromScroll();
+    virtual void setCurrentViewOffsetToScroll(qint64 nOffset);
     virtual void adjustColumns();
     virtual void registerShortcuts(bool bState);
     virtual void _headerClicked(qint32 nColumn);
