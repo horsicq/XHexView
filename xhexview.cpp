@@ -103,7 +103,7 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bRelo
         _goToViewOffset(options.nStartSelectionOffset);
     }
 
-    setSelection(options.nStartSelectionOffset, options.nSizeOfSelection);
+    _setSelection(options.nStartSelectionOffset, options.nSizeOfSelection);
     setCursorViewOffset(options.nStartSelectionOffset, COLUMN_HEX);
 
     _adjustView();
@@ -115,13 +115,15 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bRelo
 
 void XHexView::goToAddress(XADDR nAddress)
 {
-    _goToViewOffset(nAddress - g_options.nStartAddress);
+    qint64 nViewOffset = deviceOffsetToViewOffset(nAddress - g_options.nStartAddress);
+    _goToViewOffset(nViewOffset);
     // TODO reload
 }
 
 void XHexView::goToOffset(qint64 nOffset)
 {
-    _goToViewOffset(nOffset);
+    qint64 nViewOffset = deviceOffsetToViewOffset(nOffset);
+    _goToViewOffset(nViewOffset);
 }
 
 XADDR XHexView::getStartAddress()
@@ -910,21 +912,22 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
 void XHexView::_disasmSlot()
 {
     if (g_options.bMenu_Disasm) {
-        emit showOffsetDisasm(getStateOffset());
+        emit showOffsetDisasm(getDeviceState().nCursorOffset);
     }
 }
 
 void XHexView::_memoryMapSlot()
 {
     if (g_options.bMenu_MemoryMap) {
-        emit showOffsetMemoryMap(getStateOffset());
+        emit showOffsetMemoryMap(getDeviceState().nCursorOffset);
     }
 }
 
 void XHexView::_mainHexSlot()
 {
     if (g_options.bMenu_MainHex) {
-        emit showOffsetMainHex(getStateOffset(), getState().nSelectionViewSize);
+        DEVICESTATE deviceState = getDeviceState();
+        emit showOffsetMainHex(deviceState.nSelectionOffset, deviceState.nSelectionSize);
     }
 }
 

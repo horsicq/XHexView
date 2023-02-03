@@ -139,7 +139,7 @@ qint64 XHexViewWidget::getStartAddress()
 
 void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
 {
-    ui->scrollAreaHex->setSelection(nOffset, nSize);
+    ui->scrollAreaHex->setDeviceSelection(nOffset, nSize);
     ui->scrollAreaHex->goToOffset(nOffset);
 }
 
@@ -248,7 +248,7 @@ void XHexViewWidget::setValue(quint64 nValue, DATAINS nType)
 
     if (bSuccess) {
         if (pDevice->isWritable()) {
-            qint64 nOffset = ui->scrollAreaHex->getState().nSelectionViewOffset;
+            qint64 nOffset = ui->scrollAreaHex->getDeviceState().nSelectionOffset;
 
             XBinary binary(pDevice);
 
