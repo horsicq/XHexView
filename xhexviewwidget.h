@@ -76,7 +76,7 @@ public:
     void reload();
     void setReadonly(bool bState);
     void setReadonlyVisible(bool bState);
-    void setEdited();
+    void setEdited(qint64 nDeviceOffset, qint64 nDeviceSize);
     qint64 getStartAddress();
     void setSelection(qint64 nOffset, qint64 nSize);
     void blockSignals(bool bState);
@@ -93,7 +93,7 @@ private slots:
     void showDataInspector(bool bState);
 
 signals:
-    void dataChanged();
+    void dataChanged(qint64 nDeviceOffset, qint64 nDeviceSize);
     void showOffsetDisasm(qint64 nOffset);
     void showOffsetMemoryMap(qint64 nOffset);
 

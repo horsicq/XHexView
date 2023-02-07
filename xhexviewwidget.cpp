@@ -35,7 +35,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     connect(ui->scrollAreaHex, SIGNAL(errorMessage(QString)), this, SLOT(errorMessageSlot(QString)));
     connect(ui->scrollAreaHex, SIGNAL(cursorViewOffsetChanged(qint64)), this, SLOT(cursorChanged(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
-    connect(ui->scrollAreaHex, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+    connect(ui->scrollAreaHex, SIGNAL(dataChanged(qint64, qint64)), this, SIGNAL(dataChanged(qint64, qint64)));
 
     setReadonlyVisible(false);
 
@@ -125,9 +125,9 @@ void XHexViewWidget::setReadonlyVisible(bool bState)
     }
 }
 
-void XHexViewWidget::setEdited()
+void XHexViewWidget::setEdited(qint64 nDeviceOffset, qint64 nDeviceSize)
 {
-    ui->scrollAreaHex->setEdited();
+    ui->scrollAreaHex->setEdited(nDeviceOffset, nDeviceSize);
 
     //    emit changed(); // TODO Check
 }

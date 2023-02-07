@@ -28,7 +28,7 @@ DialogHexView::DialogHexView(QWidget *pParent) : XShortcutsDialog(pParent), ui(n
 
     setWindowFlags(Qt::Window);
 
-    connect(ui->widgetHex, SIGNAL(dataChanged()), this, SIGNAL(dataChanged()));
+    connect(ui->widgetHex, SIGNAL(dataChanged(qint64, qint64)), this, SIGNAL(dataChanged(qint64, qint64)));
 
     ui->widgetHex->setReadonlyVisible(true);
 }
