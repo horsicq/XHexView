@@ -102,13 +102,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="checkBoxHexBlinkingCursor">
-         <property name="text">
-          <string>Blinking cursor</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
