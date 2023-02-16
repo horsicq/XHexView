@@ -73,6 +73,7 @@ public:
     void setData(QIODevice *pDevice, XHexView::OPTIONS options);
     void setDevice(QIODevice *pDevice);
     void setBackupDevice(QIODevice *pDevice);
+    void setXInfoDB(XInfoDB *pXInfoDB);
     void reload();
     void setReadonly(bool bState);
     void setReadonlyVisible(bool bState);
