@@ -141,6 +141,7 @@ private:
     bool g_bIsAddressColon;
     //    qint32 g_nPieceSize;
     QString g_sCodePage;
+    QTextCodec *g_pCodec;
     QMenu *g_pCodePageMenu;
     XOptions g_xOptions;
 };

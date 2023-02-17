@@ -287,7 +287,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                                                                               //            pPainter->restore();
         }
     } else if ((nColumn == COLUMN_HEX) || (nColumn == COLUMN_SYMBOLS)) {
-        STATE state = getState();
+//        STATE state = getState();
 
         if (nRow * g_nBytesProLine < g_nDataBlockSize) {
             qint64 nDataBlockStartOffset = getViewOffsetStart();
@@ -304,8 +304,9 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                 sHex = g_baDataHexBuffer.mid(nIndex * 2, 2);
                 bBold = (sHex != "00");
 
-                bool bSelected = isViewOffsetSelected(nDataBlockStartOffset + nIndex);
-//                bool bCursor = (state.nCursorViewOffset == (nDataBlockStartOffset + nIndex));
+                qint64 nCurrent = nDataBlockStartOffset + nIndex;
+
+                bool bSelected = isViewOffsetSelected(nCurrent);
 
                 if (bBold) {
                     pPainter->save();
@@ -315,73 +316,75 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                 }
 
                 if (nColumn == COLUMN_HEX) {
-                    //                    rectSymbol.setRect(nLeft+getCharWidth()+(i*2)*getCharWidth()+i*getSideDelta(),nTop,2*getCharWidth()+getSideDelta(),nHeight);
                     rectSymbol.setLeft(nLeft + getCharWidth() + (i * 2) * getCharWidth() + i * getSideDelta());
                     rectSymbol.setTop(nTop + getLineDelta());
-                    rectSymbol.setWidth(2 * getCharWidth() + getSideDelta());
                     rectSymbol.setHeight(nHeight - getLineDelta());
+
+                    if ((((nIndex + 1) % g_nBytesProLine) == 0) || (!isViewOffsetSelected(nCurrent + 1))) {
+                        rectSymbol.setWidth(2 * getCharWidth());
+                    } else {
+                        rectSymbol.setWidth(2 * getCharWidth() + getSideDelta());
+                    }
 
                     sSymbol = sHex;
                 } else if (nColumn == COLUMN_SYMBOLS) {
-                    //                    rectSymbol.setRect(nLeft+(i+1)*getCharWidth(),nTop,getCharWidth(),nHeight);
                     rectSymbol.setLeft(nLeft + (i + 1) * getCharWidth());
                     rectSymbol.setTop(nTop + getLineDelta());
                     rectSymbol.setWidth(getCharWidth());
                     rectSymbol.setHeight(nHeight - getLineDelta());
 
                     sSymbol = g_sStringBuffer.mid(nIndex, 1);
-
-                    // TODO
-
-                    //                    if((getSmode()==SMODE_ANSI)||(getSmode()==SMODE_SYMBOLS))
-                    //                    {
-                    //                        QByteArray baChar=g_baDataBuffer.mid(nIndex,1); // TODO Check
-
-                    //                        if(baChar.size())
-                    //                        {
-                    //                            QChar cChar;
-
-                    //                            cChar=g_baDataBuffer.mid(nIndex,1).at(0); // TODO Check
-                    //                            sSymbol=filterSymbol(cChar,getSmode());
-                    //                        }
-                    //                    }
-                    //                    else if(getSmode()==SMODE_UNICODE)
-                    //                    {
-                    //                        if((nDataBlockStartOffset+nIndex)%2==0)
-                    //                        {
-                    //                            QByteArray baChar=g_baDataBuffer.mid(nIndex,2); // TODO Check
-
-                    //                            if(baChar.size()==2)
-                    //                            {
-                    //                                quint16 nCode=XBinary::_read_uint16(baChar.data());
-
-                    //                                QChar cChar(nCode);
-
-                    //                                sSymbol=filterSymbol(cChar,getSmode());
-                    //                            }
-                    //                        }
-                    //                    }
                 }
 
                 if (bSelected) {
-                    //                    QRect rectSelected;
-                    //// rectSelected.setRect(rectSymbol.x(),rectSymbol.y()+getLineDelta(),rectSymbol.width()*g_nPieceSize,rectSymbol.height());
-                    //                    rectSelected.setRect(rectSymbol.x(),rectSymbol.y()+getLineDelta(),rectSymbol.width(),rectSymbol.height());
+                    pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight)); // TODO Options
 
-//                    if (bCursor) {
-//                        if (nColumn == state.cursorPosition.nColumn) {
-//                            //                            setCursorData(rectSelected,rectSelected,sSymbol,nIndex);
-//                            setCursorData(rectSymbol, rectSymbol, sSymbol, nIndex);
-//                        }
-//                    }
+                    // Draw lines
+                    bool bTop = false;
+                    bool bLeft = false;
+                    bool bBottom = false;
+                    bool bRight = false;
 
-                    if (bSelected) {
-                        //                        pPainter->fillRect(rectSelected,viewport()->palette().color(QPalette::Highlight));
-                        pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight));
+                    if (((nIndex % g_nBytesProLine) == 0) || (!isViewOffsetSelected(nCurrent - 1))) {
+                        bLeft = true;
+                    }
+
+                    if ((((nIndex + 1) % g_nBytesProLine) == 0) || (!isViewOffsetSelected(nCurrent + 1))) {
+                        bRight = true;
+                    }
+
+                    if (!isViewOffsetSelected(nCurrent - g_nBytesProLine)) {
+                        bTop = true;
+                    }
+
+                    if (!isViewOffsetSelected(nCurrent + g_nBytesProLine)) {
+                        bBottom = true;
+                    }
+
+                    if (bTop) {
+                        pPainter->drawLine(rectSymbol.left(), rectSymbol.top(), rectSymbol.right(), rectSymbol.top());
+                    }
+
+                    if (bLeft) {
+                        pPainter->drawLine(rectSymbol.left(), rectSymbol.top(), rectSymbol.left(), rectSymbol.bottom());
+                    }
+
+                    if (bBottom) {
+                        pPainter->drawLine(rectSymbol.left(), rectSymbol.bottom(), rectSymbol.right(), rectSymbol.bottom());
+                    }
+
+                    if (bRight) {
+                        pPainter->drawLine(rectSymbol.right(), rectSymbol.top(), rectSymbol.right(), rectSymbol.bottom());
                     }
                 }
 
-                pPainter->drawText(rectSymbol, sSymbol);
+                if (nColumn == COLUMN_HEX) {
+                    pPainter->drawText(rectSymbol, sSymbol);
+                } else if (nColumn == COLUMN_SYMBOLS) {
+                    if (sSymbol != "") {
+                        pPainter->drawText(rectSymbol, sSymbol);
+                    }
+                }
 
                 if (bBold) {
                     pPainter->restore();
@@ -791,6 +794,7 @@ void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
 
 QString XHexView::getStringBuffer(QByteArray *pbaData)
 {
+    // TODO QList
     QString sResult;
 
     qint32 nSize = pbaData->size();
@@ -807,14 +811,17 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
         }
     } else {
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
-        QTextCodec *pCodec = QTextCodec::codecForName(g_sCodePage.toLatin1().data());
+//    #ifdef QT_DEBUG
+//        QElapsedTimer timer;
+//        timer.start();
+//    #endif
 
-        if (pCodec) {
-            QString _sResult = pCodec->toUnicode(*pbaData);
+        if (g_pCodec) {
+            QString _sResult = g_pCodec->toUnicode(*pbaData);
             QVector<uint> vecSymbols = _sResult.toUcs4();
             qint32 _nSize = vecSymbols.size();
 
-            if (_nSize == nSize) {
+            if (_nSize == nSize) { // TODO Check
                 for (qint32 i = 0; i < nSize; i++) {
                     QChar _char = _sResult.at(i);
 
@@ -867,7 +874,7 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
                 for (qint32 i = 0; i < _nSize; i++) {
                     QString _sChar = _sResult.mid(i, 1);
 
-                    QByteArray _baData = pCodec->fromUnicode(_sChar);
+                    QByteArray _baData = g_pCodec->fromUnicode(_sChar);
 
                     if (_sChar.at(0) < QChar(0x20)) {
                         _sChar = '.';
@@ -885,6 +892,10 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
                 }
             }
         }
+
+//    #ifdef QT_DEBUG
+//        qDebug("%lld %s",timer.elapsed(),sResult.toLatin1().data());
+//    #endif
 #endif
     }
 
@@ -938,8 +949,9 @@ void XHexView::_setCodePage(QString sCodePage)
 
     QString sTitle = tr("Symbols");
 
-    if (sCodePage != "") {
-        sTitle = sCodePage;
+    if (g_sCodePage != "") {
+        sTitle = g_sCodePage;
+        g_pCodec = QTextCodec::codecForName(g_sCodePage.toLatin1().data());
     }
 
     setColumnTitle(COLUMN_SYMBOLS, sTitle);
