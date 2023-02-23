@@ -394,6 +394,16 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
     }
 }
 
+void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
+{
+    Q_UNUSED(pPainter)
+    Q_UNUSED(nColumn)
+    Q_UNUSED(nLeft)
+    Q_UNUSED(nTop)
+    Q_UNUSED(nWidth)
+    Q_UNUSED(nHeight)
+}
+
 void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight, QString sTitle)
 {
     if (nColumn == COLUMN_HEX) {
