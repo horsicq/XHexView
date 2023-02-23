@@ -183,7 +183,7 @@ void XHexViewWidget::adjust()
 {
     XAbstractTableView::STATE state = ui->scrollAreaHex->getState();
 
-//    QString sCursor = XBinary::valueToHex(state.nCursorViewOffset);
+    //    QString sCursor = XBinary::valueToHex(state.nCursorViewOffset);
     QString sSelectionStart = XBinary::valueToHex(state.nSelectionViewOffset);
     QString sSelectionSize = XBinary::valueToHex(state.nSelectionViewSize);
 

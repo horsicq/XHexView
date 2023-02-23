@@ -39,7 +39,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     addColumn(tr("Symbols"), 0, true);
 
     setTextFont(getMonoFont());  // mb TODO move to XDeviceTableView !!!
-//    setBlinkingCursorEnable(true);
+                                 //    setBlinkingCursorEnable(true);
     // setBlinkingCursorEnable(false);
 
     g_sCodePage = "";
@@ -55,7 +55,7 @@ void XHexView::_adjustView()
 
     g_bIsAddressColon = getGlobalOptions()->getValue(XOptions::ID_HEX_ADDRESSCOLON).toBool();
 
-//    setBlinkingCursorEnable(getGlobalOptions()->getValue(XOptions::ID_HEX_BLINKINGCURSOR).toBool());
+    //    setBlinkingCursorEnable(getGlobalOptions()->getValue(XOptions::ID_HEX_BLINKINGCURSOR).toBool());
 }
 
 void XHexView::adjustView()
@@ -78,7 +78,7 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bRelo
 
     setMemoryMap(memoryMap);
 
-//    resetCursorData();
+    //    resetCursorData();
 
     if (options.bIsOffsetTitle) {
         setColumnTitle(0, tr("Offset"));
@@ -104,7 +104,7 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bRelo
     }
 
     _initSetSelection(options.nStartSelectionOffset, options.nSizeOfSelection);
-//    setCursorViewOffset(options.nStartSelectionOffset, COLUMN_HEX);
+    //    setCursorViewOffset(options.nStartSelectionOffset, COLUMN_HEX);
 
     _adjustView();
 
@@ -208,14 +208,14 @@ void XHexView::updateData()
 {
     if (getDevice()) {
         // Update cursor position
-        qint64 nBlockStartLine = getViewOffsetStart(); // TODO Check
-//        qint64 nCursorOffset = nBlockStartLine + getCursorDelta();
+        qint64 nBlockStartLine = getViewOffsetStart();  // TODO Check
+                                                        //        qint64 nCursorOffset = nBlockStartLine + getCursorDelta();
 
-//        if (nCursorOffset >= getViewSize()) {
-//            nCursorOffset = getViewSize() - 1;
-//        }
+        //        if (nCursorOffset >= getViewSize()) {
+        //            nCursorOffset = getViewSize() - 1;
+        //        }
 
-//        setCursorViewOffset(nCursorOffset);
+        //        setCursorViewOffset(nCursorOffset);
 
         XBinary::MODE mode = XBinary::getWidthModeFromByteSize(g_nAddressWidth);
 
@@ -287,7 +287,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                                                                               //            pPainter->restore();
         }
     } else if ((nColumn == COLUMN_HEX) || (nColumn == COLUMN_SYMBOLS)) {
-//        STATE state = getState();
+        //        STATE state = getState();
 
         if (nRow * g_nBytesProLine < g_nDataBlockSize) {
             qint64 nDataBlockStartOffset = getViewOffsetStart();
@@ -337,7 +337,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                 }
 
                 if (bSelected) {
-                    pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight)); // TODO Options
+                    pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight));  // TODO Options
 
                     // Draw lines
                     bool bTop = false;
@@ -591,16 +591,15 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
         pEvent->matches(QKeySequence::MoveToPreviousLine) || pEvent->matches(QKeySequence::MoveToStartOfLine) || pEvent->matches(QKeySequence::MoveToEndOfLine) ||
         pEvent->matches(QKeySequence::MoveToNextPage) || pEvent->matches(QKeySequence::MoveToPreviousPage) || pEvent->matches(QKeySequence::MoveToStartOfDocument) ||
         pEvent->matches(QKeySequence::MoveToEndOfDocument)) {
-
         STATE state = getState();
         qint64 nViewStart = getViewOffsetStart();
 
         state.nSelectionViewSize = 1;
 
         if (pEvent->matches(QKeySequence::MoveToNextChar)) {
-            state.nSelectionViewOffset ++;
+            state.nSelectionViewOffset++;
         } else if (pEvent->matches(QKeySequence::MoveToPreviousChar)) {
-            state.nSelectionViewOffset --;
+            state.nSelectionViewOffset--;
         } else if (pEvent->matches(QKeySequence::MoveToNextLine)) {
             state.nSelectionViewOffset += g_nBytesProLine;
         } else if (pEvent->matches(QKeySequence::MoveToPreviousLine)) {
@@ -821,17 +820,17 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
         }
     } else {
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
-//    #ifdef QT_DEBUG
-//        QElapsedTimer timer;
-//        timer.start();
-//    #endif
+        //    #ifdef QT_DEBUG
+        //        QElapsedTimer timer;
+        //        timer.start();
+        //    #endif
 
         if (g_pCodec) {
             QString _sResult = g_pCodec->toUnicode(*pbaData);
             QVector<uint> vecSymbols = _sResult.toUcs4();
             qint32 _nSize = vecSymbols.size();
 
-            if (_nSize == nSize) { // TODO Check
+            if (_nSize == nSize) {  // TODO Check
                 for (qint32 i = 0; i < nSize; i++) {
                     QChar _char = _sResult.at(i);
 
