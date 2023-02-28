@@ -66,7 +66,7 @@ public:
         bool bMenu_MemoryMap;
         bool bMenu_MainHex;
         QString sTitle;  // For dialogs
-        bool bIsOffsetTitle;
+        MODE addressMode;
     };
 
     explicit XHexView(QWidget *pParent = nullptr);

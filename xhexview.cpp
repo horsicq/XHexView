@@ -47,6 +47,8 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     g_pCodePageMenu = g_xOptions.createCodePagesMenu(this, true);
 
     connect(&g_xOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
+
+    setAddressMode(MODE_OFFSET);
 }
 
 void XHexView::_adjustView()
@@ -80,9 +82,7 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bRelo
 
     //    resetCursorData();
 
-    if (options.bIsOffsetTitle) {
-        setColumnTitle(0, tr("Offset"));
-    }
+    setAddressMode(options.addressMode);
 
     adjustColumns();
 
