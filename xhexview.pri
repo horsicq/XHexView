@@ -53,6 +53,11 @@ FORMS += \
     include($$PWD/../FormatDialogs/dialoghexsignature.pri)
 }
 
+!contains(XCONFIG, dialogdatainspector) {
+    XCONFIG += dialogdatainspector
+    include($$PWD/../FormatDialogs/dialogdatainspector.pri)
+}
+
 !contains(XCONFIG, searchsignatureswidget) {
     XCONFIG += searchsignatureswidget
     include($$PWD/../FormatWidgets/SearchSignatures/searchsignatureswidget.pri)

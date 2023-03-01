@@ -40,7 +40,7 @@ public:
 
 signals:
     //    void editState(bool bState);
-    void dataChanged();
+    void dataChanged(qint64 nDeviceOffset, qint64 nDeviceSize);
 
 private slots:
     void on_pushButtonClose_clicked();

@@ -26,46 +26,45 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 {
     ui->setupUi(this);
 
-    memset(g_lineEdit, 0, sizeof g_lineEdit);
-    g_bIsEdited = false;
-    g_bIsDataInspector = false;
+//    memset(g_lineEdit, 0, sizeof g_lineEdit);
+//    g_bIsEdited = false;
+//    g_bIsDataInspector = false;
 
     connect(ui->scrollAreaHex, SIGNAL(showOffsetDisasm(qint64)), this, SIGNAL(showOffsetDisasm(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(showOffsetMemoryMap(qint64)), this, SIGNAL(showOffsetMemoryMap(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(errorMessage(QString)), this, SLOT(errorMessageSlot(QString)));
-    connect(ui->scrollAreaHex, SIGNAL(cursorViewOffsetChanged(qint64)), this, SLOT(cursorChanged(qint64)));
-    connect(ui->scrollAreaHex, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
+    connect(ui->scrollAreaHex, SIGNAL(cursorViewOffsetChanged(qint64)), this, SLOT(cursorChangedSlot(qint64)));
+    connect(ui->scrollAreaHex, SIGNAL(selectionChanged()), this, SLOT(selectionChangedSlot()));
     connect(ui->scrollAreaHex, SIGNAL(dataChanged(qint64, qint64)), this, SIGNAL(dataChanged(qint64, qint64)));
 
     setReadonlyVisible(false);
 
-    ui->tableWidgetDataInspector->setColumnCount(2);
-    ui->tableWidgetDataInspector->setRowCount(__LIED_size);
+//    ui->tableWidgetDataInspector->setColumnCount(2);
+//    ui->tableWidgetDataInspector->setRowCount(__LIED_size);
 
-    QStringList slHeader;
-    slHeader.append(tr("Name"));
-    slHeader.append(tr("Value"));
+//    QStringList slHeader;
+//    slHeader.append(tr("Name"));
+//    slHeader.append(tr("Value"));
 
-    ui->tableWidgetDataInspector->setHorizontalHeaderLabels(slHeader);
-    ui->tableWidgetDataInspector->horizontalHeader()->setVisible(true);
+//    ui->tableWidgetDataInspector->setHorizontalHeaderLabels(slHeader);
+//    ui->tableWidgetDataInspector->horizontalHeader()->setVisible(true);
 
-    ui->tableWidgetDataInspector->setColumnWidth(0, 100);  // TODO consts
+//    ui->tableWidgetDataInspector->setColumnWidth(0, 100);  // TODO consts
 
-    addValue("BYTE", DATAINS_BYTE, LIED_BYTE);
-    addValue("WORD", DATAINS_WORD, LIED_WORD);
-    addValue("DWORD", DATAINS_DWORD, LIED_DWORD);
-    addValue("QWORD", DATAINS_QWORD, LIED_QWORD);
-    addValue("uint8", DATAINS_UINT8, LIED_UINT8);
-    addValue("int8", DATAINS_INT8, LIED_INT8);
-    addValue("uint16", DATAINS_UINT16, LIED_UINT16);
-    addValue("int16", DATAINS_INT16, LIED_INT16);
-    addValue("uint32", DATAINS_UINT32, LIED_UINT32);
-    addValue("int32", DATAINS_INT32, LIED_INT32);
-    addValue("uint64", DATAINS_UINT64, LIED_UINT64);
-    addValue("int64", DATAINS_INT64, LIED_INT64);
+//    addValue("BYTE", DATAINS_BYTE, LIED_BYTE);
+//    addValue("WORD", DATAINS_WORD, LIED_WORD);
+//    addValue("DWORD", DATAINS_DWORD, LIED_DWORD);
+//    addValue("QWORD", DATAINS_QWORD, LIED_QWORD);
+//    addValue("uint8", DATAINS_UINT8, LIED_UINT8);
+//    addValue("int8", DATAINS_INT8, LIED_INT8);
+//    addValue("uint16", DATAINS_UINT16, LIED_UINT16);
+//    addValue("int16", DATAINS_INT16, LIED_INT16);
+//    addValue("uint32", DATAINS_UINT32, LIED_UINT32);
+//    addValue("int32", DATAINS_INT32, LIED_INT32);
+//    addValue("uint64", DATAINS_UINT64, LIED_UINT64);
+//    addValue("int64", DATAINS_INT64, LIED_INT64);
 
     setReadonly(true);
-    showDataInspector(false);
 }
 
 XHexViewWidget::~XHexViewWidget()
@@ -81,7 +80,7 @@ void XHexViewWidget::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
 
 void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 {
-    g_bIsEdited = false;
+//    g_bIsEdited = false;
 
     ui->checkBoxReadonly->setEnabled(pDevice->isWritable());
 
@@ -114,11 +113,11 @@ void XHexViewWidget::setReadonly(bool bState)
 
     ui->checkBoxReadonly->setChecked(bState);
 
-    for (qint32 i = 0; i < __LIED_size; i++) {
-        if (g_lineEdit[i]) {
-            g_lineEdit[i]->setReadOnly(bState);
-        }
-    }
+//    for (qint32 i = 0; i < __LIED_size; i++) {
+//        if (g_lineEdit[i]) {
+//            g_lineEdit[i]->setReadOnly(bState);
+//        }
+//    }
 }
 
 void XHexViewWidget::setReadonlyVisible(bool bState)
@@ -148,35 +147,43 @@ void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
     ui->scrollAreaHex->goToOffset(nOffset);
 }
 
-void XHexViewWidget::blockSignals(bool bState)
-{
-    _blockSignals((QObject **)g_lineEdit, __LIED_size, bState);
-}
+//void XHexViewWidget::blockSignals(bool bState)
+//{
+//    _blockSignals((QObject **)g_lineEdit, __LIED_size, bState);
+//}
 
-void XHexViewWidget::addValue(QString sTitle, DATAINS datains, LIED lied)
-{
-    QTableWidgetItem *pItemName = new QTableWidgetItem;
-    pItemName->setText(sTitle);
-    ui->tableWidgetDataInspector->setItem(datains, 0, pItemName);
+//void XHexViewWidget::addValue(QString sTitle, DATAINS datains, LIED lied)
+//{
+//    QTableWidgetItem *pItemName = new QTableWidgetItem;
+//    pItemName->setText(sTitle);
+//    ui->tableWidgetDataInspector->setItem(datains, 0, pItemName);
 
-    g_lineEdit[lied] = new XLineEditHEX(this);
-    g_lineEdit[lied]->setProperty("STYPE", datains);
+//    g_lineEdit[lied] = new XLineEditHEX(this);
+//    g_lineEdit[lied]->setProperty("STYPE", datains);
 
-    connect(g_lineEdit[lied], SIGNAL(valueChanged(quint64)), this, SLOT(valueChangedSlot(quint64)));
+//    connect(g_lineEdit[lied], SIGNAL(valueChanged(quint64)), this, SLOT(valueChangedSlot(quint64)));
 
-    ui->tableWidgetDataInspector->setCellWidget(datains, 1, g_lineEdit[lied]);
-}
+//    ui->tableWidgetDataInspector->setCellWidget(datains, 1, g_lineEdit[lied]);
+//}
 
-void XHexViewWidget::cursorChanged(qint64 nOffset)
+void XHexViewWidget::cursorChangedSlot(qint64 nOffset)
 {
     Q_UNUSED(nOffset)
 
     adjust();
+
+//    XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
+
+//    emit selectionChanged(deviceState.nSelectionOffset, deviceState.nSelectionSize);
 }
 
-void XHexViewWidget::selectionChanged()
+void XHexViewWidget::selectionChangedSlot()
 {
     adjust();
+
+    XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
+
+    emit selectionChanged(deviceState.nSelectionOffset, deviceState.nSelectionSize);
 }
 
 void XHexViewWidget::adjust()
@@ -197,28 +204,28 @@ void XHexViewWidget::adjust()
     // ui->scrollAreaHex->getDevice();
     // TODO optimize
 
-    if (g_bIsDataInspector) {
-        blockSignals(true);
+//    if (g_bIsDataInspector) {
+//        blockSignals(true);
 
-        qint64 nCurrentOffset = state.nSelectionViewOffset;
+//        qint64 nCurrentOffset = state.nSelectionViewOffset;
 
-        XBinary binary(ui->scrollAreaHex->getDevice());
+//        XBinary binary(ui->scrollAreaHex->getDevice());
 
-        g_lineEdit[LIED_BYTE]->setValue(binary.read_uint8(nCurrentOffset));
-        g_lineEdit[LIED_WORD]->setValue(binary.read_uint16(nCurrentOffset));
-        g_lineEdit[LIED_DWORD]->setValue(binary.read_uint32(nCurrentOffset));
-        g_lineEdit[LIED_QWORD]->setValue(binary.read_uint64(nCurrentOffset));
-        g_lineEdit[LIED_UINT8]->setValue(binary.read_uint8(nCurrentOffset), HEXValidator::MODE_DEC);
-        g_lineEdit[LIED_INT8]->setValue(binary.read_int8(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
-        g_lineEdit[LIED_UINT16]->setValue(binary.read_uint16(nCurrentOffset), HEXValidator::MODE_DEC);
-        g_lineEdit[LIED_INT16]->setValue(binary.read_int16(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
-        g_lineEdit[LIED_UINT32]->setValue(binary.read_uint32(nCurrentOffset), HEXValidator::MODE_DEC);
-        g_lineEdit[LIED_INT32]->setValue(binary.read_int32(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
-        g_lineEdit[LIED_UINT64]->setValue(binary.read_uint64(nCurrentOffset), HEXValidator::MODE_DEC);
-        g_lineEdit[LIED_INT64]->setValue(binary.read_int64(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
+//        g_lineEdit[LIED_BYTE]->setValue(binary.read_uint8(nCurrentOffset));
+//        g_lineEdit[LIED_WORD]->setValue(binary.read_uint16(nCurrentOffset));
+//        g_lineEdit[LIED_DWORD]->setValue(binary.read_uint32(nCurrentOffset));
+//        g_lineEdit[LIED_QWORD]->setValue(binary.read_uint64(nCurrentOffset));
+//        g_lineEdit[LIED_UINT8]->setValue(binary.read_uint8(nCurrentOffset), HEXValidator::MODE_DEC);
+//        g_lineEdit[LIED_INT8]->setValue(binary.read_int8(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
+//        g_lineEdit[LIED_UINT16]->setValue(binary.read_uint16(nCurrentOffset), HEXValidator::MODE_DEC);
+//        g_lineEdit[LIED_INT16]->setValue(binary.read_int16(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
+//        g_lineEdit[LIED_UINT32]->setValue(binary.read_uint32(nCurrentOffset), HEXValidator::MODE_DEC);
+//        g_lineEdit[LIED_INT32]->setValue(binary.read_int32(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
+//        g_lineEdit[LIED_UINT64]->setValue(binary.read_uint64(nCurrentOffset), HEXValidator::MODE_DEC);
+//        g_lineEdit[LIED_INT64]->setValue(binary.read_int64(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
 
-        blockSignals(false);
-    }
+//        blockSignals(false);
+//    }
 }
 
 void XHexViewWidget::registerShortcuts(bool bState)
@@ -232,79 +239,76 @@ void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
     setReadonly(bChecked);
 }
 
-void XHexViewWidget::valueChangedSlot(quint64 nValue)
+//void XHexViewWidget::valueChangedSlot(quint64 nValue)
+//{
+//    XLineEditHEX *pLineEdit = qobject_cast<XLineEditHEX *>(sender());
+
+//    DATAINS nStype = (DATAINS)(pLineEdit->property("STYPE").toInt());
+
+//    setValue(nValue, nStype);
+//}
+
+//void XHexViewWidget::setValue(quint64 nValue, DATAINS nType)
+//{
+//    QIODevice *pDevice = ui->scrollAreaHex->getDevice();
+
+//    bool bSuccess = true;
+
+//    if ((getGlobalOptions()->isSaveBackup()) && (!g_bIsEdited)) {
+//        bSuccess = XBinary::saveBackup(pDevice);
+//    }
+
+//    if (bSuccess) {
+//        if (pDevice->isWritable()) {
+//            qint64 nOffset = ui->scrollAreaHex->getDeviceState().nSelectionOffset;
+
+//            XBinary binary(pDevice);
+
+//            if (nType == DATAINS_BYTE)
+//                binary.write_uint8(nOffset, (quint8)nValue);
+//            else if (nType == DATAINS_WORD)
+//                binary.write_uint16(nOffset, (quint16)nValue);
+//            else if (nType == DATAINS_DWORD)
+//                binary.write_uint32(nOffset, (quint32)nValue);
+//            else if (nType == DATAINS_QWORD)
+//                binary.write_uint64(nOffset, (quint64)nValue);
+//            else if (nType == DATAINS_UINT8)
+//                binary.write_uint8(nOffset, (quint8)nValue);
+//            else if (nType == DATAINS_INT8)
+//                binary.write_int8(nOffset, (qint8)nValue);
+//            else if (nType == DATAINS_UINT16)
+//                binary.write_uint16(nOffset, (quint16)nValue);
+//            else if (nType == DATAINS_INT16)
+//                binary.write_int16(nOffset, (qint16)nValue);
+//            else if (nType == DATAINS_UINT32)
+//                binary.write_uint32(nOffset, (quint32)nValue);
+//            else if (nType == DATAINS_INT32)
+//                binary.write_int32(nOffset, (qint32)nValue);
+//            else if (nType == DATAINS_UINT64)
+//                binary.write_uint64(nOffset, (quint64)nValue);
+//            else if (nType == DATAINS_INT64)
+//                binary.write_int64(nOffset, (qint64)nValue);
+
+//            g_bIsEdited = true;
+
+//            ui->scrollAreaHex->reload(true);
+
+//            adjust();
+//        }
+//    }
+//}
+
+void XHexViewWidget::on_pushButtonDataInspector_clicked()
 {
-    XLineEditHEX *pLineEdit = qobject_cast<XLineEditHEX *>(sender());
+    ui->pushButtonDataInspector->setEnabled(false);
 
-    DATAINS nStype = (DATAINS)(pLineEdit->property("STYPE").toInt());
+    DialogDataInspector dialogDataInspector(this, ui->scrollAreaHex->getDevice());
 
-    setValue(nValue, nStype);
-}
+    connect(this, SIGNAL(selectionChanged(qint64,qint64)), &dialogDataInspector, SLOT(selectionChangedSlot(qint64,qint64)));
 
-void XHexViewWidget::setValue(quint64 nValue, DATAINS nType)
-{
-    QIODevice *pDevice = ui->scrollAreaHex->getDevice();
+    XOptions::_adjustStayOnTop(&dialogDataInspector, true);
 
-    bool bSuccess = true;
+    dialogDataInspector.exec();
 
-    if ((getGlobalOptions()->isSaveBackup()) && (!g_bIsEdited)) {
-        bSuccess = XBinary::saveBackup(pDevice);
-    }
-
-    if (bSuccess) {
-        if (pDevice->isWritable()) {
-            qint64 nOffset = ui->scrollAreaHex->getDeviceState().nSelectionOffset;
-
-            XBinary binary(pDevice);
-
-            if (nType == DATAINS_BYTE)
-                binary.write_uint8(nOffset, (quint8)nValue);
-            else if (nType == DATAINS_WORD)
-                binary.write_uint16(nOffset, (quint16)nValue);
-            else if (nType == DATAINS_DWORD)
-                binary.write_uint32(nOffset, (quint32)nValue);
-            else if (nType == DATAINS_QWORD)
-                binary.write_uint64(nOffset, (quint64)nValue);
-            else if (nType == DATAINS_UINT8)
-                binary.write_uint8(nOffset, (quint8)nValue);
-            else if (nType == DATAINS_INT8)
-                binary.write_int8(nOffset, (qint8)nValue);
-            else if (nType == DATAINS_UINT16)
-                binary.write_uint16(nOffset, (quint16)nValue);
-            else if (nType == DATAINS_INT16)
-                binary.write_int16(nOffset, (qint16)nValue);
-            else if (nType == DATAINS_UINT32)
-                binary.write_uint32(nOffset, (quint32)nValue);
-            else if (nType == DATAINS_INT32)
-                binary.write_int32(nOffset, (qint32)nValue);
-            else if (nType == DATAINS_UINT64)
-                binary.write_uint64(nOffset, (quint64)nValue);
-            else if (nType == DATAINS_INT64)
-                binary.write_int64(nOffset, (qint64)nValue);
-
-            g_bIsEdited = true;
-
-            ui->scrollAreaHex->reload(true);
-
-            adjust();
-        }
-    }
-}
-
-void XHexViewWidget::on_pushButtonDataInspector_toggled(bool bChecked)
-{
-    showDataInspector(bChecked);
-}
-
-void XHexViewWidget::showDataInspector(bool bState)
-{
-    g_bIsDataInspector = bState;
-
-    if (g_bIsDataInspector) {
-        ui->groupBoxDataInspector->show();
-    } else {
-        ui->groupBoxDataInspector->hide();
-    }
-
-    adjust();
+    ui->pushButtonDataInspector->setEnabled(true);
 }
