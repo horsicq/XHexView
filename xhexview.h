@@ -49,12 +49,6 @@ class XHexView : public XDeviceTableEditView {
         __SC_SIZE
     };
 
-    //    enum SMODE
-    //    {
-    //        SMODE_ANSI=0,
-    //        SMODE_CODEPAGE
-    //    };
-
 public:
     // TODO setOptions
     // TODO follow functions

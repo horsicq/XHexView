@@ -306,6 +306,8 @@ void XHexViewWidget::on_pushButtonDataInspector_clicked()
 
     connect(this, SIGNAL(selectionChanged(qint64,qint64)), &dialogDataInspector, SLOT(selectionChangedSlot(qint64,qint64)));
 
+    selectionChangedSlot();
+
     XOptions::_adjustStayOnTop(&dialogDataInspector, true);
 
     dialogDataInspector.exec();
