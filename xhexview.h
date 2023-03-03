@@ -101,6 +101,7 @@ protected:
     virtual void setCurrentViewOffsetToScroll(qint64 nOffset);
     virtual void adjustColumns();
     virtual void registerShortcuts(bool bState);
+    virtual void adjustHeader();
     virtual void _headerClicked(qint32 nColumn);
     virtual void _cellDoubleClicked(qint32 nRow, qint32 nColumn);
     //    SMODE getSmode();

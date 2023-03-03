@@ -84,6 +84,8 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bRelo
 
     setAddressMode(options.addressMode);
 
+    adjustHeader();
+
     adjustColumns();
 
     qint64 nTotalLineCount = getViewSize() / g_nBytesProLine;
@@ -750,6 +752,15 @@ void XHexView::registerShortcuts(bool bState)
     }
 }
 
+void XHexView::adjustHeader()
+{
+    if (getAddressMode() == MODE_ADDRESS) {
+        setColumnTitle(COLUMN_ADDRESS, tr("Address"));
+    } else if ((getAddressMode() == MODE_OFFSET) || (getAddressMode() == MODE_THIS)) {
+        setColumnTitle(COLUMN_ADDRESS, tr("Offset"));
+    }
+}
+
 void XHexView::_headerClicked(qint32 nColumn)
 {
     if (nColumn == COLUMN_ADDRESS) {
@@ -785,6 +796,8 @@ void XHexView::_headerClicked(qint32 nColumn)
 
         //        adjust(true);
     }
+
+    XAbstractTableView::_headerClicked(nColumn);
 }
 
 void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
