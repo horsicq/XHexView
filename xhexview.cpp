@@ -30,7 +30,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     g_options = {};
     g_nAddressWidth = 8;        // TODO Set/Get
     g_bIsAddressColon = false;  // TODO Check
-                                //    g_nPieceSize=1;
+                                //    g_nPieceSize=1; // TODO
 
     memset(shortCuts, 0, sizeof shortCuts);
 
