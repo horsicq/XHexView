@@ -26,9 +26,9 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 {
     ui->setupUi(this);
 
-//    memset(g_lineEdit, 0, sizeof g_lineEdit);
-//    g_bIsEdited = false;
-//    g_bIsDataInspector = false;
+    //    memset(g_lineEdit, 0, sizeof g_lineEdit);
+    //    g_bIsEdited = false;
+    //    g_bIsDataInspector = false;
 
     connect(ui->scrollAreaHex, SIGNAL(showOffsetDisasm(qint64)), this, SIGNAL(showOffsetDisasm(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(showOffsetMemoryMap(qint64)), this, SIGNAL(showOffsetMemoryMap(qint64)));
@@ -39,30 +39,30 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 
     setReadonlyVisible(false);
 
-//    ui->tableWidgetDataInspector->setColumnCount(2);
-//    ui->tableWidgetDataInspector->setRowCount(__LIED_size);
+    //    ui->tableWidgetDataInspector->setColumnCount(2);
+    //    ui->tableWidgetDataInspector->setRowCount(__LIED_size);
 
-//    QStringList slHeader;
-//    slHeader.append(tr("Name"));
-//    slHeader.append(tr("Value"));
+    //    QStringList slHeader;
+    //    slHeader.append(tr("Name"));
+    //    slHeader.append(tr("Value"));
 
-//    ui->tableWidgetDataInspector->setHorizontalHeaderLabels(slHeader);
-//    ui->tableWidgetDataInspector->horizontalHeader()->setVisible(true);
+    //    ui->tableWidgetDataInspector->setHorizontalHeaderLabels(slHeader);
+    //    ui->tableWidgetDataInspector->horizontalHeader()->setVisible(true);
 
-//    ui->tableWidgetDataInspector->setColumnWidth(0, 100);  // TODO consts
+    //    ui->tableWidgetDataInspector->setColumnWidth(0, 100);  // TODO consts
 
-//    addValue("BYTE", DATAINS_BYTE, LIED_BYTE);
-//    addValue("WORD", DATAINS_WORD, LIED_WORD);
-//    addValue("DWORD", DATAINS_DWORD, LIED_DWORD);
-//    addValue("QWORD", DATAINS_QWORD, LIED_QWORD);
-//    addValue("uint8", DATAINS_UINT8, LIED_UINT8);
-//    addValue("int8", DATAINS_INT8, LIED_INT8);
-//    addValue("uint16", DATAINS_UINT16, LIED_UINT16);
-//    addValue("int16", DATAINS_INT16, LIED_INT16);
-//    addValue("uint32", DATAINS_UINT32, LIED_UINT32);
-//    addValue("int32", DATAINS_INT32, LIED_INT32);
-//    addValue("uint64", DATAINS_UINT64, LIED_UINT64);
-//    addValue("int64", DATAINS_INT64, LIED_INT64);
+    //    addValue("BYTE", DATAINS_BYTE, LIED_BYTE);
+    //    addValue("WORD", DATAINS_WORD, LIED_WORD);
+    //    addValue("DWORD", DATAINS_DWORD, LIED_DWORD);
+    //    addValue("QWORD", DATAINS_QWORD, LIED_QWORD);
+    //    addValue("uint8", DATAINS_UINT8, LIED_UINT8);
+    //    addValue("int8", DATAINS_INT8, LIED_INT8);
+    //    addValue("uint16", DATAINS_UINT16, LIED_UINT16);
+    //    addValue("int16", DATAINS_INT16, LIED_INT16);
+    //    addValue("uint32", DATAINS_UINT32, LIED_UINT32);
+    //    addValue("int32", DATAINS_INT32, LIED_INT32);
+    //    addValue("uint64", DATAINS_UINT64, LIED_UINT64);
+    //    addValue("int64", DATAINS_INT64, LIED_INT64);
 
     setReadonly(true);
 }
@@ -80,7 +80,7 @@ void XHexViewWidget::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
 
 void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 {
-//    g_bIsEdited = false;
+    //    g_bIsEdited = false;
 
     ui->checkBoxReadonly->setEnabled(pDevice->isWritable());
 
@@ -113,11 +113,11 @@ void XHexViewWidget::setReadonly(bool bState)
 
     ui->checkBoxReadonly->setChecked(bState);
 
-//    for (qint32 i = 0; i < __LIED_size; i++) {
-//        if (g_lineEdit[i]) {
-//            g_lineEdit[i]->setReadOnly(bState);
-//        }
-//    }
+    //    for (qint32 i = 0; i < __LIED_size; i++) {
+    //        if (g_lineEdit[i]) {
+    //            g_lineEdit[i]->setReadOnly(bState);
+    //        }
+    //    }
 }
 
 void XHexViewWidget::setReadonlyVisible(bool bState)
@@ -147,16 +147,16 @@ void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
     ui->scrollAreaHex->goToOffset(nOffset);
 }
 
-//void XHexViewWidget::blockSignals(bool bState)
+// void XHexViewWidget::blockSignals(bool bState)
 //{
-//    _blockSignals((QObject **)g_lineEdit, __LIED_size, bState);
-//}
+//     _blockSignals((QObject **)g_lineEdit, __LIED_size, bState);
+// }
 
-//void XHexViewWidget::addValue(QString sTitle, DATAINS datains, LIED lied)
+// void XHexViewWidget::addValue(QString sTitle, DATAINS datains, LIED lied)
 //{
-//    QTableWidgetItem *pItemName = new QTableWidgetItem;
-//    pItemName->setText(sTitle);
-//    ui->tableWidgetDataInspector->setItem(datains, 0, pItemName);
+//     QTableWidgetItem *pItemName = new QTableWidgetItem;
+//     pItemName->setText(sTitle);
+//     ui->tableWidgetDataInspector->setItem(datains, 0, pItemName);
 
 //    g_lineEdit[lied] = new XLineEditHEX(this);
 //    g_lineEdit[lied]->setProperty("STYPE", datains);
@@ -172,9 +172,9 @@ void XHexViewWidget::cursorChangedSlot(qint64 nOffset)
 
     adjust();
 
-//    XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
+    //    XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
 
-//    emit selectionChanged(deviceState.nSelectionOffset, deviceState.nSelectionSize);
+    //    emit selectionChanged(deviceState.nSelectionOffset, deviceState.nSelectionSize);
 }
 
 void XHexViewWidget::selectionChangedSlot()
@@ -204,28 +204,28 @@ void XHexViewWidget::adjust()
     // ui->scrollAreaHex->getDevice();
     // TODO optimize
 
-//    if (g_bIsDataInspector) {
-//        blockSignals(true);
+    //    if (g_bIsDataInspector) {
+    //        blockSignals(true);
 
-//        qint64 nCurrentOffset = state.nSelectionViewOffset;
+    //        qint64 nCurrentOffset = state.nSelectionViewOffset;
 
-//        XBinary binary(ui->scrollAreaHex->getDevice());
+    //        XBinary binary(ui->scrollAreaHex->getDevice());
 
-//        g_lineEdit[LIED_BYTE]->setValue(binary.read_uint8(nCurrentOffset));
-//        g_lineEdit[LIED_WORD]->setValue(binary.read_uint16(nCurrentOffset));
-//        g_lineEdit[LIED_DWORD]->setValue(binary.read_uint32(nCurrentOffset));
-//        g_lineEdit[LIED_QWORD]->setValue(binary.read_uint64(nCurrentOffset));
-//        g_lineEdit[LIED_UINT8]->setValue(binary.read_uint8(nCurrentOffset), HEXValidator::MODE_DEC);
-//        g_lineEdit[LIED_INT8]->setValue(binary.read_int8(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
-//        g_lineEdit[LIED_UINT16]->setValue(binary.read_uint16(nCurrentOffset), HEXValidator::MODE_DEC);
-//        g_lineEdit[LIED_INT16]->setValue(binary.read_int16(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
-//        g_lineEdit[LIED_UINT32]->setValue(binary.read_uint32(nCurrentOffset), HEXValidator::MODE_DEC);
-//        g_lineEdit[LIED_INT32]->setValue(binary.read_int32(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
-//        g_lineEdit[LIED_UINT64]->setValue(binary.read_uint64(nCurrentOffset), HEXValidator::MODE_DEC);
-//        g_lineEdit[LIED_INT64]->setValue(binary.read_int64(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
+    //        g_lineEdit[LIED_BYTE]->setValue(binary.read_uint8(nCurrentOffset));
+    //        g_lineEdit[LIED_WORD]->setValue(binary.read_uint16(nCurrentOffset));
+    //        g_lineEdit[LIED_DWORD]->setValue(binary.read_uint32(nCurrentOffset));
+    //        g_lineEdit[LIED_QWORD]->setValue(binary.read_uint64(nCurrentOffset));
+    //        g_lineEdit[LIED_UINT8]->setValue(binary.read_uint8(nCurrentOffset), HEXValidator::MODE_DEC);
+    //        g_lineEdit[LIED_INT8]->setValue(binary.read_int8(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
+    //        g_lineEdit[LIED_UINT16]->setValue(binary.read_uint16(nCurrentOffset), HEXValidator::MODE_DEC);
+    //        g_lineEdit[LIED_INT16]->setValue(binary.read_int16(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
+    //        g_lineEdit[LIED_UINT32]->setValue(binary.read_uint32(nCurrentOffset), HEXValidator::MODE_DEC);
+    //        g_lineEdit[LIED_INT32]->setValue(binary.read_int32(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
+    //        g_lineEdit[LIED_UINT64]->setValue(binary.read_uint64(nCurrentOffset), HEXValidator::MODE_DEC);
+    //        g_lineEdit[LIED_INT64]->setValue(binary.read_int64(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
 
-//        blockSignals(false);
-//    }
+    //        blockSignals(false);
+    //    }
 }
 
 void XHexViewWidget::registerShortcuts(bool bState)
@@ -239,18 +239,18 @@ void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
     setReadonly(bChecked);
 }
 
-//void XHexViewWidget::valueChangedSlot(quint64 nValue)
+// void XHexViewWidget::valueChangedSlot(quint64 nValue)
 //{
-//    XLineEditHEX *pLineEdit = qobject_cast<XLineEditHEX *>(sender());
+//     XLineEditHEX *pLineEdit = qobject_cast<XLineEditHEX *>(sender());
 
 //    DATAINS nStype = (DATAINS)(pLineEdit->property("STYPE").toInt());
 
 //    setValue(nValue, nStype);
 //}
 
-//void XHexViewWidget::setValue(quint64 nValue, DATAINS nType)
+// void XHexViewWidget::setValue(quint64 nValue, DATAINS nType)
 //{
-//    QIODevice *pDevice = ui->scrollAreaHex->getDevice();
+//     QIODevice *pDevice = ui->scrollAreaHex->getDevice();
 
 //    bool bSuccess = true;
 
@@ -304,7 +304,7 @@ void XHexViewWidget::on_pushButtonDataInspector_clicked()
 
     DialogDataInspector dialogDataInspector(this, ui->scrollAreaHex->getDevice());
 
-    connect(this, SIGNAL(selectionChanged(qint64,qint64)), &dialogDataInspector, SLOT(selectionChangedSlot(qint64,qint64)));
+    connect(this, SIGNAL(selectionChanged(qint64, qint64)), &dialogDataInspector, SLOT(selectionChangedSlot(qint64, qint64)));
 
     selectionChangedSlot();
 
