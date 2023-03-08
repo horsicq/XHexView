@@ -35,7 +35,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     connect(ui->scrollAreaHex, SIGNAL(errorMessage(QString)), this, SLOT(errorMessageSlot(QString)));
     connect(ui->scrollAreaHex, SIGNAL(cursorViewOffsetChanged(qint64)), this, SLOT(cursorChangedSlot(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(selectionChanged()), this, SLOT(selectionChangedSlot()));
-    connect(ui->scrollAreaHex, SIGNAL(dataChanged(qint64, qint64)), this, SIGNAL(dataChanged(qint64, qint64)));
+    connect(ui->scrollAreaHex, SIGNAL(dataChanged(qint64, qint64)), this, SLOT(dataChangedSlot(qint64, qint64)));
 
     setReadonlyVisible(false);
 
@@ -199,33 +199,6 @@ void XHexViewWidget::adjust()
     sSelection = QString("%1:%2 %3:%4").arg(tr("Selection"), sSelectionStart, tr("Size"), sSelectionSize);
 
     ui->labelSelectionStatus->setText(sSelection);
-
-    // TODO Data Inspector
-    // ui->scrollAreaHex->getDevice();
-    // TODO optimize
-
-    //    if (g_bIsDataInspector) {
-    //        blockSignals(true);
-
-    //        qint64 nCurrentOffset = state.nSelectionViewOffset;
-
-    //        XBinary binary(ui->scrollAreaHex->getDevice());
-
-    //        g_lineEdit[LIED_BYTE]->setValue(binary.read_uint8(nCurrentOffset));
-    //        g_lineEdit[LIED_WORD]->setValue(binary.read_uint16(nCurrentOffset));
-    //        g_lineEdit[LIED_DWORD]->setValue(binary.read_uint32(nCurrentOffset));
-    //        g_lineEdit[LIED_QWORD]->setValue(binary.read_uint64(nCurrentOffset));
-    //        g_lineEdit[LIED_UINT8]->setValue(binary.read_uint8(nCurrentOffset), HEXValidator::MODE_DEC);
-    //        g_lineEdit[LIED_INT8]->setValue(binary.read_int8(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
-    //        g_lineEdit[LIED_UINT16]->setValue(binary.read_uint16(nCurrentOffset), HEXValidator::MODE_DEC);
-    //        g_lineEdit[LIED_INT16]->setValue(binary.read_int16(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
-    //        g_lineEdit[LIED_UINT32]->setValue(binary.read_uint32(nCurrentOffset), HEXValidator::MODE_DEC);
-    //        g_lineEdit[LIED_INT32]->setValue(binary.read_int32(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
-    //        g_lineEdit[LIED_UINT64]->setValue(binary.read_uint64(nCurrentOffset), HEXValidator::MODE_DEC);
-    //        g_lineEdit[LIED_INT64]->setValue(binary.read_int64(nCurrentOffset), HEXValidator::MODE_SIGN_DEC);
-
-    //        blockSignals(false);
-    //    }
 }
 
 void XHexViewWidget::registerShortcuts(bool bState)
@@ -303,8 +276,10 @@ void XHexViewWidget::on_pushButtonDataInspector_clicked()
     ui->pushButtonDataInspector->setEnabled(false);
 
     DialogDataInspector dialogDataInspector(this, ui->scrollAreaHex->getDevice());
+    dialogDataInspector.setGlobal(getShortcuts(), getGlobalOptions());
 
     connect(this, SIGNAL(selectionChanged(qint64, qint64)), &dialogDataInspector, SLOT(selectionChangedSlot(qint64, qint64)));
+    connect(&dialogDataInspector, SIGNAL(dataChanged(qint64, qint64)), this, SLOT(dataChangedSlot(qint64, qint64)));
 
     selectionChangedSlot();
 
@@ -313,4 +288,13 @@ void XHexViewWidget::on_pushButtonDataInspector_clicked()
     dialogDataInspector.exec();
 
     ui->pushButtonDataInspector->setEnabled(true);
+}
+
+void XHexViewWidget::dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize)
+{
+    ui->scrollAreaHex->setEdited(nDeviceOffset, nDeviceSize);
+
+    selectionChangedSlot();
+
+    emit dataChanged(nDeviceOffset, nDeviceSize);
 }
