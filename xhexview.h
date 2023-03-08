@@ -85,7 +85,7 @@ private:
         XADDR nAddress;
     };
 
-    //    QChar filterSymbol(QChar cChar,SMODE smode);
+    //    QChar filterSymbol(QChar cChar,SMODE smode); // TODO Check
 
 protected:
     virtual OS cursorPositionToOS(CURSOR_POSITION cursorPosition);
