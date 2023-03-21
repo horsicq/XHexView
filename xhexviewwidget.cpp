@@ -221,58 +221,9 @@ void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
 //    setValue(nValue, nStype);
 //}
 
-// void XHexViewWidget::setValue(quint64 nValue, DATAINS nType)
-//{
-//     QIODevice *pDevice = ui->scrollAreaHex->getDevice();
-
-//    bool bSuccess = true;
-
-//    if ((getGlobalOptions()->isSaveBackup()) && (!g_bIsEdited)) {
-//        bSuccess = XBinary::saveBackup(pDevice);
-//    }
-
-//    if (bSuccess) {
-//        if (pDevice->isWritable()) {
-//            qint64 nOffset = ui->scrollAreaHex->getDeviceState().nSelectionOffset;
-
-//            XBinary binary(pDevice);
-
-//            if (nType == DATAINS_BYTE)
-//                binary.write_uint8(nOffset, (quint8)nValue);
-//            else if (nType == DATAINS_WORD)
-//                binary.write_uint16(nOffset, (quint16)nValue);
-//            else if (nType == DATAINS_DWORD)
-//                binary.write_uint32(nOffset, (quint32)nValue);
-//            else if (nType == DATAINS_QWORD)
-//                binary.write_uint64(nOffset, (quint64)nValue);
-//            else if (nType == DATAINS_UINT8)
-//                binary.write_uint8(nOffset, (quint8)nValue);
-//            else if (nType == DATAINS_INT8)
-//                binary.write_int8(nOffset, (qint8)nValue);
-//            else if (nType == DATAINS_UINT16)
-//                binary.write_uint16(nOffset, (quint16)nValue);
-//            else if (nType == DATAINS_INT16)
-//                binary.write_int16(nOffset, (qint16)nValue);
-//            else if (nType == DATAINS_UINT32)
-//                binary.write_uint32(nOffset, (quint32)nValue);
-//            else if (nType == DATAINS_INT32)
-//                binary.write_int32(nOffset, (qint32)nValue);
-//            else if (nType == DATAINS_UINT64)
-//                binary.write_uint64(nOffset, (quint64)nValue);
-//            else if (nType == DATAINS_INT64)
-//                binary.write_int64(nOffset, (qint64)nValue);
-
-//            g_bIsEdited = true;
-
-//            ui->scrollAreaHex->reload(true);
-
-//            adjust();
-//        }
-//    }
-//}
-
 void XHexViewWidget::on_pushButtonDataInspector_clicked()
 {
+    // TODO set Readonly
     ui->pushButtonDataInspector->setEnabled(false);
 
     XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();

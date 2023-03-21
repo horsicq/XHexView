@@ -89,7 +89,6 @@ private slots:
     void adjust();
     void on_checkBoxReadonly_toggled(bool bChecked);
     //    void valueChangedSlot(quint64 nValue);
-    //    void setValue(quint64 nValue, DATAINS nType);
     void on_pushButtonDataInspector_clicked();
     void dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize);
 
