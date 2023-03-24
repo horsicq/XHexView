@@ -129,7 +129,7 @@ private:
     QByteArray g_baDataHexBuffer;
     QString g_sStringBuffer;
     QList<RECORD> g_listRecords;
-    QShortcut *shortCuts[__SC_SIZE];
+    QShortcut *g_shortCuts[__SC_SIZE];
     qint32 g_nAddressWidth;
     qint64 g_nThisBase;
     //    SMODE g_smode;
