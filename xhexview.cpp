@@ -500,6 +500,11 @@ void XHexView::contextMenu(const QPoint &pos)
         QAction actionEditHex(tr("Hex"), this);
         actionEditHex.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_HEX));
         connect(&actionEditHex, SIGNAL(triggered()), this, SLOT(_editHex()));
+#ifdef QT_SQL_LIB
+        QAction actionBookmarkNew(tr("New"), this);
+        actionBookmarkNew.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_BOOKMARKS_NEW));
+        connect(&actionBookmarkNew, SIGNAL(triggered()), this, SLOT(_bookmarkNew()));
+#endif
 
         STATE menuState = getState();
 
@@ -512,6 +517,10 @@ void XHexView::contextMenu(const QPoint &pos)
         QMenu menuCopy(tr("Copy"), this);
         QMenu menuFollowIn(tr("Follow in"), this);
         QMenu menuEdit(tr("Edit"), this);
+
+#ifdef QT_SQL_LIB
+        QMenu menuBookmarks(tr("Bookmarks"), this);
+#endif
 
         menuGoTo.addAction(&actionGoToOffset);
         menuGoTo.addAction(&actionGoToAddress);

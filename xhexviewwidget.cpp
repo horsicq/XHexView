@@ -26,10 +26,6 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 {
     ui->setupUi(this);
 
-    //    memset(g_lineEdit, 0, sizeof g_lineEdit);
-    //    g_bIsEdited = false;
-    //    g_bIsDataInspector = false;
-
     connect(ui->scrollAreaHex, SIGNAL(showOffsetDisasm(qint64)), this, SIGNAL(showOffsetDisasm(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(showOffsetMemoryMap(qint64)), this, SIGNAL(showOffsetMemoryMap(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(errorMessage(QString)), this, SLOT(errorMessageSlot(QString)));
@@ -38,31 +34,6 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     connect(ui->scrollAreaHex, SIGNAL(dataChanged(qint64, qint64)), this, SLOT(dataChangedSlot(qint64, qint64)));
 
     setReadonlyVisible(false);
-
-    //    ui->tableWidgetDataInspector->setColumnCount(2);
-    //    ui->tableWidgetDataInspector->setRowCount(__LIED_size);
-
-    //    QStringList slHeader;
-    //    slHeader.append(tr("Name"));
-    //    slHeader.append(tr("Value"));
-
-    //    ui->tableWidgetDataInspector->setHorizontalHeaderLabels(slHeader);
-    //    ui->tableWidgetDataInspector->horizontalHeader()->setVisible(true);
-
-    //    ui->tableWidgetDataInspector->setColumnWidth(0, 100);  // TODO consts
-
-    //    addValue("BYTE", DATAINS_BYTE, LIED_BYTE);
-    //    addValue("WORD", DATAINS_WORD, LIED_WORD);
-    //    addValue("DWORD", DATAINS_DWORD, LIED_DWORD);
-    //    addValue("QWORD", DATAINS_QWORD, LIED_QWORD);
-    //    addValue("uint8", DATAINS_UINT8, LIED_UINT8);
-    //    addValue("int8", DATAINS_INT8, LIED_INT8);
-    //    addValue("uint16", DATAINS_UINT16, LIED_UINT16);
-    //    addValue("int16", DATAINS_INT16, LIED_INT16);
-    //    addValue("uint32", DATAINS_UINT32, LIED_UINT32);
-    //    addValue("int32", DATAINS_INT32, LIED_INT32);
-    //    addValue("uint64", DATAINS_UINT64, LIED_UINT64);
-    //    addValue("int64", DATAINS_INT64, LIED_INT64);
 
     setReadonly(true);
 }
