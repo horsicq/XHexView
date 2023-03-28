@@ -138,35 +138,6 @@ XADDR XHexView::getSelectionInitAddress()
     return getSelectionInitOffset() + g_options.nStartAddress;
 }
 
-// QChar XHexView::filterSymbol(QChar cChar,SMODE smode)
-//{
-//     QChar cResult=cChar;
-
-//    if(smode==SMODE_ANSI)
-//    {
-//        if((cResult<QChar(0x20))||(cResult>QChar(0x7e)))
-//        {
-//            cResult='.';
-//        }
-//    }
-////    else if(smode==SMODE_SYMBOLS)
-////    {
-////        if(cResult<QChar(0x20))
-////        {
-////            cResult='.';
-////        }
-////    }
-////    else if(smode==SMODE_UNICODE)
-////    {
-////        if(cResult<QChar(0x20))
-////        {
-////            cResult='.';
-////        }
-////    }
-
-//    return cResult;
-//}
-
 XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_POSITION cursorPosition)
 {
     OS osResult = {};
