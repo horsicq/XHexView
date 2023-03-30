@@ -85,6 +85,8 @@ private:
         XADDR nAddress;
     };
 
+    QString getStringBuffer(QByteArray *pbaData);
+
 protected:
     virtual OS cursorPositionToOS(CURSOR_POSITION cursorPosition);
     virtual void updateData();
@@ -103,9 +105,6 @@ protected:
     virtual void _cellDoubleClicked(qint32 nRow, qint32 nColumn);
     //    SMODE getSmode();
     //    void setSmode(SMODE smode);
-
-private:
-    QString getStringBuffer(QByteArray *pbaData);
 
 private slots:
     void _disasmSlot();
