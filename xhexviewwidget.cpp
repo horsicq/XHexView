@@ -206,7 +206,7 @@ void XHexViewWidget::on_pushButtonDataInspector_clicked()
     connect(this, SIGNAL(dataChanged(qint64, qint64)), &dialogDataInspector, SLOT(dataChangedSlot(qint64, qint64)));
     connect(&dialogDataInspector, SIGNAL(dataChanged(qint64, qint64)), this, SLOT(dataChangedSlot(qint64, qint64)));
 
-//    selectionChangedSlot();
+    //    selectionChangedSlot();
 
     XOptions::_adjustStayOnTop(&dialogDataInspector, true);
 
@@ -217,11 +217,11 @@ void XHexViewWidget::on_pushButtonDataInspector_clicked()
 
 void XHexViewWidget::dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize)
 {
-//    qDebug("void XHexViewWidget::dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize)");
+    //    qDebug("void XHexViewWidget::dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize)");
 
     ui->scrollAreaHex->setEdited(nDeviceOffset, nDeviceSize);
 
     adjust();
 
-//    emit dataChanged(nDeviceOffset, nDeviceSize);
+    //    emit dataChanged(nDeviceOffset, nDeviceSize);
 }
