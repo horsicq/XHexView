@@ -310,7 +310,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                 }
 
                 if (bSelected) {
-//                    pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight));  // TODO Options
+                    //                    pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight));  // TODO Options
                     pPainter->fillRect(rectSymbol, XAbstractTableView::getColorSelected(viewport()));
 
                     // Draw lines
