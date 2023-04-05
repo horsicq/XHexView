@@ -32,10 +32,10 @@ class DialogHexView : public XShortcutsDialog {
 
 public:
     explicit DialogHexView(QWidget *pParent);
-    explicit DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice = nullptr);
+    explicit DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPTIONS options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice = nullptr);
     ~DialogHexView();
 
-    void setData(QIODevice *pDevice, XHexView::OPTIONS options, QIODevice *pBackupDevice = nullptr);
+    void setData(QIODevice *pDevice, XHexView::OPTIONS options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice = nullptr);
     void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions);
 
 signals:

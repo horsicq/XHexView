@@ -49,13 +49,14 @@ void XHexViewWidget::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
     XShortcutsWidget::setGlobal(pShortcuts, pXOptions);
 }
 
-void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options)
+void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options, XInfoDB *pXInfoDB)
 {
     //    g_bIsEdited = false;
 
     ui->checkBoxReadonly->setEnabled(pDevice->isWritable());
 
     ui->scrollAreaHex->setData(pDevice, options);
+    ui->scrollAreaHex->setXInfoDB(pXInfoDB);
 }
 
 void XHexViewWidget::setDevice(QIODevice *pDevice)
@@ -154,7 +155,7 @@ void XHexViewWidget::selectionChangedSlot()
 
     XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
 
-    emit selectionChanged(deviceState.nSelectionOffset, deviceState.nSelectionSize);
+    emit selectionChanged(deviceState.nSelectionLocation, deviceState.nSelectionSize);
 }
 
 void XHexViewWidget::adjust()
@@ -199,7 +200,7 @@ void XHexViewWidget::on_pushButtonDataInspector_clicked()
 
     XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
 
-    DialogDataInspector dialogDataInspector(this, ui->scrollAreaHex->getDevice(), deviceState.nSelectionOffset, deviceState.nSelectionSize);
+    DialogDataInspector dialogDataInspector(this, ui->scrollAreaHex->getDevice(), deviceState.nSelectionLocation, deviceState.nSelectionSize);
     dialogDataInspector.setGlobal(getShortcuts(), getGlobalOptions());
 
     connect(this, SIGNAL(selectionChanged(qint64, qint64)), &dialogDataInspector, SLOT(selectionChangedSlot(qint64, qint64)));

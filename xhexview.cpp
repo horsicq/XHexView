@@ -310,7 +310,8 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                 }
 
                 if (bSelected) {
-                    pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight));  // TODO Options
+//                    pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight));  // TODO Options
+                    pPainter->fillRect(rectSymbol, XAbstractTableView::getColorSelected(viewport()));
 
                     // Draw lines
                     bool bTop = false;
@@ -535,6 +536,13 @@ void XHexView::contextMenu(const QPoint &pos)
         if ((g_options.bMenu_Disasm) || (g_options.bMenu_MemoryMap)) {
             contextMenu.addMenu(&menuFollowIn);
         }
+
+#ifdef QT_SQL_LIB
+        if (getXInfoDB()) {
+            menuBookmarks.addAction(&actionBookmarkNew);
+            contextMenu.addMenu(&menuBookmarks);
+        }
+#endif
 
         menuEdit.setEnabled(!isReadonly());
 
@@ -927,14 +935,14 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
 void XHexView::_disasmSlot()
 {
     if (g_options.bMenu_Disasm) {
-        emit showOffsetDisasm(getDeviceState(true).nSelectionOffset);
+        emit showOffsetDisasm(getDeviceState(true).nSelectionLocation);
     }
 }
 
 void XHexView::_memoryMapSlot()
 {
     if (g_options.bMenu_MemoryMap) {
-        emit showOffsetMemoryMap(getDeviceState(true).nSelectionOffset);
+        emit showOffsetMemoryMap(getDeviceState(true).nSelectionLocation);
     }
 }
 
@@ -942,7 +950,7 @@ void XHexView::_mainHexSlot()
 {
     if (g_options.bMenu_MainHex) {
         DEVICESTATE deviceState = getDeviceState(true);
-        emit showOffsetMainHex(deviceState.nSelectionOffset, deviceState.nSelectionSize);
+        emit showOffsetMainHex(deviceState.nSelectionLocation, deviceState.nSelectionSize);
     }
 }
 
