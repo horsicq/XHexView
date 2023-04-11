@@ -476,6 +476,7 @@ void XHexView::contextMenu(const QPoint &pos)
         QAction actionBookmarkNew(tr("New"), this);
         actionBookmarkNew.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_BOOKMARKS_NEW));
         connect(&actionBookmarkNew, SIGNAL(triggered()), this, SLOT(_bookmarkNew()));
+        // TODO Bookmark list
 #endif
 
         STATE menuState = getState();
