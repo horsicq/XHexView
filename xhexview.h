@@ -25,6 +25,7 @@
 
 #include "dialoghexedit.h"
 #include "xdevicetableeditview.h"
+#include "dialogdatainspector.h"
 
 class XHexView : public XDeviceTableEditView {
     Q_OBJECT
@@ -111,6 +112,7 @@ private slots:
     void _memoryMapSlot();
     void _mainHexSlot();
     void _setCodePage(QString sCodePage);
+    void changeWidth();
 
 signals:
     void showOffsetDisasm(qint64 nOffset);

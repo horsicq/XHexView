@@ -22,7 +22,6 @@
 #define XHEXVIEWWIDGET_H
 
 #include "xhexview.h"
-#include "dialogdatainspector.h"
 
 namespace Ui {
 class XHexViewWidget;
