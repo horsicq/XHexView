@@ -181,8 +181,8 @@ void XHexView::updateData()
 {
     if (getDevice()) {
         // Update cursor position
-        qint64 nBlockStartLine = getViewOffsetStart();  // TODO Check
-                                                        //        qint64 nCursorOffset = nBlockStartLine + getCursorDelta();
+        qint64 nDataBlockStartOffset = getViewOffsetStart();  // TODO Check
+        //        qint64 nCursorOffset = nBlockStartLine + getCursorDelta();
 
         //        if (nCursorOffset >= getViewSize()) {
         //            nCursorOffset = getViewSize() - 1;
@@ -192,11 +192,18 @@ void XHexView::updateData()
 
         XBinary::MODE mode = XBinary::getWidthModeFromByteSize(g_nAddressWidth);
 
-        g_listRecords.clear();
+        g_listLocationRecords.clear();
+        g_listByteRecords.clear();
 
         qint32 nDataBlockSize = g_nBytesProLine * getLinesProPage();
 
-        g_baDataBuffer = read_array(nBlockStartLine, nDataBlockSize);
+        g_listHighlightsRegion.clear();
+        if (getXInfoDB()) {
+            QList<XInfoDB::BOOKMARKRECORD> listBookMarks = getXInfoDB()->getBookmarkRecords(nDataBlockStartOffset, nDataBlockSize);
+            g_listHighlightsRegion.append(_convertBookmarksToHighlightRegion(&listBookMarks));
+        }
+
+        g_baDataBuffer = read_array(nDataBlockStartOffset, nDataBlockSize);
         g_sStringBuffer = getStringBuffer(&g_baDataBuffer);
 
         g_nDataBlockSize = g_baDataBuffer.size();
@@ -207,37 +214,47 @@ void XHexView::updateData()
             for (qint32 i = 0; i < g_nDataBlockSize; i += g_nBytesProLine) {
                 XADDR nCurrentAddress = 0;
 
-                RECORD record = {};
-                record.nAddress = i + g_options.nStartAddress + nBlockStartLine;
+                LOCATIONRECORD record = {};
+                record.nLocation = i + g_options.nStartAddress + nDataBlockStartOffset;
 
                 if (getAddressMode() == MODE_THIS) {
-                    nCurrentAddress = record.nAddress;
+                    nCurrentAddress = record.nLocation;
 
                     qint64 nDelta = (qint64)nCurrentAddress - (qint64)g_nThisBase;
 
-                    record.sAddress = XBinary::thisToString(nDelta);
+                    record.sLocation = XBinary::thisToString(nDelta);
                 } else {
                     if (getAddressMode() == MODE_ADDRESS) {
-                        nCurrentAddress = record.nAddress;
+                        nCurrentAddress = record.nLocation;
                     } else if (getAddressMode() == MODE_OFFSET) {
-                        nCurrentAddress = i + nBlockStartLine;
+                        nCurrentAddress = i + nDataBlockStartOffset;
                     }
 
                     if (g_bIsAddressColon) {
-                        record.sAddress = XBinary::valueToHexColon(mode, nCurrentAddress);
+                        record.sLocation = XBinary::valueToHexColon(mode, nCurrentAddress);
                     } else {
-                        record.sAddress = XBinary::valueToHex(mode, nCurrentAddress);
+                        record.sLocation = XBinary::valueToHex(mode, nCurrentAddress);
                     }
                 }
 
-                g_listRecords.append(record);
+                g_listLocationRecords.append(record);
+            }
+
+            for (qint32 i = 0; i < g_nDataBlockSize; i ++) {
+                BYTERECORD record = {};
+                record.sHex = g_baDataHexBuffer.mid(i * 2, 2);
+                record.sChar = g_sStringBuffer.mid(i, 1);
+                record.bIsBold = (g_baDataBuffer.at(i) != 0); // TODO optimize
+//                record.bIsSelected = isViewOffsetSelected(nDataBlockStartOffset + i);
+
+                g_listByteRecords.append(record);
             }
         } else {
             g_baDataBuffer.clear();
             g_baDataHexBuffer.clear();
         }
 
-        setCurrentBlock(nBlockStartLine, g_nDataBlockSize);
+        setCurrentBlock(nDataBlockStartOffset, g_nDataBlockSize);
     }
 }
 
@@ -246,7 +263,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
     Q_UNUSED(nWidth)
     //    g_pPainterText->drawRect(nLeft,nTop,nWidth,nHeight);
     if (nColumn == COLUMN_ADDRESS) {
-        if (nRow < g_listRecords.count()) {
+        if (nRow < g_listLocationRecords.count()) {
             QRect rectSymbol;
 
             rectSymbol.setLeft(nLeft + getCharWidth());
@@ -256,7 +273,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
 
             //            pPainter->save();
             //            pPainter->setPen(viewport()->palette().color(QPalette::Dark));
-            pPainter->drawText(rectSymbol, g_listRecords.at(nRow).sAddress);  // TODO Text Optional
+            pPainter->drawText(rectSymbol, g_listLocationRecords.at(nRow).sLocation);  // TODO Text Optional
                                                                               //            pPainter->restore();
         }
     } else if ((nColumn == COLUMN_HEX) || (nColumn == COLUMN_SYMBOLS)) {
@@ -268,7 +285,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
             for (qint32 i = 0; i < nDataBlockSize; i++) {
                 qint32 nIndex = nRow * g_nBytesProLine + i;
                 qint64 nCurrent = nDataBlockStartOffset + nIndex;
-                bool bSelected = isViewOffsetSelected(nCurrent);
+
                 QRect rectSymbol;
 
                 if (nColumn == COLUMN_HEX) {
@@ -289,27 +306,24 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                 }
 
                 if (rectSymbol.left() < (nLeft + nWidth)) { // Paint Only visible
-                    QString sHex;
-                    QString sSymbol;
-                    bool bBold = false;
-
-                    sHex = g_baDataHexBuffer.mid(nIndex * 2, 2);
-                    bBold = (sHex != "00");
-
-                    if (bBold) {
+                    if (g_listByteRecords.at(nIndex).bIsBold) {
                         pPainter->save();
                         QFont font = pPainter->font();
                         font.setBold(true);
                         pPainter->setFont(font);
                     }
 
+                    bool bIsSelected = isViewOffsetSelected(nCurrent);
+
+                    QString sSymbol;
+
                     if (nColumn == COLUMN_HEX) {
-                        sSymbol = sHex;
+                        sSymbol = g_listByteRecords.at(nIndex).sHex;
                     } else if (nColumn == COLUMN_SYMBOLS) {
-                        sSymbol = g_sStringBuffer.mid(nIndex, 1);
+                        sSymbol = g_listByteRecords.at(nIndex).sChar;
                     }
 
-                    if (bSelected) {
+                    if (bIsSelected) {
                         //                    pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight));  // TODO Options
                         pPainter->fillRect(rectSymbol, getColorSelected());
 
@@ -360,11 +374,11 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                         }
                     }
 
-                    if (bBold) {
+                    if (g_listByteRecords.at(nIndex).bIsBold) {
                         pPainter->restore();
                     }
                 } else {
-                    break;
+                    break; // Do not paint invisible
                 }
             }
         }
@@ -802,8 +816,8 @@ void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
         setColumnTitle(COLUMN_ADDRESS, "");
         setAddressMode(MODE_THIS);
 
-        if (nRow < g_listRecords.count()) {
-            g_nThisBase = g_listRecords.at(nRow).nAddress;
+        if (nRow < g_listLocationRecords.count()) {
+            g_nThisBase = g_listLocationRecords.at(nRow).nLocation;
         }
 
         adjust(true);

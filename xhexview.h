@@ -81,12 +81,19 @@ private:
         COLUMN_SYMBOLS
     };
 
-    struct RECORD {
-        QString sAddress;
-        XADDR nAddress;
+    struct LOCATIONRECORD {
+        QString sLocation;
+        quint64 nLocation;
     };
 
-    QString getStringBuffer(QByteArray *pbaData);
+    struct BYTERECORD {
+        QString sHex;
+        QString sChar;
+        bool bIsBold;
+//        bool bIsSelected;
+    };
+
+    QString getStringBuffer(QByteArray *pbaData); // TODO QList
 
 protected:
     virtual OS cursorPositionToOS(CURSOR_POSITION cursorPosition);
@@ -123,11 +130,13 @@ private:
     OPTIONS g_options;
     qint32 g_nBytesProLine;
     qint32 g_nDataBlockSize;
+    QList<HIGHLIGHTREGION> g_listHighlightsRegion;
     qint32 g_nViewStartDelta;
     QByteArray g_baDataBuffer;
     QByteArray g_baDataHexBuffer;
     QString g_sStringBuffer;
-    QList<RECORD> g_listRecords;
+    QList<LOCATIONRECORD> g_listLocationRecords;
+    QList<BYTERECORD> g_listByteRecords;
     QShortcut *g_shortCuts[__SC_SIZE];
     qint32 g_nAddressWidth;
     qint64 g_nThisBase;
