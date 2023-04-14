@@ -22,7 +22,7 @@
 
 XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 {
-    g_nBytesProLine = 16;
+    g_nBytesProLine = 16; // Default
     g_nDataBlockSize = 0;
     g_nViewStartDelta = 0;
     //    g_smode=SMODE_ANSI;  // TODO Set/Get
