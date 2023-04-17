@@ -90,6 +90,9 @@ private:
         QString sHex;
         QString sChar;
         bool bIsBold;
+        bool bIsHighlighted;
+        QColor colBackground;
+        QColor colBackgroundSelected;
 //        bool bIsSelected;
     };
 

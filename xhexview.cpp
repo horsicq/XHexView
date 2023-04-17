@@ -245,6 +245,17 @@ void XHexView::updateData()
                 record.sHex = g_baDataHexBuffer.mid(i * 2, 2);
                 record.sChar = g_sStringBuffer.mid(i, 1);
                 record.bIsBold = (g_baDataBuffer.at(i) != 0); // TODO optimize
+
+                QList<HIGHLIGHTREGION> listHighLightRegions = getHighlightRegion(&g_listHighlightsRegion, nDataBlockStartOffset + i);
+
+                if (listHighLightRegions.count()) {
+                    record.bIsHighlighted = true;
+                    record.colBackground = listHighLightRegions.at(0).colBackground;
+                    record.colBackgroundSelected = listHighLightRegions.at(0).colBackgroundSelected;
+                } else {
+                    record.colBackgroundSelected = getColorSelected();
+                }
+
 //                record.bIsSelected = isViewOffsetSelected(nDataBlockStartOffset + i);
 
                 g_listByteRecords.append(record);
@@ -285,6 +296,15 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
             for (qint32 i = 0; i < nDataBlockSize; i++) {
                 qint32 nIndex = nRow * g_nBytesProLine + i;
                 qint64 nCurrent = nDataBlockStartOffset + nIndex;
+                bool bIsHighlighted = g_listByteRecords.at(nIndex).bIsHighlighted;
+                bool bIsHighlightedNext = false;
+
+                if (nIndex + 1 < g_nDataBlockSize) {
+                    bIsHighlightedNext = g_listByteRecords.at(nIndex + 1).bIsHighlighted;
+                }
+
+                bool bIsSelected = isViewOffsetSelected(nCurrent);
+                bool bIsSelectedNext = isViewOffsetSelected(nCurrent + 1);
 
                 QRect rectSymbol;
 
@@ -293,7 +313,11 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                     rectSymbol.setTop(nTop + getLineDelta());
                     rectSymbol.setHeight(nHeight - getLineDelta());
 
-                    if ((((nIndex + 1) % g_nBytesProLine) == 0) || (!isViewOffsetSelected(nCurrent + 1))) {
+                    if (((nIndex + 1) % g_nBytesProLine) == 0) {
+                        rectSymbol.setWidth(2 * getCharWidth());
+                    } else if (bIsSelected && (!bIsSelectedNext)) {
+                        rectSymbol.setWidth(2 * getCharWidth());
+                    } else if (bIsHighlighted && (!bIsHighlightedNext)) {
                         rectSymbol.setWidth(2 * getCharWidth());
                     } else {
                         rectSymbol.setWidth(2 * getCharWidth() + getSideDelta());
@@ -313,7 +337,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                         pPainter->setFont(font);
                     }
 
-                    bool bIsSelected = isViewOffsetSelected(nCurrent);
+
 
                     QString sSymbol;
 
@@ -324,9 +348,13 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                     }
 
                     if (bIsSelected) {
-                        //                    pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight));  // TODO Options
-                        pPainter->fillRect(rectSymbol, getColorSelected());
+                        // pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight));  // TODO Options
+                        pPainter->fillRect(rectSymbol, g_listByteRecords.at(nIndex).colBackgroundSelected);
+                    } else if (bIsHighlighted) {
+                        pPainter->fillRect(rectSymbol, g_listByteRecords.at(nIndex).colBackground);
+                    }
 
+                    if (bIsSelected) {
                         // Draw lines
                         bool bTop = false;
                         bool bLeft = false;
