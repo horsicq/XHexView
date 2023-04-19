@@ -182,6 +182,15 @@ void XHexView::updateData()
     if (getDevice()) {
         // Update cursor position
         qint64 nDataBlockStartOffset = getViewOffsetStart();  // TODO Check
+        quint64 nInitLocation = 0;
+
+        XIODevice *pSubDevice = dynamic_cast<XIODevice *>(getDevice());
+
+        if (pSubDevice) {
+            nInitLocation = pSubDevice->getInitLocation();
+        }
+
+
         //        qint64 nCursorOffset = nBlockStartLine + getCursorDelta();
 
         //        if (nCursorOffset >= getViewSize()) {
@@ -199,7 +208,7 @@ void XHexView::updateData()
 
         g_listHighlightsRegion.clear();
         if (getXInfoDB()) {
-            QList<XInfoDB::BOOKMARKRECORD> listBookMarks = getXInfoDB()->getBookmarkRecords(nDataBlockStartOffset, nDataBlockSize);
+            QList<XInfoDB::BOOKMARKRECORD> listBookMarks = getXInfoDB()->getBookmarkRecords(nDataBlockStartOffset + nInitLocation, nDataBlockSize);
             g_listHighlightsRegion.append(_convertBookmarksToHighlightRegion(&listBookMarks));
         }
 
@@ -246,7 +255,7 @@ void XHexView::updateData()
                 record.sChar = g_sStringBuffer.mid(i, 1);
                 record.bIsBold = (g_baDataBuffer.at(i) != 0); // TODO optimize
 
-                QList<HIGHLIGHTREGION> listHighLightRegions = getHighlightRegion(&g_listHighlightsRegion, nDataBlockStartOffset + i);
+                QList<HIGHLIGHTREGION> listHighLightRegions = getHighlightRegion(&g_listHighlightsRegion, nDataBlockStartOffset + i + nInitLocation);
 
                 if (listHighLightRegions.count()) {
                     record.bIsHighlighted = true;
