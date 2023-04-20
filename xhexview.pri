@@ -83,6 +83,11 @@ FORMS += \
     include($$PWD/../XInfoDB/xinfodb.pri)
 }
 
+!contains(XCONFIG, xsymbolswidget) {
+    XCONFIG += xsymbolswidget
+    include($$PWD/../XSymbolsWidget/xsymbolswidget.pri)
+}
+
 DISTFILES += \
     $$PWD/LICENSE \
     $$PWD/README.md \

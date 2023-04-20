@@ -532,7 +532,10 @@ void XHexView::contextMenu(const QPoint &pos)
         QAction actionBookmarkNew(tr("New"), this);
         actionBookmarkNew.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_BOOKMARKS_NEW));
         connect(&actionBookmarkNew, SIGNAL(triggered()), this, SLOT(_bookmarkNew()));
-        // TODO Bookmark list
+
+        QAction actionBookmarkList(tr("List"), this);
+        actionBookmarkList.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_BOOKMARKS_LIST));
+        connect(&actionBookmarkList, SIGNAL(triggered()), this, SLOT(_bookmarkList()));
 #endif
 
         STATE menuState = getState();
@@ -597,6 +600,7 @@ void XHexView::contextMenu(const QPoint &pos)
 #ifdef QT_SQL_LIB
         if (getXInfoDB()) {
             menuBookmarks.addAction(&actionBookmarkNew);
+            menuBookmarks.addAction(&actionBookmarkList);
             contextMenu.addMenu(&menuBookmarks);
         }
 #endif

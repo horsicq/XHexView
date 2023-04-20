@@ -27,6 +27,7 @@ namespace Ui {
 class XHexViewWidget;
 }
 
+// TODO templates prios as die'scripts -> combobox -> auto
 class XHexViewWidget : public XShortcutsWidget {
     Q_OBJECT
 
@@ -40,6 +41,7 @@ public:
     void setBackupDevice(QIODevice *pDevice);
     void setXInfoDB(XInfoDB *pXInfoDB);
     void reload();
+    void cleanup();
     void setReadonly(bool bState);
     void setReadonlyVisible(bool bState);
     void setEdited(qint64 nDeviceOffset, qint64 nDeviceSize);
@@ -56,6 +58,9 @@ private slots:
     //    void valueChangedSlot(quint64 nValue);
     void on_pushButtonDataInspector_clicked();
     void dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize);
+    void on_pushButtonTemplateScan_clicked();
+    void on_comboBoxTemplate_currentIndexChanged(int nIndex);
+    void useTemplate(QString sTemplate);
 
 signals:
     void dataChanged(qint64 nDeviceOffset, qint64 nDeviceSize);

@@ -79,6 +79,13 @@ void XHexViewWidget::reload()
     ui->scrollAreaHex->reload(true);
 }
 
+void XHexViewWidget::cleanup()
+{
+    ui->scrollAreaHex->setDevice(nullptr);
+    ui->scrollAreaHex->setBackupDevice(nullptr);
+    ui->scrollAreaHex->setXInfoDB(nullptr);
+}
+
 void XHexViewWidget::setReadonly(bool bState)
 {
     ui->scrollAreaHex->setReadonly(bState);
@@ -226,3 +233,20 @@ void XHexViewWidget::dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize)
 
     //    emit dataChanged(nDeviceOffset, nDeviceSize);
 }
+
+void XHexViewWidget::on_pushButtonTemplateScan_clicked()
+{
+    // TODO scan
+}
+
+
+void XHexViewWidget::on_comboBoxTemplate_currentIndexChanged(int nIndex)
+{
+   // TODO
+}
+
+void XHexViewWidget::useTemplate(QString sTemplate)
+{
+    // TODO
+}
+
