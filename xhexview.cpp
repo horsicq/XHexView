@@ -49,6 +49,8 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     connect(&g_xOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
 
     setAddressMode(MODE_OFFSET);
+
+//    g_pixmapCache.setCacheLimit(10240);
 }
 
 void XHexView::_adjustView()
@@ -275,27 +277,33 @@ void XHexView::updateData()
         }
 
         setCurrentBlock(nDataBlockStartOffset, g_nDataBlockSize);
+
+        g_pixmapCache.clear();
     }
 }
 
 void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
 {
-    Q_UNUSED(nWidth)
+//#ifdef QT_DEBUG
+//    QElapsedTimer timer;
+//    timer.start();
+//#endif
     //    g_pPainterText->drawRect(nLeft,nTop,nWidth,nHeight);
+
     if (nColumn == COLUMN_ADDRESS) {
-        if (nRow < g_listLocationRecords.count()) {
-            QRect rectSymbol;
+//        if (nRow < g_listLocationRecords.count()) {
+//            QRect rectSymbol;
 
-            rectSymbol.setLeft(nLeft + getCharWidth());
-            rectSymbol.setTop(nTop + getLineDelta());
-            rectSymbol.setWidth(nWidth);
-            rectSymbol.setHeight(nHeight - getLineDelta());
+//            rectSymbol.setLeft(nLeft + getCharWidth());
+//            rectSymbol.setTop(nTop + getLineDelta());
+//            rectSymbol.setWidth(nWidth);
+//            rectSymbol.setHeight(nHeight - getLineDelta());
 
-            //            pPainter->save();
-            //            pPainter->setPen(viewport()->palette().color(QPalette::Dark));
-            pPainter->drawText(rectSymbol, g_listLocationRecords.at(nRow).sLocation);  // TODO Text Optional
-                                                                              //            pPainter->restore();
-        }
+//            //            pPainter->save();
+//            //            pPainter->setPen(viewport()->palette().color(QPalette::Dark));
+//            pPainter->drawText(rectSymbol, g_listLocationRecords.at(nRow).sLocation);  // TODO Text Optional
+//                                                                              //            pPainter->restore();
+//        }
     } else if ((nColumn == COLUMN_HEX) || (nColumn == COLUMN_SYMBOLS)) {
         //        STATE state = getState();
         if (nRow * g_nBytesProLine < g_nDataBlockSize) {
@@ -305,12 +313,12 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
             for (qint32 i = 0; i < nDataBlockSize; i++) {
                 qint32 nIndex = nRow * g_nBytesProLine + i;
                 qint64 nCurrent = nDataBlockStartOffset + nIndex;
-                bool bIsHighlighted = g_listByteRecords.at(nIndex).bIsHighlighted;
-                bool bIsHighlightedNext = false;
+//                bool bIsHighlighted = g_listByteRecords.at(nIndex).bIsHighlighted;
+//                bool bIsHighlightedNext = false;
 
-                if (nIndex + 1 < g_nDataBlockSize) {
-                    bIsHighlightedNext = g_listByteRecords.at(nIndex + 1).bIsHighlighted;
-                }
+//                if (nIndex + 1 < g_nDataBlockSize) {
+//                    bIsHighlightedNext = g_listByteRecords.at(nIndex + 1).bIsHighlighted;
+//                }
 
                 bool bIsSelected = isViewOffsetSelected(nCurrent);
                 bool bIsSelectedNext = isViewOffsetSelected(nCurrent + 1);
@@ -326,8 +334,8 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                         rectSymbol.setWidth(2 * getCharWidth());
                     } else if (bIsSelected && (!bIsSelectedNext)) {
                         rectSymbol.setWidth(2 * getCharWidth());
-                    } else if (bIsHighlighted && (!bIsHighlightedNext)) {
-                        rectSymbol.setWidth(2 * getCharWidth());
+//                    } else if (bIsHighlighted && (!bIsHighlightedNext)) {
+//                        rectSymbol.setWidth(2 * getCharWidth());
                     } else {
                         rectSymbol.setWidth(2 * getCharWidth() + getSideDelta());
                     }
@@ -346,8 +354,6 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                         pPainter->setFont(font);
                     }
 
-
-
                     QString sSymbol;
 
                     if (nColumn == COLUMN_HEX) {
@@ -359,9 +365,10 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                     if (bIsSelected) {
                         // pPainter->fillRect(rectSymbol, viewport()->palette().color(QPalette::Highlight));  // TODO Options
                         pPainter->fillRect(rectSymbol, g_listByteRecords.at(nIndex).colBackgroundSelected);
-                    } else if (bIsHighlighted) {
+//                        pPainter->fillRect(rectSymbol, QColor(100, 0, 0, 10));
+                    } /*else if (bIsHighlighted) {
                         pPainter->fillRect(rectSymbol, g_listByteRecords.at(nIndex).colBackground);
-                    }
+                    }*/
 
                     if (bIsSelected) {
                         // Draw lines
@@ -403,13 +410,13 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                         }
                     }
 
-                    if (nColumn == COLUMN_HEX) {
-                        pPainter->drawText(rectSymbol, sSymbol);
-                    } else if (nColumn == COLUMN_SYMBOLS) {
-                        if (sSymbol != "") {
-                            pPainter->drawText(rectSymbol, sSymbol);
-                        }
-                    }
+//                    if (nColumn == COLUMN_HEX) {
+//                        pPainter->drawText(rectSymbol, sSymbol);
+//                    } else if (nColumn == COLUMN_SYMBOLS) {
+//                        if (sSymbol != "") {
+//                            pPainter->drawText(rectSymbol, sSymbol);
+//                        }
+//                    }
 
                     if (g_listByteRecords.at(nIndex).bIsBold) {
                         pPainter->restore();
@@ -420,16 +427,130 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
             }
         }
     }
+//#ifdef QT_DEBUG
+//    qDebug("XHexView::paintCell %lld",timer.elapsed());
+//#endif
 }
 
 void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
 {
-    Q_UNUSED(pPainter)
-    Q_UNUSED(nColumn)
-    Q_UNUSED(nLeft)
-    Q_UNUSED(nTop)
-    Q_UNUSED(nWidth)
-    Q_UNUSED(nHeight)
+    QString sKey;
+
+    if (nColumn == COLUMN_ADDRESS) {
+        sKey = QString("address_%1").arg(getViewOffsetStart());
+    } else if (nColumn == COLUMN_HEX) {
+        sKey = QString("hex_%1").arg(getViewOffsetStart());
+    } else if (nColumn == COLUMN_SYMBOLS) {
+        sKey = QString("symbols_%1").arg(getViewOffsetStart());
+    }
+
+    if (sKey != "") {
+        sKey += QString("_%1").arg(nWidth);
+
+        QPixmap _pixmap;
+
+        if (g_pixmapCache.find(sKey, &_pixmap)) {
+            pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
+        } else {
+            QPixmap pixmap(nWidth, nHeight);
+            pixmap.fill(Qt::transparent);
+
+            QPainter painterPixmap(&pixmap);
+            painterPixmap.setFont(pPainter->font());
+
+//            painterPixmap.setBrushOrigin(pPainter->brushOrigin());
+//            painterPixmap.setBrush(pPainter->brush());
+//            painterPixmap.setPen(pPainter->pen());
+//            painterPixmap.setBackground(pPainter->background());
+            painterPixmap.setBackgroundMode(Qt::TransparentMode);
+
+            int nNumberOfRows = g_listLocationRecords.count();
+
+            if (nColumn == COLUMN_ADDRESS) {
+                for (int i = 0; i < nNumberOfRows; i++) {
+                    QRect rectSymbol;
+                    rectSymbol.setLeft(getCharWidth());
+                    rectSymbol.setTop(getLineHeight() * i + getLineDelta());
+                    rectSymbol.setWidth(nWidth);
+                    rectSymbol.setHeight(getLineHeight() - getLineDelta());
+
+                    painterPixmap.drawText(rectSymbol, g_listLocationRecords.at(i).sLocation);  // TODO Text Optional                                                                      //            pPainter->restore();
+                }
+            } else if ((nColumn == COLUMN_HEX) || (nColumn == COLUMN_SYMBOLS)) {
+                QFont fontBold = painterPixmap.font();
+                fontBold.setBold(true);
+
+                for (int nRow = 0; nRow * g_nBytesProLine < g_nDataBlockSize; nRow++) {
+                    qint64 nDataBlockSize = qMin(g_nDataBlockSize - nRow * g_nBytesProLine, g_nBytesProLine);
+
+                    for (qint32 i = 0; i < nDataBlockSize; i++) {
+                        qint32 nIndex = nRow * g_nBytesProLine + i;
+                        bool bIsHighlighted = g_listByteRecords.at(nIndex).bIsHighlighted;
+                        bool bIsHighlightedNext = false;
+
+                        if (nIndex + 1 < g_nDataBlockSize) {
+                            bIsHighlightedNext = g_listByteRecords.at(nIndex + 1).bIsHighlighted;
+                        }
+
+                        QRect rectSymbol;
+
+                        if (nColumn == COLUMN_HEX) {
+                            rectSymbol.setLeft(getCharWidth() + (i * 2) * getCharWidth() + i * getSideDelta());
+                            rectSymbol.setTop(getLineHeight() * nRow + getLineDelta());
+                            rectSymbol.setHeight(getLineHeight() - getLineDelta());
+
+                            if (((nIndex + 1) % g_nBytesProLine) == 0) {
+                                rectSymbol.setWidth(2 * getCharWidth());
+                            } else if (bIsHighlighted && (!bIsHighlightedNext)) {
+                                rectSymbol.setWidth(2 * getCharWidth());
+                            } else {
+                                rectSymbol.setWidth(2 * getCharWidth() + getSideDelta());
+                            }
+                        } else if (nColumn == COLUMN_SYMBOLS) {
+                            rectSymbol.setLeft((i + 1) * getCharWidth());
+                            rectSymbol.setTop(getLineHeight() * nRow + getLineDelta());
+                            rectSymbol.setWidth(getCharWidth());
+                            rectSymbol.setHeight(getLineHeight() - getLineDelta());
+                        }
+
+                        if (g_listByteRecords.at(nIndex).bIsBold) {
+                            painterPixmap.save();
+                            painterPixmap.setFont(fontBold);
+                        }
+
+                        QString sSymbol;
+
+                        if (nColumn == COLUMN_HEX) {
+                            sSymbol = g_listByteRecords.at(nIndex).sHex;
+                        } else if (nColumn == COLUMN_SYMBOLS) {
+                            sSymbol = g_listByteRecords.at(nIndex).sChar;
+                        }
+
+                        if (bIsHighlighted) {
+                            painterPixmap.fillRect(rectSymbol, g_listByteRecords.at(nIndex).colBackground);
+//                            painterPixmap.fillRect(rectSymbol, QColor(128, 128, 255, 128));
+                        }
+
+                        if (nColumn == COLUMN_HEX) {
+                            painterPixmap.drawText(rectSymbol, sSymbol);
+                        } else if (nColumn == COLUMN_SYMBOLS) {
+                            if (sSymbol != "") {
+                                painterPixmap.drawText(rectSymbol, sSymbol);
+                            }
+                        }
+
+                        if (g_listByteRecords.at(nIndex).bIsBold) {
+                            painterPixmap.restore();
+                        }
+                    }
+                }
+            }
+
+            g_pixmapCache.insert(sKey, pixmap);
+
+            pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, pixmap);
+        }
+    }
 }
 
 void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight, QString sTitle)

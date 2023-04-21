@@ -26,6 +26,7 @@
 #include "dialoghexedit.h"
 #include "xdevicetableeditview.h"
 #include "dialogdatainspector.h"
+#include <QPixmapCache>
 
 class XHexView : public XDeviceTableEditView {
     Q_OBJECT
@@ -150,6 +151,7 @@ private:
     QTextCodec *g_pCodec;
     QMenu *g_pCodePageMenu;
     XOptions g_xOptions;
+    QPixmapCache g_pixmapCache;
 };
 
 #endif  // XHEXVIEW_H
