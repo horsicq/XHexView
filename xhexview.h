@@ -94,10 +94,10 @@ private:
         bool bIsHighlighted;
         QColor colBackground;
         QColor colBackgroundSelected;
-//        bool bIsSelected;
+        //        bool bIsSelected;
     };
 
-    QString getStringBuffer(QByteArray *pbaData); // TODO QList
+    QString getStringBuffer(QByteArray *pbaData);  // TODO QList
 
 protected:
     virtual OS cursorPositionToOS(CURSOR_POSITION cursorPosition);

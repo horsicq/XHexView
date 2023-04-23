@@ -239,14 +239,12 @@ void XHexViewWidget::on_pushButtonTemplateScan_clicked()
     // TODO scan
 }
 
-
 void XHexViewWidget::on_comboBoxTemplate_currentIndexChanged(int nIndex)
 {
-   // TODO
+    // TODO
 }
 
 void XHexViewWidget::useTemplate(QString sTemplate)
 {
     // TODO
 }
-
