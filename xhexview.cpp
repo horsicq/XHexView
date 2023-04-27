@@ -101,7 +101,7 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bRelo
     //        nTotalLineCount=1;
     //    }
 
-    setTotalLineCount(nTotalLineCount);
+    setTotalScrollCount(nTotalLineCount);
 
     if (options.nStartSelectionOffset) {
         _goToViewOffset(options.nStartSelectionOffset);
@@ -745,7 +745,7 @@ void XHexView::contextMenu(const QPoint &pos)
 void XHexView::wheelEvent(QWheelEvent *pEvent)
 {
     if ((g_nViewStartDelta) && (pEvent->angleDelta().y() > 0)) {
-        if (getCurrentLineFromScroll() == g_nViewStartDelta) {
+        if (getCurrentViewOffsetFromScroll() == g_nViewStartDelta) {
             setCurrentViewOffsetToScroll(0);
             adjust(true);
             viewport()->update();
@@ -827,7 +827,7 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
     }
 }
 
-qint64 XHexView::getCurrentLineFromScroll()
+qint64 XHexView::getCurrentViewOffsetFromScroll()
 {
     qint64 nResult = 0;
 
