@@ -27,7 +27,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     g_nViewStartDelta = 0;
     //    g_smode=SMODE_ANSI;  // TODO Set/Get
     g_nThisBase = 0;
-    g_options = {};
+    g_hexOptions = {};
     g_nAddressWidth = 8;        // TODO Set/Get
     g_bIsAddressColon = false;  // TODO Check
                                 //    g_nPieceSize=1; // TODO
@@ -44,9 +44,9 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 
     g_sCodePage = "";
 
-    g_pCodePageMenu = g_xOptions.createCodePagesMenu(this, true);
+    g_pCodePageMenu = g_xCodePageOptions.createCodePagesMenu(this, true);
 
-    connect(&g_xOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
+    connect(&g_xCodePageOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
 
     setAddressMode(MODE_OFFSET);
 
@@ -73,7 +73,7 @@ void XHexView::adjustView()
 
 void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bReload)
 {
-    g_options = options;
+    g_hexOptions = options;
 
     setDevice(pDevice);
 
@@ -119,7 +119,7 @@ void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bRelo
 
 void XHexView::goToAddress(XADDR nAddress)
 {
-    qint64 nViewOffset = deviceOffsetToViewOffset(nAddress - g_options.nStartAddress);
+    qint64 nViewOffset = deviceOffsetToViewOffset(nAddress - g_hexOptions.nStartAddress);
     _goToViewOffset(nViewOffset);
     // TODO reload
 }
@@ -132,12 +132,12 @@ void XHexView::goToOffset(qint64 nOffset)
 
 XADDR XHexView::getStartAddress()
 {
-    return g_options.nStartAddress;
+    return g_hexOptions.nStartAddress;
 }
 
 XADDR XHexView::getSelectionInitAddress()
 {
-    return getSelectionInitOffset() + g_options.nStartAddress;
+    return getSelectionInitOffset() + g_hexOptions.nStartAddress;
 }
 
 XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_POSITION cursorPosition)
@@ -225,7 +225,7 @@ void XHexView::updateData()
                 XADDR nCurrentAddress = 0;
 
                 LOCATIONRECORD record = {};
-                record.nLocation = i + g_options.nStartAddress + nDataBlockStartOffset;
+                record.nLocation = i + g_hexOptions.nStartAddress + nDataBlockStartOffset;
 
                 if (getAddressMode() == MODE_THIS) {
                     nCurrentAddress = record.nLocation;
@@ -701,19 +701,19 @@ void XHexView::contextMenu(const QPoint &pos)
 
         contextMenu.addMenu(&menuCopy);
 
-        if (g_options.bMenu_Disasm) {
+        if (g_hexOptions.bMenu_Disasm) {
             menuFollowIn.addAction(&actionDisasm);
         }
 
-        if (g_options.bMenu_MemoryMap) {
+        if (g_hexOptions.bMenu_MemoryMap) {
             menuFollowIn.addAction(&actionMemoryMap);
         }
 
-        if (g_options.bMenu_MainHex) {
+        if (g_hexOptions.bMenu_MainHex) {
             menuFollowIn.addAction(&actionMainHex);
         }
 
-        if ((g_options.bMenu_Disasm) || (g_options.bMenu_MemoryMap)) {
+        if ((g_hexOptions.bMenu_Disasm) || (g_hexOptions.bMenu_MemoryMap)) {
             contextMenu.addMenu(&menuFollowIn);
         }
 
@@ -1116,21 +1116,21 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
 
 void XHexView::_disasmSlot()
 {
-    if (g_options.bMenu_Disasm) {
+    if (g_hexOptions.bMenu_Disasm) {
         emit showOffsetDisasm(getDeviceState(true).nSelectionLocation);
     }
 }
 
 void XHexView::_memoryMapSlot()
 {
-    if (g_options.bMenu_MemoryMap) {
+    if (g_hexOptions.bMenu_MemoryMap) {
         emit showOffsetMemoryMap(getDeviceState(true).nSelectionLocation);
     }
 }
 
 void XHexView::_mainHexSlot()
 {
-    if (g_options.bMenu_MainHex) {
+    if (g_hexOptions.bMenu_MainHex) {
         DEVICESTATE deviceState = getDeviceState(true);
         emit showOffsetMainHex(deviceState.nSelectionLocation, deviceState.nSelectionSize);
     }

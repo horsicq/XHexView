@@ -131,7 +131,7 @@ signals:
     void showOffsetMainHex(qint64 nOffset, qint64 nSize);
 
 private:
-    OPTIONS g_options;
+    OPTIONS g_hexOptions;
     qint32 g_nBytesProLine;
     qint32 g_nDataBlockSize;
     QList<HIGHLIGHTREGION> g_listHighlightsRegion;
@@ -150,7 +150,7 @@ private:
     QString g_sCodePage;
     QTextCodec *g_pCodec;
     QMenu *g_pCodePageMenu;
-    XOptions g_xOptions;
+    XOptions g_xCodePageOptions;
     QPixmapCache g_pixmapCache;
 };
 
