@@ -36,6 +36,8 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     setReadonlyVisible(false);
 
     setReadonly(true);
+
+    ui->groupBoxTemplate->hide();
 }
 
 XHexViewWidget::~XHexViewWidget()
