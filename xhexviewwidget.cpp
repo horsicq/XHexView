@@ -57,8 +57,7 @@ void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options, XInf
 
     ui->checkBoxReadonly->setEnabled(pDevice->isWritable());
 
-    ui->scrollAreaHex->setData(pDevice, options);
-    ui->scrollAreaHex->setXInfoDB(pXInfoDB);
+    ui->scrollAreaHex->setData(pDevice, options, true, pXInfoDB);
 }
 
 void XHexViewWidget::setDevice(QIODevice *pDevice)
