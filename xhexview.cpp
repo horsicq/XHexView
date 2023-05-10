@@ -264,7 +264,7 @@ void XHexView::updateData()
                     record.colBackground = listHighLightRegions.at(0).colBackground;
                     record.colBackgroundSelected = listHighLightRegions.at(0).colBackgroundSelected;
                 } else {
-                    record.colBackgroundSelected = getColorSelected();
+                    record.colBackgroundSelected = getColor(TCLOLOR_SELECTED);
                 }
 
                 //                record.bIsSelected = isViewOffsetSelected(nDataBlockStartOffset + i);
