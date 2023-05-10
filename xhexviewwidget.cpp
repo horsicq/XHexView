@@ -163,7 +163,7 @@ void XHexViewWidget::selectionChangedSlot()
 
     XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
 
-    emit selectionChanged(deviceState.nSelectionLocation, deviceState.nSelectionSize);
+    emit selectionChanged(deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
 }
 
 void XHexViewWidget::adjust()
@@ -208,7 +208,7 @@ void XHexViewWidget::on_pushButtonDataInspector_clicked()
 
     XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
 
-    DialogDataInspector dialogDataInspector(this, ui->scrollAreaHex->getDevice(), deviceState.nSelectionLocation, deviceState.nSelectionSize);
+    DialogDataInspector dialogDataInspector(this, ui->scrollAreaHex->getDevice(), deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
     dialogDataInspector.setGlobal(getShortcuts(), getGlobalOptions());
 
     connect(this, SIGNAL(selectionChanged(qint64, qint64)), &dialogDataInspector, SLOT(selectionChangedSlot(qint64, qint64)));

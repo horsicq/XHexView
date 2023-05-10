@@ -1118,14 +1118,14 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
 void XHexView::_disasmSlot()
 {
     if (g_hexOptions.bMenu_Disasm) {
-        emit showOffsetDisasm(getDeviceState(true).nSelectionLocation);
+        emit showOffsetDisasm(getDeviceState(true).nSelectionDeviceOffset);
     }
 }
 
 void XHexView::_memoryMapSlot()
 {
     if (g_hexOptions.bMenu_MemoryMap) {
-        emit showOffsetMemoryMap(getDeviceState(true).nSelectionLocation);
+        emit showOffsetMemoryMap(getDeviceState(true).nSelectionDeviceOffset);
     }
 }
 
@@ -1133,7 +1133,7 @@ void XHexView::_mainHexSlot()
 {
     if (g_hexOptions.bMenu_MainHex) {
         DEVICESTATE deviceState = getDeviceState(true);
-        emit showOffsetMainHex(deviceState.nSelectionLocation, deviceState.nSelectionSize);
+        emit showOffsetMainHex(deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
     }
 }
 
