@@ -122,7 +122,7 @@ private slots:
     void _disasmSlot();
     void _memoryMapSlot();
     void _mainHexSlot();
-    void _setCodePage(QString sCodePage);
+    void _setCodePage(const QString &sCodePage);
     void changeWidth();
 
 signals:

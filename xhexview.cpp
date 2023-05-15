@@ -1137,7 +1137,7 @@ void XHexView::_mainHexSlot()
     }
 }
 
-void XHexView::_setCodePage(QString sCodePage)
+void XHexView::_setCodePage(const QString &sCodePage)
 {
     g_sCodePage = sCodePage;
 
