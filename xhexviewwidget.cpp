@@ -246,7 +246,7 @@ void XHexViewWidget::on_comboBoxTemplate_currentIndexChanged(int nIndex)
     // TODO
 }
 
-void XHexViewWidget::useTemplate(QString sTemplate)
+void XHexViewWidget::useTemplate(const QString &sTemplate)
 {
     Q_UNUSED(sTemplate)
     // TODO
