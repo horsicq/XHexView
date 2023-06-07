@@ -83,6 +83,11 @@ FORMS += \
     include($$PWD/../XInfoDB/xinfodb.pri)
 }
 
+!contains(XCONFIG, die_widget) {
+    XCONFIG += die_widget
+    include($$PWD/../die_widget/die_widget.pri)
+}
+
 !contains(XCONFIG, xsymbolswidget) {
     XCONFIG += xsymbolswidget
     include($$PWD/../XSymbolsWidget/xsymbolswidget.pri)

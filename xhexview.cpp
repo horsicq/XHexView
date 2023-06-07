@@ -437,11 +437,11 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
     QString sKey;
 
     if (nColumn == COLUMN_ADDRESS) {
-        sKey = QString("address_%1").arg(getViewOffsetStart());
+        sKey = QString("address_%1_%2").arg(getViewOffsetStart(), getViewSize());
     } else if (nColumn == COLUMN_HEX) {
-        sKey = QString("hex_%1").arg(getViewOffsetStart());
+        sKey = QString("hex_%1_%2").arg(getViewOffsetStart(), getViewSize());
     } else if (nColumn == COLUMN_SYMBOLS) {
-        sKey = QString("symbols_%1").arg(getViewOffsetStart());
+        sKey = QString("symbols_%1_%2").arg(getViewOffsetStart(), getViewSize());
     }
 
     if (sKey != "") {
