@@ -58,9 +58,6 @@ private slots:
     //    void valueChangedSlot(quint64 nValue);
     void on_pushButtonDataInspector_clicked();
     void dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize);
-    void on_pushButtonTemplateScan_clicked();
-    void on_comboBoxTemplate_currentIndexChanged(int nIndex);
-    void useTemplate(const QString &sTemplate);
 
 signals:
     void dataChanged(qint64 nDeviceOffset, qint64 nDeviceSize);

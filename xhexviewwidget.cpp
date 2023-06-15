@@ -232,20 +232,3 @@ void XHexViewWidget::dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize)
 
     //    emit dataChanged(nDeviceOffset, nDeviceSize);
 }
-
-void XHexViewWidget::on_pushButtonTemplateScan_clicked()
-{
-    // TODO scan
-}
-
-void XHexViewWidget::on_comboBoxTemplate_currentIndexChanged(int nIndex)
-{
-    Q_UNUSED(nIndex)
-    // TODO
-}
-
-void XHexViewWidget::useTemplate(const QString &sTemplate)
-{
-    Q_UNUSED(sTemplate)
-    // TODO
-}
