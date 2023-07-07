@@ -30,7 +30,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     connect(ui->scrollAreaHex, SIGNAL(showOffsetMemoryMap(qint64)), this, SIGNAL(showOffsetMemoryMap(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(errorMessage(QString)), this, SLOT(errorMessageSlot(QString)));
     connect(ui->scrollAreaHex, SIGNAL(cursorViewOffsetChanged(qint64)), this, SLOT(cursorChangedSlot(qint64)));
-    connect(ui->scrollAreaHex, SIGNAL(selectionChanged()), this, SLOT(selectionChangedSlot()));
+    connect(ui->scrollAreaHex, SIGNAL(deviceSelectionChanged(qint64, qint64)), this, SIGNAL(selectionChanged(qint64, qint64)));
     connect(ui->scrollAreaHex, SIGNAL(dataChanged(qint64, qint64)), this, SLOT(dataChangedSlot(qint64, qint64)));
 
     setReadonlyVisible(false);
@@ -202,24 +202,11 @@ void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
 void XHexViewWidget::on_pushButtonDataInspector_clicked()
 {
     // TODO set Readonly
-    ui->pushButtonDataInspector->setEnabled(false);
+    ui->pushButtonDataInspector->setEnabled(false); // TODO
 
-    XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
+    ui->scrollAreaHex->_showDataInspector();
 
-    DialogDataInspector dialogDataInspector(this, ui->scrollAreaHex->getDevice(), deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
-    dialogDataInspector.setGlobal(getShortcuts(), getGlobalOptions());
-
-    connect(this, SIGNAL(selectionChanged(qint64, qint64)), &dialogDataInspector, SLOT(selectionChangedSlot(qint64, qint64)));
-    connect(this, SIGNAL(dataChanged(qint64, qint64)), &dialogDataInspector, SLOT(dataChangedSlot(qint64, qint64)));
-    connect(&dialogDataInspector, SIGNAL(dataChanged(qint64, qint64)), this, SLOT(dataChangedSlot(qint64, qint64)));
-
-    //    selectionChangedSlot();
-
-    XOptions::_adjustStayOnTop(&dialogDataInspector, true);
-
-    dialogDataInspector.exec();
-
-    ui->pushButtonDataInspector->setEnabled(true);
+    ui->pushButtonDataInspector->setEnabled(true); // TODO
 }
 
 void XHexViewWidget::dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize)
