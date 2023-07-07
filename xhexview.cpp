@@ -50,7 +50,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 
     setAddressMode(MODE_OFFSET);
 
-    //    g_pixmapCache.setCacheLimit(10240);
+    //g_pixmapCache.setCacheLimit(1024);
 }
 
 void XHexView::_adjustView()
@@ -278,7 +278,7 @@ void XHexView::updateData()
 
         setCurrentBlock(nDataBlockStartOffset, g_nDataBlockSize);
 
-        g_pixmapCache.clear();
+        //g_pixmapCache.clear();
     }
 }
 
@@ -434,6 +434,12 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
 
 void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
 {
+#ifdef QT_DEBUG
+    qDebug("XHexView::paintColumn");
+    QElapsedTimer timer;
+    timer.start();
+#endif
+
     QString sKey;
 
     if (nColumn == COLUMN_ADDRESS) {
@@ -447,22 +453,18 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
     if (sKey != "") {
         sKey += QString("_%1").arg(nWidth);
 
-        QPixmap _pixmap;
+       // QPixmap _pixmap(0, 0);
 
-        if (g_pixmapCache.find(sKey, &_pixmap)) {
-            pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
+        //if (g_pixmapCache.find(sKey, &_pixmap)) {
+        if (false) {
+//            pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
         } else {
-            QPixmap pixmap(nWidth, nHeight);
-            pixmap.fill(Qt::transparent);
+//            QPixmap pixmap(nWidth, nHeight);
+//            pixmap.fill(Qt::transparent);
 
-            QPainter painterPixmap(&pixmap);
-            painterPixmap.setFont(pPainter->font());
-
-            //            painterPixmap.setBrushOrigin(pPainter->brushOrigin());
-            //            painterPixmap.setBrush(pPainter->brush());
-            //            painterPixmap.setPen(pPainter->pen());
-            //            painterPixmap.setBackground(pPainter->background());
-            painterPixmap.setBackgroundMode(Qt::TransparentMode);
+//            QPainter painterPixmap(&pixmap);
+//            painterPixmap.setFont(pPainter->font());
+//            painterPixmap.setBackgroundMode(Qt::TransparentMode);
 
             int nNumberOfRows = g_listLocationRecords.count();
 
@@ -474,10 +476,12 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                     rectSymbol.setWidth(nWidth);
                     rectSymbol.setHeight(getLineHeight() - getLineDelta());
 
-                    painterPixmap.drawText(rectSymbol, g_listLocationRecords.at(i).sLocation);  // TODO Text Optional //            pPainter->restore();
+//                    painterPixmap.drawText(rectSymbol, g_listLocationRecords.at(i).sLocation);  // TODO Text Optional //            pPainter->restore();
+                    pPainter->drawText(rectSymbol, g_listLocationRecords.at(i).sLocation);
                 }
             } else if ((nColumn == COLUMN_HEX) || (nColumn == COLUMN_SYMBOLS)) {
-                QFont fontBold = painterPixmap.font();
+//                QFont fontBold = painterPixmap.font();
+                QFont fontBold = pPainter->font();
                 fontBold.setBold(true);
 
                 for (int nRow = 0; nRow * g_nBytesProLine < g_nDataBlockSize; nRow++) {
@@ -546,11 +550,15 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                 }
             }
 
-            g_pixmapCache.insert(sKey, pixmap);
+            //g_pixmapCache.insert(sKey, pixmap);
 
-            pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, pixmap);
+//            pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, pixmap);
         }
     }
+
+#ifdef QT_DEBUG
+    qDebug("Elapsed XHexView::paintColumn %lld", timer.elapsed());
+#endif
 }
 
 void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight, const QString &sTitle)
