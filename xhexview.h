@@ -150,7 +150,7 @@ private:
     QTextCodec *g_pCodec;
     QMenu *g_pCodePageMenu;
     XOptions g_xCodePageOptions;
-    //QPixmapCache g_pixmapCache;
+    QPixmapCache g_pixmapCache;
 };
 
 #endif  // XHEXVIEW_H

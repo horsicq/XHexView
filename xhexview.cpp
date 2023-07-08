@@ -278,7 +278,7 @@ void XHexView::updateData()
 
         setCurrentBlock(nDataBlockStartOffset, g_nDataBlockSize);
 
-        //g_pixmapCache.clear();
+        g_pixmapCache.clear();
     }
 }
 
@@ -443,28 +443,30 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
     QString sKey;
 
     if (nColumn == COLUMN_ADDRESS) {
-        sKey = QString("address_%1_%2").arg(getViewOffsetStart(), getViewSize());
+        sKey = QString("address");
     } else if (nColumn == COLUMN_HEX) {
-        sKey = QString("hex_%1_%2").arg(getViewOffsetStart(), getViewSize());
+        sKey = QString("hex");
     } else if (nColumn == COLUMN_SYMBOLS) {
-        sKey = QString("symbols_%1_%2").arg(getViewOffsetStart(), getViewSize());
+        sKey = QString("symbols");
     }
 
     if (sKey != "") {
+        sKey += QString("_%1").arg(getViewOffsetStart());
+        sKey += QString("_%1").arg(getViewSize());
         sKey += QString("_%1").arg(nWidth);
 
-       // QPixmap _pixmap(0, 0);
+        QPixmap _pixmap(0, 0);
 
-        //if (g_pixmapCache.find(sKey, &_pixmap)) {
-        if (false) {
-//            pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
+        if (g_pixmapCache.find(sKey, &_pixmap)) {
+//        if (false) {
+            pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
         } else {
-//            QPixmap pixmap(nWidth, nHeight);
-//            pixmap.fill(Qt::transparent);
+            QPixmap pixmap(nWidth, nHeight);
+            pixmap.fill(Qt::transparent);
 
-//            QPainter painterPixmap(&pixmap);
-//            painterPixmap.setFont(pPainter->font());
-//            painterPixmap.setBackgroundMode(Qt::TransparentMode);
+            QPainter painterPixmap(&pixmap);
+            painterPixmap.setFont(pPainter->font());
+            painterPixmap.setBackgroundMode(Qt::TransparentMode);
 
             int nNumberOfRows = g_listLocationRecords.count();
 
@@ -476,12 +478,12 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                     rectSymbol.setWidth(nWidth);
                     rectSymbol.setHeight(getLineHeight() - getLineDelta());
 
-//                    painterPixmap.drawText(rectSymbol, g_listLocationRecords.at(i).sLocation);  // TODO Text Optional //            pPainter->restore();
-                    pPainter->drawText(rectSymbol, g_listLocationRecords.at(i).sLocation);
+                    painterPixmap.drawText(rectSymbol, g_listLocationRecords.at(i).sLocation);  // TODO Text Optional //            pPainter->restore();
+//                    pPainter->drawText(rectSymbol, g_listLocationRecords.at(i).sLocation);
                 }
             } else if ((nColumn == COLUMN_HEX) || (nColumn == COLUMN_SYMBOLS)) {
-//                QFont fontBold = painterPixmap.font();
-                QFont fontBold = pPainter->font();
+                QFont fontBold = painterPixmap.font();
+//                QFont fontBold = pPainter->font();
                 fontBold.setBold(true);
 
                 for (int nRow = 0; nRow * g_nBytesProLine < g_nDataBlockSize; nRow++) {
@@ -520,6 +522,8 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                         if (g_listByteRecords.at(nIndex).bIsBold) {
                             painterPixmap.save();
                             painterPixmap.setFont(fontBold);
+//                            pPainter->save();
+//                            pPainter->setFont(fontBold);
                         }
 
                         QString sSymbol;
@@ -532,27 +536,30 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
 
                         if (bIsHighlighted) {
                             painterPixmap.fillRect(rectSymbol, g_listByteRecords.at(nIndex).colBackground);
-                            //                            painterPixmap.fillRect(rectSymbol, QColor(128, 128, 255, 128));
+//                            pPainter->fillRect(rectSymbol, g_listByteRecords.at(nIndex).colBackground);
                         }
 
                         if (nColumn == COLUMN_HEX) {
                             painterPixmap.drawText(rectSymbol, sSymbol);
+//                            pPainter->drawText(rectSymbol, sSymbol);
                         } else if (nColumn == COLUMN_SYMBOLS) {
                             if (sSymbol != "") {
                                 painterPixmap.drawText(rectSymbol, sSymbol);
+//                                pPainter->drawText(rectSymbol, sSymbol);
                             }
                         }
 
                         if (g_listByteRecords.at(nIndex).bIsBold) {
                             painterPixmap.restore();
+//                            pPainter->restore();
                         }
                     }
                 }
             }
 
-            //g_pixmapCache.insert(sKey, pixmap);
+            g_pixmapCache.insert(sKey, pixmap);
 
-//            pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, pixmap);
+            pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, pixmap);
         }
     }
 
