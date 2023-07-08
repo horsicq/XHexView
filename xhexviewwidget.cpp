@@ -202,11 +202,11 @@ void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
 void XHexViewWidget::on_pushButtonDataInspector_clicked()
 {
     // TODO set Readonly
-    ui->pushButtonDataInspector->setEnabled(false); // TODO
+    ui->pushButtonDataInspector->setEnabled(false);  // TODO
 
     ui->scrollAreaHex->_showDataInspector();
 
-    ui->pushButtonDataInspector->setEnabled(true); // TODO
+    ui->pushButtonDataInspector->setEnabled(true);  // TODO
 }
 
 void XHexViewWidget::dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize)
