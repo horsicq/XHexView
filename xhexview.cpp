@@ -454,6 +454,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
         sKey += QString("_%1").arg(getViewOffsetStart());
         sKey += QString("_%1").arg(getViewSize());
         sKey += QString("_%1").arg(nWidth);
+        sKey += QString("_%1").arg(nHeight);
 
         QPixmap _pixmap(0, 0);
 
