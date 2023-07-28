@@ -210,7 +210,7 @@ void XHexView::updateData()
 
         g_listHighlightsRegion.clear();
         if (getXInfoDB()) {
-            QList<XInfoDB::BOOKMARKRECORD> listBookMarks = getXInfoDB()->getBookmarkRecords(nDataBlockStartOffset + nInitLocation, nDataBlockSize);
+            QList<XInfoDB::BOOKMARKRECORD> listBookMarks = getXInfoDB()->getBookmarkRecords(nDataBlockStartOffset + nInitLocation, XInfoDB::LT_OFFSET, nDataBlockSize);
             g_listHighlightsRegion.append(_convertBookmarksToHighlightRegion(&listBookMarks));
         }
 
@@ -257,7 +257,7 @@ void XHexView::updateData()
                 record.sChar = g_sStringBuffer.mid(i, 1);
                 record.bIsBold = (g_baDataBuffer.at(i) != 0);  // TODO optimize
 
-                QList<HIGHLIGHTREGION> listHighLightRegions = getHighlightRegion(&g_listHighlightsRegion, nDataBlockStartOffset + i + nInitLocation);
+                QList<HIGHLIGHTREGION> listHighLightRegions = getHighlightRegion(&g_listHighlightsRegion, nDataBlockStartOffset + i + nInitLocation, XInfoDB::LT_OFFSET);
 
                 if (listHighLightRegions.count()) {
                     record.bIsHighlighted = true;
@@ -672,6 +672,10 @@ void XHexView::contextMenu(const QPoint &pos)
 
         QAction actionBookmarkList(tr("List"), this);
         actionBookmarkList.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_BOOKMARKS_LIST));
+        if (getViewWidgetState(VIEWWIDGET_BOOKMARKS)) {
+            actionBookmarkList.setCheckable(true);
+            actionBookmarkList.setChecked(true);
+        }
         connect(&actionBookmarkList, SIGNAL(triggered()), this, SLOT(_bookmarkList()));
 #endif
 
