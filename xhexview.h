@@ -61,7 +61,7 @@ public:
         bool bMenu_MemoryMap;
         bool bMenu_MainHex;
         QString sTitle;  // For dialogs
-        MODE addressMode;
+        LOCMODE addressMode;
     };
 
     explicit XHexView(QWidget *pParent = nullptr);

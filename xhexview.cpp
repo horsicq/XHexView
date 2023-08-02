@@ -48,7 +48,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 
     connect(&g_xCodePageOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
 
-    setAddressMode(MODE_OFFSET);
+    setAddressMode(LOCMODE_OFFSET);
 
     // g_pixmapCache.setCacheLimit(1024);
 }
@@ -228,16 +228,16 @@ void XHexView::updateData()
                 LOCATIONRECORD record = {};
                 record.nLocation = i + g_hexOptions.nStartAddress + nDataBlockStartOffset;
 
-                if (getAddressMode() == MODE_THIS) {
+                if (getAddressMode() == LOCMODE_THIS) {
                     nCurrentAddress = record.nLocation;
 
                     qint64 nDelta = (qint64)nCurrentAddress - (qint64)g_nThisBase;
 
                     record.sLocation = XBinary::thisToString(nDelta);
                 } else {
-                    if (getAddressMode() == MODE_ADDRESS) {
+                    if (getAddressMode() == LOCMODE_ADDRESS) {
                         nCurrentAddress = record.nLocation;
-                    } else if (getAddressMode() == MODE_OFFSET) {
+                    } else if (getAddressMode() == LOCMODE_OFFSET) {
                         nCurrentAddress = i + nDataBlockStartOffset;
                     }
 
@@ -945,9 +945,9 @@ void XHexView::registerShortcuts(bool bState)
 
 void XHexView::adjustHeader()
 {
-    if (getAddressMode() == MODE_ADDRESS) {
+    if (getAddressMode() == LOCMODE_ADDRESS) {
         setColumnTitle(COLUMN_ADDRESS, tr("Address"));
-    } else if ((getAddressMode() == MODE_OFFSET) || (getAddressMode() == MODE_THIS)) {
+    } else if ((getAddressMode() == LOCMODE_OFFSET) || (getAddressMode() == LOCMODE_THIS)) {
         setColumnTitle(COLUMN_ADDRESS, tr("Offset"));
     }
 }
@@ -956,12 +956,12 @@ void XHexView::_headerClicked(qint32 nColumn)
 {
     if (nColumn == COLUMN_ADDRESS) {
         // TODO Context Menu with
-        if (getAddressMode() == MODE_ADDRESS) {
+        if (getAddressMode() == LOCMODE_ADDRESS) {
             setColumnTitle(COLUMN_ADDRESS, tr("Offset"));
-            setAddressMode(MODE_OFFSET);
-        } else if ((getAddressMode() == MODE_OFFSET) || (getAddressMode() == MODE_THIS)) {
+            setAddressMode(LOCMODE_OFFSET);
+        } else if ((getAddressMode() == LOCMODE_OFFSET) || (getAddressMode() == LOCMODE_THIS)) {
             setColumnTitle(COLUMN_ADDRESS, tr("Address"));
-            setAddressMode(MODE_ADDRESS);
+            setAddressMode(LOCMODE_ADDRESS);
         }
 
         adjust(true);
@@ -996,7 +996,7 @@ void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
 {
     if (nColumn == COLUMN_ADDRESS) {
         setColumnTitle(COLUMN_ADDRESS, "");
-        setAddressMode(MODE_THIS);
+        setAddressMode(LOCMODE_THIS);
 
         if (nRow < g_listLocationRecords.count()) {
             g_nThisBase = g_listLocationRecords.at(nRow).nLocation;
