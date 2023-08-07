@@ -31,7 +31,6 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     g_nAddressWidth = 8;        // TODO Set/Get
     g_bIsAddressColon = false;  // TODO Check
                                 //    g_nPieceSize=1; // TODO
-
     memset(g_shortCuts, 0, sizeof g_shortCuts);
 
     addColumn(tr("Address"), 0, true);
@@ -43,7 +42,6 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     // setBlinkingCursorEnable(false);
 
     g_sCodePage = "";
-
     g_pCodePageMenu = g_xCodePageOptions.createCodePagesMenu(this, true);
 
     connect(&g_xCodePageOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
