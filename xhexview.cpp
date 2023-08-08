@@ -69,12 +69,11 @@ void XHexView::adjustView()
     }
 }
 
-void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bReload, XInfoDB *pXInfoDB)
+void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bReload)
 {
     g_hexOptions = options;
 
     setDevice(pDevice);
-    setXInfoDB(pXInfoDB);
 
     XBinary binary(pDevice, true, options.nStartAddress);
     XBinary::_MEMORY_MAP memoryMap = binary.getMemoryMap();

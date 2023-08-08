@@ -36,7 +36,7 @@ public:
     ~XHexViewWidget();
 
     void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions);
-    void setData(QIODevice *pDevice, XHexView::OPTIONS options, XInfoDB *pXInfoDB);
+    void setData(QIODevice *pDevice, XHexView::OPTIONS options);
     void setDevice(QIODevice *pDevice);
     void setBackupDevice(QIODevice *pDevice);
     void setXInfoDB(XInfoDB *pXInfoDB);

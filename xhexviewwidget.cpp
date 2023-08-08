@@ -49,13 +49,13 @@ void XHexViewWidget::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
     XShortcutsWidget::setGlobal(pShortcuts, pXOptions);
 }
 
-void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options, XInfoDB *pXInfoDB)
+void XHexViewWidget::setData(QIODevice *pDevice, XHexView::OPTIONS options)
 {
     //    g_bIsEdited = false;
 
     ui->checkBoxReadonly->setEnabled(pDevice->isWritable());
 
-    ui->scrollAreaHex->setData(pDevice, options, true, pXInfoDB);
+    ui->scrollAreaHex->setData(pDevice, options, true);
 }
 
 void XHexViewWidget::setDevice(QIODevice *pDevice)

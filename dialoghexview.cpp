@@ -40,7 +40,8 @@ DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPT
 
 void DialogHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice)
 {
-    ui->widgetHex->setData(pDevice, options, pXInfoDB);
+    ui->widgetHex->setXInfoDB(pXInfoDB);
+    ui->widgetHex->setData(pDevice, options);
     ui->widgetHex->setBackupDevice(pBackupDevice);
 
     if (options.sTitle != "") {
