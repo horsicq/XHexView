@@ -253,7 +253,7 @@ void XHexView::updateData()
                 BYTERECORD record = {};
                 record.sHex = g_baDataHexBuffer.mid(i * 2, 2);
                 record.sChar = g_sStringBuffer.mid(i, 1);
-                record.bIsBold = (g_baDataBuffer.at(i) != 0);  // TODO optimize
+                record.bIsBold = (g_baDataBuffer.at(i) != 0);  // TODO optimize !!!
 
                 QList<HIGHLIGHTREGION> listHighLightRegions = getHighlightRegion(&g_listHighlightsRegion, nDataBlockStartOffset + i + nInitLocation, XInfoDB::LT_OFFSET);
 
