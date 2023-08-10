@@ -166,11 +166,11 @@ void XHexViewWidget::selectionChangedSlot()
 
 void XHexViewWidget::adjust()
 {
-    XAbstractTableView::STATE state = ui->scrollAreaHex->getState();
+    XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
 
     //    QString sCursor = XBinary::valueToHex(state.nCursorViewOffset);
-    QString sSelectionStart = XBinary::valueToHex(state.nSelectionViewOffset);
-    QString sSelectionSize = XBinary::valueToHex(state.nSelectionViewSize);
+    QString sSelectionStart = XBinary::valueToHex(deviceState.nSelectionDeviceOffset);
+    QString sSelectionSize = XBinary::valueToHex(deviceState.nSelectionSize);
 
     QString sSelection;
 
