@@ -44,20 +44,16 @@ public:
     void cleanup();
     void setReadonly(bool bState);
     void setReadonlyVisible(bool bState);
-    void setEdited(qint64 nDeviceOffset, qint64 nDeviceSize);
     qint64 getStartAddress();
     void setSelection(qint64 nOffset, qint64 nSize);
     //    void blockSignals(bool bState);
     //    void addValue(QString sTitle, DATAINS datains, LIED lied);
 
 private slots:
-    void cursorChangedSlot(qint64 nOffset);
-    void selectionChangedSlot();
     void adjust();
     void on_checkBoxReadonly_toggled(bool bChecked);
     //    void valueChangedSlot(quint64 nValue);
     void on_pushButtonDataInspector_clicked();
-    void dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize);
 
 signals:
     void dataChanged(qint64 nDeviceOffset, qint64 nDeviceSize);

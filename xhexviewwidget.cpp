@@ -29,12 +29,10 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     connect(ui->scrollAreaHex, SIGNAL(showOffsetDisasm(qint64)), this, SIGNAL(showOffsetDisasm(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(showOffsetMemoryMap(qint64)), this, SIGNAL(showOffsetMemoryMap(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(errorMessage(QString)), this, SLOT(errorMessageSlot(QString)));
-    connect(ui->scrollAreaHex, SIGNAL(cursorViewOffsetChanged(qint64)), this, SLOT(cursorChangedSlot(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(deviceSelectionChanged(qint64, qint64)), this, SIGNAL(selectionChanged(qint64, qint64)));
-    connect(ui->scrollAreaHex, SIGNAL(dataChanged(qint64, qint64)), this, SLOT(dataChangedSlot(qint64, qint64)));
+    connect(ui->scrollAreaHex, SIGNAL(selectionChanged()), this, SLOT(adjust()));
 
     setReadonlyVisible(false);
-
     setReadonly(true);
 }
 
@@ -107,13 +105,6 @@ void XHexViewWidget::setReadonlyVisible(bool bState)
     }
 }
 
-void XHexViewWidget::setEdited(qint64 nDeviceOffset, qint64 nDeviceSize)
-{
-    ui->scrollAreaHex->setEdited(nDeviceOffset, nDeviceSize);
-
-    //    emit changed(); // TODO Check
-}
-
 qint64 XHexViewWidget::getStartAddress()
 {
     return ui->scrollAreaHex->getStartAddress();
@@ -143,26 +134,6 @@ void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
 
 //    ui->tableWidgetDataInspector->setCellWidget(datains, 1, g_lineEdit[lied]);
 //}
-
-void XHexViewWidget::cursorChangedSlot(qint64 nOffset)
-{
-    Q_UNUSED(nOffset)
-
-    adjust();
-
-    //    XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
-
-    //    emit selectionChanged(deviceState.nSelectionOffset, deviceState.nSelectionSize);
-}
-
-void XHexViewWidget::selectionChangedSlot()
-{
-    adjust();
-
-    XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
-
-    emit selectionChanged(deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
-}
 
 void XHexViewWidget::adjust()
 {
@@ -207,15 +178,4 @@ void XHexViewWidget::on_pushButtonDataInspector_clicked()
     ui->scrollAreaHex->_showDataInspector();
 
     ui->pushButtonDataInspector->setEnabled(true);  // TODO
-}
-
-void XHexViewWidget::dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize)
-{
-    //    qDebug("void XHexViewWidget::dataChangedSlot(qint64 nDeviceOffset, qint64 nDeviceSize)");
-
-    ui->scrollAreaHex->setEdited(nDeviceOffset, nDeviceSize);
-
-    adjust();
-
-    //    emit dataChanged(nDeviceOffset, nDeviceSize);
 }
