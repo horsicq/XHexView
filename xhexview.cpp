@@ -466,7 +466,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
             painterPixmap.setFont(pPainter->font());
             painterPixmap.setBackgroundMode(Qt::TransparentMode);
 
-            int nNumberOfRows = g_listLocationRecords.count();
+            qint32 nNumberOfRows = g_listLocationRecords.count();
 
             if (nColumn == COLUMN_ADDRESS) {
                 for (int i = 0; i < nNumberOfRows; i++) {
