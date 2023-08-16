@@ -469,7 +469,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
             qint32 nNumberOfRows = g_listLocationRecords.count();
 
             if (nColumn == COLUMN_ADDRESS) {
-                for (int i = 0; i < nNumberOfRows; i++) {
+                for (qint32 i = 0; i < nNumberOfRows; i++) {
                     QRect rectSymbol;
                     rectSymbol.setLeft(getCharWidth());
                     rectSymbol.setTop(getLineHeight() * i + getLineDelta());
