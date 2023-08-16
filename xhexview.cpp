@@ -484,7 +484,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                 //                QFont fontBold = pPainter->font();
                 fontBold.setBold(true);
 
-                for (int nRow = 0; nRow * g_nBytesProLine < g_nDataBlockSize; nRow++) {
+                for (qint32 nRow = 0; nRow * g_nBytesProLine < g_nDataBlockSize; nRow++) {
                     qint64 nDataBlockSize = qMin(g_nDataBlockSize - nRow * g_nBytesProLine, g_nBytesProLine);
 
                     for (qint32 i = 0; i < nDataBlockSize; i++) {
