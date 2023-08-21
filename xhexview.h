@@ -31,7 +31,8 @@ class XHexView : public XDeviceTableEditView {
     Q_OBJECT
 
     enum SC {
-        SC_GOTO_OFFSET = 0,
+        SC_DATAINSPECTOR = 0,
+        SC_GOTO_OFFSET,
         SC_GOTO_ADDRESS,
         SC_DUMPTOFILE,
         SC_SELECTALL,

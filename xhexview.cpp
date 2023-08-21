@@ -591,6 +591,14 @@ void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint
 void XHexView::contextMenu(const QPoint &pos)
 {
     if (isContextMenuEnable()) {
+        QAction actionDataInspector(tr("Data inspector"), this);
+        actionDataInspector.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATAINSPECTOR));
+        if (getViewWidgetState(VIEWWIDGET_DATAINSPECTOR)) {
+            actionDataInspector.setCheckable(true);
+            actionDataInspector.setChecked(true);
+        }
+        connect(&actionDataInspector, SIGNAL(triggered()), this, SLOT(_showDataInspector()));
+
         QAction actionGoToOffset(tr("Offset"), this);
         actionGoToOffset.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET));
         connect(&actionGoToOffset, SIGNAL(triggered()), this, SLOT(_goToOffsetSlot()));
@@ -691,6 +699,8 @@ void XHexView::contextMenu(const QPoint &pos)
 #ifdef QT_SQL_LIB
         QMenu menuBookmarks(tr("Bookmarks"), this);
 #endif
+        contextMenu.addAction(&actionDataInspector);
+        contextMenu.addSeparator();
 
         menuGoTo.addAction(&actionGoToOffset);
         menuGoTo.addAction(&actionGoToAddress);
@@ -912,6 +922,7 @@ void XHexView::adjustColumns()
 void XHexView::registerShortcuts(bool bState)
 {
     if (bState) {
+        if (!g_shortCuts[SC_DATAINSPECTOR]) g_shortCuts[SC_DATAINSPECTOR] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATAINSPECTOR), this, SLOT(_showDataInspector()));
         if (!g_shortCuts[SC_GOTO_OFFSET]) g_shortCuts[SC_GOTO_OFFSET] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET), this, SLOT(_goToOffsetSlot()));
         if (!g_shortCuts[SC_GOTO_ADDRESS])
             g_shortCuts[SC_GOTO_ADDRESS] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS), this, SLOT(_goToAddressSlot()));
