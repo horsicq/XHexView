@@ -33,7 +33,7 @@ DialogHexView::DialogHexView(QWidget *pParent) : XShortcutsDialog(pParent), ui(n
     ui->widgetHex->setReadonlyVisible(true);
 }
 
-DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, XHexView::OPTIONS options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice) : DialogHexView(pParent)
+DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, const XHexView::OPTIONS &options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice) : DialogHexView(pParent)
 {
     setData(pDevice, options, pXInfoDB, pBackupDevice);
 }
