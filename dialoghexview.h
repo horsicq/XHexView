@@ -35,7 +35,7 @@ public:
     explicit DialogHexView(QWidget *pParent, QIODevice *pDevice, const XHexView::OPTIONS &options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice = nullptr);
     ~DialogHexView();
 
-    void setData(QIODevice *pDevice, XHexView::OPTIONS options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice = nullptr);
+    void setData(QIODevice *pDevice, const XHexView::OPTIONS &options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice = nullptr);
     void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions);
 
 signals:
