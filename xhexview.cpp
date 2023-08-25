@@ -69,7 +69,7 @@ void XHexView::adjustView()
     }
 }
 
-void XHexView::setData(QIODevice *pDevice, XHexView::OPTIONS options, bool bReload)
+void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
 {
     g_hexOptions = options;
 

@@ -69,7 +69,7 @@ public:
 
     void _adjustView();
     void adjustView();
-    void setData(QIODevice *pDevice, OPTIONS options, bool bReload);
+    void setData(QIODevice *pDevice, const OPTIONS &options, bool bReload);
     void goToAddress(XADDR nAddress);
     void goToOffset(qint64 nOffset);
     XADDR getStartAddress();
