@@ -922,7 +922,8 @@ void XHexView::adjustColumns()
 void XHexView::registerShortcuts(bool bState)
 {
     if (bState) {
-        if (!g_shortCuts[SC_DATAINSPECTOR]) g_shortCuts[SC_DATAINSPECTOR] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATAINSPECTOR), this, SLOT(_showDataInspector()));
+        if (!g_shortCuts[SC_DATAINSPECTOR])
+            g_shortCuts[SC_DATAINSPECTOR] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATAINSPECTOR), this, SLOT(_showDataInspector()));
         if (!g_shortCuts[SC_GOTO_OFFSET]) g_shortCuts[SC_GOTO_OFFSET] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET), this, SLOT(_goToOffsetSlot()));
         if (!g_shortCuts[SC_GOTO_ADDRESS])
             g_shortCuts[SC_GOTO_ADDRESS] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS), this, SLOT(_goToAddressSlot()));
