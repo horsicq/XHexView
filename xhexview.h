@@ -53,7 +53,6 @@ class XHexView : public XDeviceTableEditView {
 
 public:
     // TODO setOptions ???
-    // TODO follow functions
     struct OPTIONS {
         XADDR nStartAddress;
         qint64 nStartSelectionOffset;
