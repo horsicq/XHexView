@@ -22,10 +22,10 @@
 #define XHEXVIEW_H
 
 #include <QTextBoundaryFinder>
+#include <QPixmapCache>
 
 #include "dialoghexedit.h"
 #include "xdevicetableeditview.h"
-#include <QPixmapCache>
 
 class XHexView : public XDeviceTableEditView {
     Q_OBJECT
