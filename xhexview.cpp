@@ -685,6 +685,14 @@ void XHexView::contextMenu(const QPoint &pos)
         }
         connect(&actionBookmarkList, SIGNAL(triggered()), this, SLOT(_bookmarkList()));
 #endif
+        QAction actionStrings(tr("Strings"), this);
+        actionStrings.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_STRINGS));
+        connect(&actionStrings, SIGNAL(triggered()), this, SLOT(_strings()));
+
+        if (getViewWidgetState(VIEWWIDGET_STRINGS)) {
+            actionStrings.setCheckable(true);
+            actionStrings.setChecked(true);
+        }
 
         STATE menuState = getState();
 
@@ -754,6 +762,7 @@ void XHexView::contextMenu(const QPoint &pos)
             contextMenu.addMenu(&menuBookmarks);
         }
 #endif
+        contextMenu.addAction(&actionStrings);
 
         menuEdit.setEnabled(!isReadonly());
 

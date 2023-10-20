@@ -63,6 +63,11 @@ FORMS += \
     include($$PWD/../FormatWidgets/SearchSignatures/searchsignatureswidget.pri)
 }
 
+!contains(XCONFIG, searchstringswidget) {
+    XCONFIG += searchstringswidget
+    include($$PWD/../FormatWidgets/SearchStrings/searchstringswidget.pri)
+}
+
 !contains(XCONFIG, xoptions) {
     XCONFIG += xoptions
     include($$PWD/../XOptions/xoptions.pri)
