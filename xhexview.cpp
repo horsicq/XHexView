@@ -432,9 +432,9 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
 void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
 {
 #ifdef QT_DEBUG
-    qDebug("XHexView::paintColumn");
-    QElapsedTimer timer;
-    timer.start();
+//    qDebug("XHexView::paintColumn");
+//    QElapsedTimer timer;
+//    timer.start();
 #endif
 
     QString sKey;
@@ -564,7 +564,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
     }
 
 #ifdef QT_DEBUG
-    qDebug("Elapsed XHexView::paintColumn %lld", timer.elapsed());
+//    qDebug("Elapsed XHexView::paintColumn %lld", timer.elapsed());
 #endif
 }
 
