@@ -87,19 +87,7 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
     adjustHeader();
 
     adjustColumns();
-
-    qint64 nTotalLineCount = getViewSize() / g_nBytesProLine;
-
-    if (getViewSize() % g_nBytesProLine == 0) {
-        nTotalLineCount--;
-    }
-
-    //    if((getDataSize()>0)&&(getDataSize()<g_nBytesProLine))
-    //    {
-    //        nTotalLineCount=1;
-    //    }
-
-    setTotalScrollCount(nTotalLineCount);
+    adjustScrollCount();
 
     if (options.nStartSelectionOffset) {
         _goToViewOffset(options.nStartSelectionOffset);
@@ -672,6 +660,14 @@ void XHexView::contextMenu(const QPoint &pos)
         QAction actionEditHex(tr("Hex"), this);
         actionEditHex.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_HEX));
         connect(&actionEditHex, SIGNAL(triggered()), this, SLOT(_editHex()));
+
+        QAction actionEditRemove(tr("Remove"), this);
+        actionEditRemove.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_REMOVE));
+        connect(&actionEditRemove, SIGNAL(triggered()), this, SLOT(_editRemove()));
+
+        QAction actionEditResize(tr("Resize"), this);
+        actionEditResize.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_RESIZE));
+        connect(&actionEditResize, SIGNAL(triggered()), this, SLOT(_editResize()));
 #ifdef QT_SQL_LIB
         QAction actionBookmarkNew(tr("New"), this);
         actionBookmarkNew.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_BOOKMARKS_NEW));
@@ -768,9 +764,15 @@ void XHexView::contextMenu(const QPoint &pos)
 
         if (menuState.nSelectionViewSize) {
             menuEdit.addAction(&actionEditHex);
-
-            contextMenu.addMenu(&menuEdit);
         }
+
+        if (XBinary::isResizeEnable(getDevice())) {
+            menuEdit.addSeparator();
+            menuEdit.addAction(&actionEditRemove);
+            menuEdit.addAction(&actionEditResize);
+        }
+
+        contextMenu.addMenu(&menuEdit);
 
         menuSelect.addAction(&actionSelectAll);
         contextMenu.addMenu(&menuSelect);
@@ -953,6 +955,8 @@ void XHexView::registerShortcuts(bool bState)
         if (!g_shortCuts[SC_MEMORYMAP]) g_shortCuts[SC_MEMORYMAP] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_MEMORYMAP), this, SLOT(_memoryMapSlot()));
         if (!g_shortCuts[SC_MAINHEX]) g_shortCuts[SC_MAINHEX] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_HEX), this, SLOT(_mainHexSlot()));
         if (!g_shortCuts[SC_EDITHEX]) g_shortCuts[SC_EDITHEX] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_HEX), this, SLOT(_editHex()));
+        if (!g_shortCuts[SC_EDITREMOVE]) g_shortCuts[SC_EDITREMOVE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_REMOVE), this, SLOT(_editRemove()));
+        if (!g_shortCuts[SC_EDITRESIZE]) g_shortCuts[SC_EDITRESIZE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_RESIZE), this, SLOT(_editResize()));
     } else {
         for (qint32 i = 0; i < __SC_SIZE; i++) {
             if (g_shortCuts[i]) {
@@ -1024,6 +1028,23 @@ void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
 
         adjust(true);
     }
+}
+
+void XHexView::adjustScrollCount()
+{
+    setViewSize(getDevice()->size());
+    qint64 nTotalLineCount = getViewSize() / g_nBytesProLine;
+
+    if (getViewSize() % g_nBytesProLine == 0) {
+        nTotalLineCount--;
+    }
+
+    //    if((getDataSize()>0)&&(getDataSize()<g_nBytesProLine))
+    //    {
+    //        nTotalLineCount=1;
+    //    }
+
+    setTotalScrollCount(nTotalLineCount);
 }
 
 QString XHexView::getStringBuffer(QByteArray *pbaData)

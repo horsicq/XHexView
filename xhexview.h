@@ -48,6 +48,8 @@ class XHexView : public XDeviceTableEditView {
         SC_MEMORYMAP,
         SC_MAINHEX,
         SC_EDITHEX,
+        SC_EDITREMOVE,
+        SC_EDITRESIZE,
         __SC_SIZE
     };
 
@@ -114,6 +116,7 @@ protected:
     virtual void adjustHeader();
     virtual void _headerClicked(qint32 nColumn);
     virtual void _cellDoubleClicked(qint32 nRow, qint32 nColumn);
+    virtual void adjustScrollCount();
     //    SMODE getSmode();
     //    void setSmode(SMODE smode);
 
