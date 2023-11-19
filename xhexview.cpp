@@ -1032,7 +1032,10 @@ void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
 
 void XHexView::adjustScrollCount()
 {
-    setViewSize(getDevice()->size());
+    if (getDevice()) {
+        setViewSize(getDevice()->size());
+    }
+
     qint64 nTotalLineCount = getViewSize() / g_nBytesProLine;
 
     if (getViewSize() % g_nBytesProLine == 0) {
