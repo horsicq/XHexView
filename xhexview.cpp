@@ -580,6 +580,9 @@ void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint
 
 void XHexView::contextMenu(const QPoint &pos)
 {
+    // TODO multisearch
+    // TODO transform data
+
     if (isContextMenuEnable()) {
         QAction actionDataInspector(tr("Data inspector"), this);
         actionDataInspector.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATAINSPECTOR));
