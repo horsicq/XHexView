@@ -581,16 +581,23 @@ void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint
 void XHexView::contextMenu(const QPoint &pos)
 {
     // TODO multisearch
-    // TODO transform data
 
     if (isContextMenuEnable()) {
         QAction actionDataInspector(tr("Data inspector"), this);
         actionDataInspector.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATAINSPECTOR));
+        connect(&actionDataInspector, SIGNAL(triggered()), this, SLOT(_showDataInspector()));
         if (getViewWidgetState(VIEWWIDGET_DATAINSPECTOR)) {
             actionDataInspector.setCheckable(true);
             actionDataInspector.setChecked(true);
         }
-        connect(&actionDataInspector, SIGNAL(triggered()), this, SLOT(_showDataInspector()));
+
+        QAction actionDataConvertor(tr("Data convertor"), this);
+        actionDataConvertor.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATACONVERTOR));
+        connect(&actionDataConvertor, SIGNAL(triggered()), this, SLOT(_showDataConvertor()));
+        if (getViewWidgetState(VIEWWIDGET_DATACONVERTOR)) {
+            actionDataConvertor.setCheckable(true);
+            actionDataConvertor.setChecked(true);
+        }
 
         QAction actionGoToOffset(tr("Offset"), this);
         actionGoToOffset.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET));
@@ -678,16 +685,15 @@ void XHexView::contextMenu(const QPoint &pos)
 
         QAction actionBookmarkList(tr("List"), this);
         actionBookmarkList.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_BOOKMARKS_LIST));
+        connect(&actionBookmarkList, SIGNAL(triggered()), this, SLOT(_bookmarkList()));
         if (getViewWidgetState(VIEWWIDGET_BOOKMARKS)) {
             actionBookmarkList.setCheckable(true);
             actionBookmarkList.setChecked(true);
         }
-        connect(&actionBookmarkList, SIGNAL(triggered()), this, SLOT(_bookmarkList()));
 #endif
         QAction actionStrings(tr("Strings"), this);
         actionStrings.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_STRINGS));
         connect(&actionStrings, SIGNAL(triggered()), this, SLOT(_strings()));
-
         if (getViewWidgetState(VIEWWIDGET_STRINGS)) {
             actionStrings.setCheckable(true);
             actionStrings.setChecked(true);
@@ -709,6 +715,11 @@ void XHexView::contextMenu(const QPoint &pos)
         QMenu menuBookmarks(tr("Bookmarks"), this);
 #endif
         contextMenu.addAction(&actionDataInspector);
+
+        if (menuState.nSelectionViewSize) {
+            contextMenu.addAction(&actionDataConvertor);
+        }
+
         contextMenu.addSeparator();
 
         menuGoTo.addAction(&actionGoToOffset);
@@ -940,6 +951,8 @@ void XHexView::registerShortcuts(bool bState)
     if (bState) {
         if (!g_shortCuts[SC_DATAINSPECTOR])
             g_shortCuts[SC_DATAINSPECTOR] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATAINSPECTOR), this, SLOT(_showDataInspector()));
+        if (!g_shortCuts[SC_DATACONVERTOR])
+            g_shortCuts[SC_DATACONVERTOR] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATACONVERTOR), this, SLOT(_showDataConvertor()));
         if (!g_shortCuts[SC_GOTO_OFFSET]) g_shortCuts[SC_GOTO_OFFSET] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET), this, SLOT(_goToOffsetSlot()));
         if (!g_shortCuts[SC_GOTO_ADDRESS])
             g_shortCuts[SC_GOTO_ADDRESS] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS), this, SLOT(_goToAddressSlot()));
