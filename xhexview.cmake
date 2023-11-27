@@ -12,6 +12,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../FormatDialogs/dialogdatainspector.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatWidgets/SearchSignatures/searchsignatureswidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XOptions/xoptions.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../Formats/xbinary.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XDataConvertorWidget/xdataconvertorwidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XHexEdit/xhexedit.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XSymbolsWidget/xsymbolswidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../die_widget/die_widget.cmake)
@@ -32,6 +33,7 @@ set(XHEXVIEW_SOURCES
     ${XHEXEDIT_SOURCES}
     ${XSYMBOLSWIDGET_SOURCES}
     ${DIE_WIDGET_SOURCES}
+    ${XDATACONVERTORWIDGET_SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.cpp
     ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.ui
     ${CMAKE_CURRENT_LIST_DIR}/xhexview.cpp

@@ -98,6 +98,11 @@ FORMS += \
     include($$PWD/../XSymbolsWidget/xsymbolswidget.pri)
 }
 
+!contains(XCONFIG, xdataconvertorwidget) {
+    XCONFIG += xdataconvertorwidget
+    include($$PWD/../XDataConvertorWidget/xdataconvertorwidget.pri)
+}
+
 DISTFILES += \
     $$PWD/LICENSE \
     $$PWD/README.md \
