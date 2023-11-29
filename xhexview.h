@@ -48,9 +48,9 @@ class XHexView : public XDeviceTableEditView {
         SC_DISASM,
         SC_MEMORYMAP,
         SC_MAINHEX,
-        SC_EDITHEX,
-        SC_EDITREMOVE,
-        SC_EDITRESIZE,
+        SC_EDIT_HEX,
+        SC_EDIT_REMOVE,
+        SC_EDIT_RESIZE,
         __SC_SIZE
     };
 

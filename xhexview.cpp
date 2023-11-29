@@ -970,9 +970,9 @@ void XHexView::registerShortcuts(bool bState)
         if (!g_shortCuts[SC_DISASM]) g_shortCuts[SC_DISASM] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_DISASM), this, SLOT(_disasmSlot()));
         if (!g_shortCuts[SC_MEMORYMAP]) g_shortCuts[SC_MEMORYMAP] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_MEMORYMAP), this, SLOT(_memoryMapSlot()));
         if (!g_shortCuts[SC_MAINHEX]) g_shortCuts[SC_MAINHEX] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_HEX), this, SLOT(_mainHexSlot()));
-        if (!g_shortCuts[SC_EDITHEX]) g_shortCuts[SC_EDITHEX] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_HEX), this, SLOT(_editHex()));
-        if (!g_shortCuts[SC_EDITREMOVE]) g_shortCuts[SC_EDITREMOVE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_REMOVE), this, SLOT(_editRemove()));
-        if (!g_shortCuts[SC_EDITRESIZE]) g_shortCuts[SC_EDITRESIZE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_RESIZE), this, SLOT(_editResize()));
+        if (!g_shortCuts[SC_EDIT_HEX]) g_shortCuts[SC_EDIT_HEX] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_HEX), this, SLOT(_editHex()));
+        if (!g_shortCuts[SC_EDIT_REMOVE]) g_shortCuts[SC_EDIT_REMOVE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_REMOVE), this, SLOT(_editRemove()));
+        if (!g_shortCuts[SC_EDIT_RESIZE]) g_shortCuts[SC_EDIT_RESIZE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_RESIZE), this, SLOT(_editResize()));
     } else {
         for (qint32 i = 0; i < __SC_SIZE; i++) {
             if (g_shortCuts[i]) {
