@@ -744,6 +744,7 @@ void XHexView::contextMenu(const QPoint &pos)
             contextMenu.addAction(&actionDumpToFile);
             contextMenu.addAction(&actionSignature);
 
+            menuCopy.addSeparator();
             menuCopy.addAction(&actionCopyData);
         }
 
