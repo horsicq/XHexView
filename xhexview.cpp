@@ -599,6 +599,14 @@ void XHexView::contextMenu(const QPoint &pos)
             actionDataConvertor.setChecked(true);
         }
 
+        QAction actionMultisearch(tr("Multisearch"), this);
+        actionMultisearch.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_MULTISEARCH));
+        connect(&actionMultisearch, SIGNAL(triggered()), this, SLOT(_showMultisearch()));
+        if (getViewWidgetState(VIEWWIDGET_MULTISEARCH)) {
+            actionMultisearch.setCheckable(true);
+            actionMultisearch.setChecked(true);
+        }
+
         QAction actionGoToOffset(tr("Offset"), this);
         actionGoToOffset.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET));
         connect(&actionGoToOffset, SIGNAL(triggered()), this, SLOT(_goToOffsetSlot()));
@@ -736,6 +744,8 @@ void XHexView::contextMenu(const QPoint &pos)
         menuFind.addAction(&actionFindNext);
 
         contextMenu.addMenu(&menuFind);
+
+        contextMenu.addAction(&actionMultisearch);
 
         menuCopy.addAction(&actionCopyCursorOffset);
         menuCopy.addAction(&actionCopyCursorAddress);
@@ -954,6 +964,8 @@ void XHexView::registerShortcuts(bool bState)
             g_shortCuts[SC_DATAINSPECTOR] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATAINSPECTOR), this, SLOT(_showDataInspector()));
         if (!g_shortCuts[SC_DATACONVERTOR])
             g_shortCuts[SC_DATACONVERTOR] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATACONVERTOR), this, SLOT(_showDataConvertor()));
+        if (!g_shortCuts[SC_MULTISEARCH])
+            g_shortCuts[SC_MULTISEARCH] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_MULTISEARCH), this, SLOT(_showMultisearch()));
         if (!g_shortCuts[SC_GOTO_OFFSET]) g_shortCuts[SC_GOTO_OFFSET] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET), this, SLOT(_goToOffsetSlot()));
         if (!g_shortCuts[SC_GOTO_ADDRESS])
             g_shortCuts[SC_GOTO_ADDRESS] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS), this, SLOT(_goToAddressSlot()));

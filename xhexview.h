@@ -33,6 +33,7 @@ class XHexView : public XDeviceTableEditView {
     enum SC {
         SC_DATAINSPECTOR = 0,
         SC_DATACONVERTOR,
+        SC_MULTISEARCH,
         SC_GOTO_OFFSET,
         SC_GOTO_ADDRESS,
         SC_DUMPTOFILE,

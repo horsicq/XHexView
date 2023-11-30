@@ -10,6 +10,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/../FormatDialogs/dialoggotoaddress.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatDialogs/dialoghexsignature.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatDialogs/dialogdatainspector.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatWidgets/SearchSignatures/searchsignatureswidget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../FormatWidgets/SearchStrings/searchstringswidget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../FormatWidgets/SearchValues/searchvalueswidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XOptions/xoptions.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../Formats/xbinary.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XDataConvertorWidget/xdataconvertorwidget.cmake)
@@ -28,6 +30,8 @@ set(XHEXVIEW_SOURCES
     ${DIALOGHEXSIGNATURE_SOURCES}
     ${DIALOGDATAINSPECTOR_SOURCES}
     ${SEARCHSIGNATURESWIDGET_SOURCES}
+    ${SEARCHSTRINGSWIDGET_SOURCES}
+    ${SEARCHVALUESWIDGET_SOURCES}
     ${XOPTIONS_SOURCES}
     ${FORMATS_SOURCES}
     ${XHEXEDIT_SOURCES}
@@ -42,3 +46,4 @@ set(XHEXVIEW_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/xhexviewoptionswidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/xhexviewoptionswidget.ui
 )
+
