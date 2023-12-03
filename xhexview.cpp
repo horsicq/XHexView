@@ -56,8 +56,6 @@ void XHexView::_adjustView()
     setTextFontFromOptions(XOptions::ID_HEX_FONT);
 
     g_bIsAddressColon = getGlobalOptions()->getValue(XOptions::ID_HEX_ADDRESSCOLON).toBool();
-
-    //    setBlinkingCursorEnable(getGlobalOptions()->getValue(XOptions::ID_HEX_BLINKINGCURSOR).toBool());
 }
 
 void XHexView::adjustView()
