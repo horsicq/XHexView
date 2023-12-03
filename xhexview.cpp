@@ -964,8 +964,7 @@ void XHexView::registerShortcuts(bool bState)
             g_shortCuts[SC_DATAINSPECTOR] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATAINSPECTOR), this, SLOT(_showDataInspector()));
         if (!g_shortCuts[SC_DATACONVERTOR])
             g_shortCuts[SC_DATACONVERTOR] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATACONVERTOR), this, SLOT(_showDataConvertor()));
-        if (!g_shortCuts[SC_MULTISEARCH])
-            g_shortCuts[SC_MULTISEARCH] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_MULTISEARCH), this, SLOT(_showMultisearch()));
+        if (!g_shortCuts[SC_MULTISEARCH]) g_shortCuts[SC_MULTISEARCH] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_MULTISEARCH), this, SLOT(_showMultisearch()));
         if (!g_shortCuts[SC_GOTO_OFFSET]) g_shortCuts[SC_GOTO_OFFSET] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET), this, SLOT(_goToOffsetSlot()));
         if (!g_shortCuts[SC_GOTO_ADDRESS])
             g_shortCuts[SC_GOTO_ADDRESS] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS), this, SLOT(_goToAddressSlot()));
