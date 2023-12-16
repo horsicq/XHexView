@@ -49,6 +49,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     setAddressMode(LOCMODE_OFFSET);
 
     // g_pixmapCache.setCacheLimit(1024);
+    setVerticalLinesVisible(false);
 }
 
 void XHexView::_adjustView()
