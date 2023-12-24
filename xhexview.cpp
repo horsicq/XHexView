@@ -446,7 +446,11 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
             //        if (false) {
             pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
         } else {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
             qreal ratio = QPaintDevice::devicePixelRatioF();
+#else
+            qreal ratio = QPaintDevice::devicePixelRatio();
+#endif
             QPixmap pixmap(nWidth * ratio, nHeight * ratio);
             pixmap.setDevicePixelRatio(ratio);
             pixmap.fill(Qt::transparent);
