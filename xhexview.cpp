@@ -1092,7 +1092,10 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
         for (qint32 i = 0; i < nSize; i++) {
             QChar _char = pbaData->at(i);
 
-            if ((_char < QChar(0x20)) || (_char > QChar(0x7e))) {
+            // if ((_char < QChar(0x20)) || (_char > QChar(0x7e))) {
+            //     _char = '.';
+            // }
+            if (!_char.isLetterOrNumber()) {
                 _char = '.';
             }
 
@@ -1114,7 +1117,10 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
                 for (qint32 i = 0; i < nSize; i++) {
                     QChar _char = _sResult.at(i);
 
-                    if (_char < QChar(0x20)) {
+                    // if (_char < QChar(0x20)) {
+                    //     _char = '.';
+                    // }
+                    if (!_char.isLetterOrNumber()) {
                         _char = '.';
                     }
 
@@ -1160,16 +1166,21 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
                 //                    }
                 //                }
 
+                // TODO Check Big5
                 for (qint32 i = 0; i < _nSize; i++) {
-                    QString _sChar = _sResult.mid(i, 1);
+                    QChar _char = _sResult.at(i);
 
-                    QByteArray _baData = g_pCodec->fromUnicode(_sChar);
+                    QByteArray _baData = g_pCodec->fromUnicode(_char);
 
-                    if (_sChar.at(0) < QChar(0x20)) {
-                        _sChar = '.';
+                    if (!_char.isLetterOrNumber()) {
+                        _char = '.';
                     }
 
-                    sResult.append(_sChar);
+                    // if (_sChar.at(0) < QChar(0x20)) {
+                    //     _sChar = '.';
+                    // }
+
+                    sResult.append(_char);
 
                     if (_baData.size() > 1) {
                         qint32 nAppendSize = _baData.size() - 1;
