@@ -682,6 +682,10 @@ void XHexView::contextMenu(const QPoint &pos)
         actionEditHex.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_HEX));
         connect(&actionEditHex, SIGNAL(triggered()), this, SLOT(_editHex()));
 
+        QAction actionEditPatch(tr("Patch"), this);
+        actionEditPatch.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_PATCH));
+        connect(&actionEditPatch, SIGNAL(triggered()), this, SLOT(_editPatch()));
+
         QAction actionEditRemove(tr("Remove"), this);
         actionEditRemove.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_REMOVE));
         connect(&actionEditRemove, SIGNAL(triggered()), this, SLOT(_editRemove()));
@@ -793,6 +797,8 @@ void XHexView::contextMenu(const QPoint &pos)
         if (menuState.nSelectionViewSize) {
             menuEdit.addAction(&actionEditHex);
         }
+
+        menuEdit.addAction(&actionEditPatch);
 
         if (XBinary::isResizeEnable(getDevice())) {
             menuEdit.addSeparator();
