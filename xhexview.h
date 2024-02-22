@@ -150,10 +150,13 @@ private:
     qint64 g_nThisBase;
     //    SMODE g_smode;
     bool g_bIsAddressColon;
+
     QString g_sCodePage;
+#if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
     QTextCodec *g_pCodec;
     QMenu *g_pCodePageMenu;
     XOptions g_xCodePageOptions;
+#endif
     QPixmapCache g_pixmapCache;
 };
 

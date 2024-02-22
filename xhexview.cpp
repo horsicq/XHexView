@@ -40,12 +40,13 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     setTextFont(getMonoFont());  // mb TODO move to XDeviceTableView !!!
                                  //    setBlinkingCursorEnable(true);
     // setBlinkingCursorEnable(false);
-
     g_sCodePage = "";
+#if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
+
     g_pCodePageMenu = g_xCodePageOptions.createCodePagesMenu(this, true);
 
     connect(&g_xCodePageOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
-
+#endif
     setAddressMode(LOCMODE_OFFSET);
 
     // g_pixmapCache.setCacheLimit(1024);
@@ -1047,7 +1048,9 @@ void XHexView::_headerClicked(qint32 nColumn)
 
         contextMenu.exec(QCursor::pos());
     } else if (nColumn == COLUMN_SYMBOLS) {
+#if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
         g_pCodePageMenu->exec(QCursor::pos());
+#endif
     }
 
     XAbstractTableView::_headerClicked(nColumn);
@@ -1251,6 +1254,7 @@ void XHexView::_mainHexSlot()
 
 void XHexView::_setCodePage(const QString &sCodePage)
 {
+#if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
     g_sCodePage = sCodePage;
 
     QString sTitle = tr("Symbols");
@@ -1263,6 +1267,9 @@ void XHexView::_setCodePage(const QString &sCodePage)
     setColumnTitle(COLUMN_SYMBOLS, sTitle);
 
     adjust(true);
+#else
+    Q_UNUSED(sCodePage)
+#endif
 }
 
 void XHexView::changeWidth()
