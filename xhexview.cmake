@@ -39,11 +39,15 @@ set(XHEXVIEW_SOURCES
     ${DIE_WIDGET_SOURCES}
     ${XDATACONVERTORWIDGET_SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.h
     ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.ui
     ${CMAKE_CURRENT_LIST_DIR}/xhexview.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/xhexviewwidget.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/xhexviewwidget.ui
+    ${CMAKE_CURRENT_LIST_DIR}/xhexview.h
     ${CMAKE_CURRENT_LIST_DIR}/xhexviewoptionswidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/xhexviewoptionswidget.h
     ${CMAKE_CURRENT_LIST_DIR}/xhexviewoptionswidget.ui
+    ${CMAKE_CURRENT_LIST_DIR}/xhexviewwidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/xhexviewwidget.h
+    ${CMAKE_CURRENT_LIST_DIR}/xhexviewwidget.ui
 )
 
