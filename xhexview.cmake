@@ -12,7 +12,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../FormatDialogs/dialogdatainspector.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatWidgets/SearchSignatures/searchsignatureswidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatWidgets/SearchStrings/searchstringswidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatWidgets/SearchValues/searchvalueswidget.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/../XOptions/xoptions.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XOptions/xoptionswidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../Formats/xbinary.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XDataConvertorWidget/xdataconvertorwidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XHexEdit/xhexedit.cmake)
@@ -32,7 +32,7 @@ set(XHEXVIEW_SOURCES
     ${SEARCHSIGNATURESWIDGET_SOURCES}
     ${SEARCHSTRINGSWIDGET_SOURCES}
     ${SEARCHVALUESWIDGET_SOURCES}
-    ${XOPTIONS_SOURCES}
+    ${XOPTIONSWIDGET_SOURCES}
     ${FORMATS_SOURCES}
     ${XHEXEDIT_SOURCES}
     ${XSYMBOLSWIDGET_SOURCES}
