@@ -714,6 +714,15 @@ void XHexView::contextMenu(const QPoint &pos)
             actionStrings.setCheckable(true);
             actionStrings.setChecked(true);
         }
+#if defined(QT_SCRIPT_LIB) || defined(QT_QML_LIB)
+        QAction actionScripts(tr("Scripts"), this);
+        actionScripts.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_SCRIPTS));
+        connect(&actionScripts, SIGNAL(triggered()), this, SLOT(_scripts()));
+        if (getViewWidgetState(VIEWWIDGET_SCRIPTS)) {
+            actionScripts.setCheckable(true);
+            actionScripts.setChecked(true);
+        }
+#endif
 
         STATE menuState = getState();
 
@@ -792,7 +801,9 @@ void XHexView::contextMenu(const QPoint &pos)
         }
 #endif
         contextMenu.addAction(&actionStrings);
-
+#if defined(QT_SCRIPT_LIB) || defined(QT_QML_LIB)
+        contextMenu.addAction(&actionScripts);
+#endif
         menuEdit.setEnabled(!isReadonly());
 
         if (menuState.nSelectionViewSize) {
