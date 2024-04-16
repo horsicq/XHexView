@@ -175,9 +175,19 @@ void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
 void XHexViewWidget::on_pushButtonDataInspector_clicked()
 {
     // TODO set Readonly
-    ui->pushButtonDataInspector->setEnabled(false);  // TODO
+    ui->pushButtonDataInspector->setEnabled(false);
 
     ui->scrollAreaHex->_showDataInspector();
 
-    ui->pushButtonDataInspector->setEnabled(true);  // TODO
+    ui->pushButtonDataInspector->setEnabled(true);
 }
+
+void XHexViewWidget::on_pushButtonStrings_clicked()
+{
+    ui->pushButtonStrings->setEnabled(false);
+
+    ui->scrollAreaHex->_strings();
+
+    ui->pushButtonStrings->setEnabled(true);
+}
+
