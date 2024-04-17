@@ -33,6 +33,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     connect(ui->scrollAreaHex, SIGNAL(selectionChanged()), this, SLOT(adjust()));
     connect(ui->scrollAreaHex, SIGNAL(dataChanged(qint64, qint64)), this, SIGNAL(dataChanged(qint64, qint64)));
     connect(ui->scrollAreaHex, SIGNAL(deviceSizeChanged(qint64, qint64)), this, SIGNAL(deviceSizeChanged(qint64, qint64)));
+    connect(ui->scrollAreaHex, SIGNAL(viewWidgetsStateChanged()), this, SLOT(viewWidgetsState()));
 
     setReadonlyVisible(false);
     setReadonly(true);
@@ -152,6 +153,16 @@ void XHexViewWidget::adjust()
     ui->labelSelectionStatus->setText(sSelection);
 }
 
+void XHexViewWidget::viewWidgetsState()
+{
+    // ui->pushButtonBookmarks->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_BOOKMARKS));
+    // ui->pushButtonDataConverter->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_DATACONVERTOR));
+    ui->pushButtonDataInspector->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_DATAINSPECTOR));
+    // ui->pushButtonMultiSearch->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_MULTISEARCH));
+    // ui->pushButtonScripts->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_SCRIPTS));
+    ui->pushButtonStrings->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_STRINGS));
+}
+
 void XHexViewWidget::registerShortcuts(bool bState)
 {
     Q_UNUSED(bState)
@@ -175,19 +186,11 @@ void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
 void XHexViewWidget::on_pushButtonDataInspector_clicked()
 {
     // TODO set Readonly
-    ui->pushButtonDataInspector->setEnabled(false);
-
     ui->scrollAreaHex->_showDataInspector();
-
-    ui->pushButtonDataInspector->setEnabled(true);
 }
 
 void XHexViewWidget::on_pushButtonStrings_clicked()
 {
-    ui->pushButtonStrings->setEnabled(false);
-
     ui->scrollAreaHex->_strings();
-
-    ui->pushButtonStrings->setEnabled(true);
 }
 

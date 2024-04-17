@@ -51,6 +51,7 @@ public:
 
 private slots:
     void adjust();
+    void viewWidgetsState();
     void on_checkBoxReadonly_toggled(bool bChecked);
     //    void valueChangedSlot(quint64 nValue);
     void on_pushButtonDataInspector_clicked();
