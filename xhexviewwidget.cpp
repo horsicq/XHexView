@@ -193,4 +193,3 @@ void XHexViewWidget::on_pushButtonStrings_clicked()
 {
     ui->scrollAreaHex->_strings();
 }
-
