@@ -1115,7 +1115,7 @@ QString XHexView::getStringBuffer(QByteArray *pbaData)
             // if ((_char < QChar(0x20)) || (_char > QChar(0x7e))) {
             //     _char = '.';
             // }
-            if (!_char.isLetterOrNumber()) {
+            if (!_char.isPrint()) {
                 _char = '.';
             }
 
