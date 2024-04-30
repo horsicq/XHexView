@@ -89,7 +89,7 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
     adjustColumns();
     adjustScrollCount();
 
-    if (options.nStartSelectionOffset) {
+    if ((options.nStartSelectionOffset > 0) && (options.nStartSelectionOffset != -1)) {
         _goToViewOffset(options.nStartSelectionOffset);
     }
 
