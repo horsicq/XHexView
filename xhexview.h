@@ -59,7 +59,7 @@ public:
     // TODO setOptions ???
     struct OPTIONS {
         XADDR nStartAddress;
-        qint64 nStartSelectionOffset; // -1 no selection
+        qint64 nStartSelectionOffset;  // -1 no selection
         qint64 nSizeOfSelection;
         bool bMenu_Disasm;
         bool bMenu_MemoryMap;
