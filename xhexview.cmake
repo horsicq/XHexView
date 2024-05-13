@@ -18,6 +18,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../XDataConvertorWidget/xdataconvertorwidget.c
 include(${CMAKE_CURRENT_LIST_DIR}/../XHexEdit/xhexedit.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XSymbolsWidget/xsymbolswidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../die_widget/die_widget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XVisualizationWidget/xvisualizationwidget.cmake)
 
 set(XHEXVIEW_SOURCES
     ${DIALOGGOTOADDRESS_SOURCES}
@@ -38,6 +39,7 @@ set(XHEXVIEW_SOURCES
     ${XSYMBOLSWIDGET_SOURCES}
     ${DIE_WIDGET_SOURCES}
     ${XDATACONVERTORWIDGET_SOURCES}
+    ${XVISUALIZATIONWIDGET_SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.cpp
     ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.h
     ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.ui

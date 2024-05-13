@@ -108,6 +108,11 @@ FORMS += \
     include($$PWD/../XDataConvertorWidget/xdataconvertorwidget.pri)
 }
 
+!contains(XCONFIG, xvisualizationwidget) {
+    XCONFIG += xvisualizationwidget
+    include($$PWD/../XVisualizationWidget/xvisualizationwidget.pri)
+}
+
 DISTFILES += \
     $$PWD/LICENSE \
     $$PWD/README.md \

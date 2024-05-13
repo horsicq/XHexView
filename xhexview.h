@@ -91,8 +91,8 @@ private:
     };
 
     struct BYTERECORD {
-        QString sHex;
-        QString sChar;
+        QString sElement;
+        QString sSymbol;
         bool bIsBold;
         bool bIsHighlighted;
         QColor colBackground;
@@ -100,7 +100,11 @@ private:
         //        bool bIsSelected;
     };
 
-    QString getStringBuffer(QByteArray *pbaData);  // TODO QList
+    enum MODE {
+        MODE_HEX = 0
+    };
+
+    QList<QChar> getStringBuffer(QByteArray *pbaData);  // TODO QList
 
 protected:
     virtual OS cursorPositionToOS(CURSOR_POSITION cursorPosition);
@@ -128,6 +132,7 @@ private slots:
     void _mainHexSlot();
     void _setCodePage(const QString &sCodePage);
     void changeWidth();
+    void changeMode();
 
 signals:
     void showOffsetDisasm(qint64 nOffset);
@@ -137,12 +142,11 @@ signals:
 private:
     OPTIONS g_hexOptions;
     qint32 g_nBytesProLine;
+    MODE g_mode;
     qint32 g_nDataBlockSize;
     QList<HIGHLIGHTREGION> g_listHighlightsRegion;
     qint32 g_nViewStartDelta;
     QByteArray g_baDataBuffer;
-    QByteArray g_baDataHexBuffer;
-    QString g_sStringBuffer;
     QList<LOCATIONRECORD> g_listLocationRecords;
     QList<BYTERECORD> g_listByteRecords;
     QShortcut *g_shortCuts[__SC_SIZE];
