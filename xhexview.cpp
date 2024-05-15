@@ -1204,9 +1204,9 @@ QList<QChar> XHexView::getStringBuffer(QByteArray *pbaData)
 
                 // TODO Check Big5
                 for (qint32 i = 0; i < _nSize; i++) {
-                    QChar _char = _sResult.at(i);
+                    QChar _char = QChar(_sResult.at(i));
 
-                    QByteArray _baData = g_pCodec->fromUnicode(_char);
+                    QByteArray _baData = g_pCodec->fromUnicode(&_char, 1);
 
                     if (!_char.isPrint()) {
                         _char = '.';
