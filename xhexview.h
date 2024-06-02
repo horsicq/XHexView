@@ -81,7 +81,7 @@ public:
 private:
     enum COLUMN {
         COLUMN_ADDRESS = 0,
-        COLUMN_HEX,
+        COLUMN_ELEMENTS,
         COLUMN_SYMBOLS
     };
 
@@ -101,7 +101,9 @@ private:
     };
 
     enum MODE {
-        MODE_HEX = 0
+        MODE_BYTE = 0,
+        MODE_UINT8,
+        MODE_INT8
     };
 
     QList<QChar> getStringBuffer(QByteArray *pbaData);  // TODO QList
@@ -133,6 +135,7 @@ private slots:
     void _setCodePage(const QString &sCodePage);
     void changeWidth();
     void changeMode();
+    void _setMode(MODE mode);
 
 signals:
     void showOffsetDisasm(qint64 nOffset);
@@ -142,6 +145,7 @@ signals:
 private:
     OPTIONS g_hexOptions;
     qint32 g_nBytesProLine;
+    qint32 g_nSymbolsProElement;
     MODE g_mode;
     qint32 g_nDataBlockSize;
     QList<HIGHLIGHTREGION> g_listHighlightsRegion;

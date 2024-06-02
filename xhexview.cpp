@@ -23,7 +23,7 @@
 XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 {
     g_nBytesProLine = 16;  // Default
-    g_mode = MODE_HEX;
+    _setMode(MODE_BYTE);
     g_nDataBlockSize = 0;
     g_nViewStartDelta = 0;
     //    g_smode=SMODE_ANSI;  // TODO Set/Get
@@ -140,8 +140,8 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_P
             osResult.nViewOffset = nBlockOffset;
             //            osResult.nSize=g_nPieceSize;
             osResult.nSize = 1;
-        } else if (cursorPosition.nColumn == COLUMN_HEX) {
-            osResult.nViewOffset = nBlockOffset + (cursorPosition.nCellLeft - getSideDelta() - getCharWidth()) / (getCharWidth() * 2 + getSideDelta());
+        } else if (cursorPosition.nColumn == COLUMN_ELEMENTS) {
+            osResult.nViewOffset = nBlockOffset + (cursorPosition.nCellLeft - getSideDelta() - getCharWidth()) / (getCharWidth() * g_nSymbolsProElement + getSideDelta());
             //            osResult.nSize=g_nPieceSize;
             osResult.nSize = 1;
         } else if (cursorPosition.nColumn == COLUMN_SYMBOLS) {
@@ -206,7 +206,11 @@ void XHexView::updateData()
         g_nDataBlockSize = g_baDataBuffer.size();
 
         if (g_nDataBlockSize) {
-            QString baDataHexBuffer = QByteArray(g_baDataBuffer.toHex());
+            QString sDataHexBuffer;
+
+            if (g_mode == MODE_BYTE) {
+                sDataHexBuffer = QByteArray(g_baDataBuffer.toHex());
+            }
 
             for (qint32 i = 0; i < g_nDataBlockSize; i += g_nBytesProLine) {
                 XADDR nCurrentAddress = 0;
@@ -239,7 +243,15 @@ void XHexView::updateData()
 
             for (qint32 i = 0; i < g_nDataBlockSize; i++) {
                 BYTERECORD record = {};
-                record.sElement = baDataHexBuffer.mid(i * 2, 2);
+
+                if (g_mode == MODE_BYTE) {
+                    record.sElement = sDataHexBuffer.mid(i * 2, 2); // g_nSymbolsProElement
+                } else if (g_mode == MODE_UINT8) {
+                    record.sElement = QString::number(XBinary::_read_uint8(g_baDataBuffer.data() + i));
+                } else if (g_mode == MODE_INT8) {
+                    record.sElement = QString::number(XBinary::_read_int8(g_baDataBuffer.data() + i));
+                }
+
                 record.sSymbol = listElements.at(i);
                 record.bIsBold = (g_baDataBuffer.at(i) != 0);  // TODO optimize !!!
 
@@ -289,7 +301,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
         //            pPainter->drawText(rectSymbol, g_listLocationRecords.at(nRow).sLocation);  // TODO Text Optional
         //                                                                              //            pPainter->restore();
         //        }
-    } else if ((nColumn == COLUMN_HEX) || (nColumn == COLUMN_SYMBOLS)) {
+    } else if ((nColumn == COLUMN_ELEMENTS) || (nColumn == COLUMN_SYMBOLS)) {
         //        STATE state = getState();
         if (nRow * g_nBytesProLine < g_nDataBlockSize) {
             qint64 nDataBlockStartOffset = getViewOffsetStart();
@@ -310,19 +322,19 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
 
                 QRect rectSymbol;
 
-                if (nColumn == COLUMN_HEX) {
-                    rectSymbol.setLeft(nLeft + getCharWidth() + (i * 2) * getCharWidth() + i * getSideDelta());
+                if (nColumn == COLUMN_ELEMENTS) {
+                    rectSymbol.setLeft(nLeft + getCharWidth() + (i * g_nSymbolsProElement) * getCharWidth() + i * getSideDelta());
                     rectSymbol.setTop(nTop + getLineDelta());
                     rectSymbol.setHeight(nHeight - getLineDelta());
 
                     if (((nIndex + 1) % g_nBytesProLine) == 0) {
-                        rectSymbol.setWidth(2 * getCharWidth());
+                        rectSymbol.setWidth(g_nSymbolsProElement * getCharWidth());
                     } else if (bIsSelected && (!bIsSelectedNext)) {
-                        rectSymbol.setWidth(2 * getCharWidth());
+                        rectSymbol.setWidth(g_nSymbolsProElement * getCharWidth());
                         //                    } else if (bIsHighlighted && (!bIsHighlightedNext)) {
-                        //                        rectSymbol.setWidth(2 * getCharWidth());
+                        //                        rectSymbol.setWidth(g_nSymbolsProElement * getCharWidth());
                     } else {
-                        rectSymbol.setWidth(2 * getCharWidth() + getSideDelta());
+                        rectSymbol.setWidth(g_nSymbolsProElement * getCharWidth() + getSideDelta());
                     }
                 } else if (nColumn == COLUMN_SYMBOLS) {
                     rectSymbol.setLeft(nLeft + (i + 1) * getCharWidth());
@@ -341,7 +353,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
 
                     QString sSymbol;
 
-                    if (nColumn == COLUMN_HEX) {
+                    if (nColumn == COLUMN_ELEMENTS) {
                         sSymbol = g_listByteRecords.at(nIndex).sElement;
                     } else if (nColumn == COLUMN_SYMBOLS) {
                         sSymbol = g_listByteRecords.at(nIndex).sSymbol;
@@ -429,7 +441,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
 
     if (nColumn == COLUMN_ADDRESS) {
         sKey = QString("address");
-    } else if (nColumn == COLUMN_HEX) {
+    } else if (nColumn == COLUMN_ELEMENTS) {
         sKey = QString("hex");
     } else if (nColumn == COLUMN_SYMBOLS) {
         sKey = QString("symbols");
@@ -473,7 +485,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                     painterPixmap.drawText(rectSymbol, g_listLocationRecords.at(i).sLocation);  // TODO Text Optional //            pPainter->restore();
                     //                    pPainter->drawText(rectSymbol, g_listLocationRecords.at(i).sLocation);
                 }
-            } else if ((nColumn == COLUMN_HEX) || (nColumn == COLUMN_SYMBOLS)) {
+            } else if ((nColumn == COLUMN_ELEMENTS) || (nColumn == COLUMN_SYMBOLS)) {
                 QFont fontBold = painterPixmap.font();
                 //                QFont fontBold = pPainter->font();
                 fontBold.setBold(true);
@@ -492,17 +504,17 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
 
                         QRect rectSymbol;
 
-                        if (nColumn == COLUMN_HEX) {
-                            rectSymbol.setLeft(getCharWidth() + (i * 2) * getCharWidth() + i * getSideDelta());
+                        if (nColumn == COLUMN_ELEMENTS) {
+                            rectSymbol.setLeft(getCharWidth() + (i * g_nSymbolsProElement) * getCharWidth() + i * getSideDelta());
                             rectSymbol.setTop(getLineHeight() * nRow + getLineDelta());
                             rectSymbol.setHeight(getLineHeight() - getLineDelta());
 
                             if (((nIndex + 1) % g_nBytesProLine) == 0) {
-                                rectSymbol.setWidth(2 * getCharWidth());
+                                rectSymbol.setWidth(g_nSymbolsProElement * getCharWidth());
                             } else if (bIsHighlighted && (!bIsHighlightedNext)) {
-                                rectSymbol.setWidth(2 * getCharWidth());
+                                rectSymbol.setWidth(g_nSymbolsProElement * getCharWidth());
                             } else {
-                                rectSymbol.setWidth(2 * getCharWidth() + getSideDelta());
+                                rectSymbol.setWidth(g_nSymbolsProElement * getCharWidth() + getSideDelta());
                             }
                         } else if (nColumn == COLUMN_SYMBOLS) {
                             rectSymbol.setLeft((i + 1) * getCharWidth());
@@ -520,7 +532,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
 
                         QString sSymbol;
 
-                        if (nColumn == COLUMN_HEX) {
+                        if (nColumn == COLUMN_ELEMENTS) {
                             sSymbol = g_listByteRecords.at(nIndex).sElement;
                         } else if (nColumn == COLUMN_SYMBOLS) {
                             sSymbol = g_listByteRecords.at(nIndex).sSymbol;
@@ -531,8 +543,8 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                             //                            pPainter->fillRect(rectSymbol, g_listByteRecords.at(nIndex).colBackground);
                         }
 
-                        if (nColumn == COLUMN_HEX) {
-                            painterPixmap.drawText(rectSymbol, sSymbol);
+                        if (nColumn == COLUMN_ELEMENTS) {
+                            painterPixmap.drawText(rectSymbol, sSymbol, Qt::AlignVCenter | Qt::AlignHCenter);
                             //                            pPainter->drawText(rectSymbol, sSymbol);
                         } else if (nColumn == COLUMN_SYMBOLS) {
                             if (sSymbol != "") {
@@ -562,19 +574,19 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
 
 void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight, const QString &sTitle)
 {
-    if (nColumn == COLUMN_HEX) {
+    if (nColumn == COLUMN_ELEMENTS) {
         for (qint8 i = 0; i < g_nBytesProLine; i++) {
             QString sSymbol = XBinary::valueToHex(i);
 
             QRect rectSymbol;
 
-            rectSymbol.setLeft(nLeft + getCharWidth() + (i * 2) * getCharWidth() + i * getSideDelta());
+            rectSymbol.setLeft(nLeft + getCharWidth() + (i * g_nSymbolsProElement) * getCharWidth() + i * getSideDelta());
             rectSymbol.setTop(nTop);
-            rectSymbol.setWidth(2 * getCharWidth() + getSideDelta());
+            rectSymbol.setWidth(g_nSymbolsProElement * getCharWidth() + getSideDelta());
             rectSymbol.setHeight(nHeight);
 
             if ((rectSymbol.left()) < (nLeft + nWidth)) {
-                pPainter->drawText(rectSymbol, Qt::AlignVCenter | Qt::AlignLeft, sSymbol);
+                pPainter->drawText(rectSymbol, Qt::AlignVCenter | Qt::AlignHCenter, sSymbol);
             }
         }
     } else {
@@ -974,7 +986,7 @@ void XHexView::adjustColumns()
         setColumnWidth(COLUMN_ADDRESS, 2 * getCharWidth() + fm.boundingRect("0000:0000").width());
     }
 
-    setColumnWidth(COLUMN_HEX, g_nBytesProLine * 2 * getCharWidth() + 2 * getCharWidth() + getSideDelta() * g_nBytesProLine);
+    setColumnWidth(COLUMN_ELEMENTS, g_nBytesProLine * g_nSymbolsProElement * getCharWidth() + 2 * getCharWidth() + getSideDelta() * g_nBytesProLine);
     setColumnWidth(COLUMN_SYMBOLS, (g_nBytesProLine + 2) * getCharWidth());
 }
 
@@ -1038,17 +1050,33 @@ void XHexView::_headerClicked(qint32 nColumn)
         }
 
         adjust(true);
-    } else if (nColumn == COLUMN_HEX) {
+    } else if (nColumn == COLUMN_ELEMENTS) {
         QMenu contextMenu(this);
 
         QMenu menuMode(tr("Mode"), this);
 
-        QAction actionHex(tr("Hex"), this);
-        actionHex.setProperty("mode", MODE_HEX);
+        QAction actionHex(QString("byte"), this);
+        actionHex.setProperty("mode", MODE_BYTE);
         actionHex.setCheckable(true);
-        actionHex.setChecked(g_mode == MODE_HEX);
+        actionHex.setChecked(g_mode == MODE_BYTE);
         connect(&actionHex, SIGNAL(triggered()), this, SLOT(changeMode()));
         menuMode.addAction(&actionHex);
+
+        menuMode.addSeparator();
+
+        QAction actionUint8(QString("uint8"), this);
+        actionUint8.setProperty("mode", MODE_UINT8);
+        actionUint8.setCheckable(true);
+        actionUint8.setChecked(g_mode == MODE_UINT8);
+        connect(&actionUint8, SIGNAL(triggered()), this, SLOT(changeMode()));
+        menuMode.addAction(&actionUint8);
+
+        QAction actionInt8(QString("int8"), this);
+        actionInt8.setProperty("mode", MODE_INT8);
+        actionInt8.setCheckable(true);
+        actionInt8.setChecked(g_mode == MODE_INT8);
+        connect(&actionInt8, SIGNAL(triggered()), this, SLOT(changeMode()));
+        menuMode.addAction(&actionInt8);
 
         QMenu menuWidth(tr("Width"), this);
 
@@ -1148,85 +1176,103 @@ QList<QChar> XHexView::getStringBuffer(QByteArray *pbaData)
             QString _sResult = g_pCodec->toUnicode(*pbaData);
             QVector<uint> vecSymbols = _sResult.toUcs4();
             qint32 _nSize = vecSymbols.size();
-
-            if (_nSize == nSize) {  // TODO Check
-                for (qint32 i = 0; i < nSize; i++) {
-                    QChar _char = _sResult.at(i);
-
-                    // if (_char < QChar(0x20)) {
-                    //     _char = '.';
-                    // }
-                    if (!_char.isPrint()) {
-                        _char = '.';
-                    }
-
-                    listResult.append(_char);
-                }
-            } else {
-                //                QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme,_sResult);
-
-                //                qint32 nCurrentPosition=0;
-
-                //                while(true)
-                //                {
-                //                    qint32 _nCurrentPosition=finder.toNextBoundary();
-
-                //                    QString _sChar=_sResult.mid(nCurrentPosition,_nCurrentPosition-nCurrentPosition);
-                //                    QByteArray _baData=pCodec->fromUnicode(_sChar);
-
-                //                    if(_sChar.size()==1)
-                //                    {
-                //                        if(_sChar.at(0)<QChar(0x20))
-                //                        {
-                //                            _sChar='.';
-                //                        }
-                //                    }
-
-                //                    sResult.append(_sChar);
-
-                //                    if(_baData.size()>1)
-                //                    {
-                //                        qint32 nAppendSize=_baData.size()-1;
-
-                //                        for(qint32 j=0;j<nAppendSize;j++)
-                //                        {
-                //                            sResult.append(" "); // mb TODO another symbol
-                //                        }
-                //                    }
-
-                //                    nCurrentPosition=_nCurrentPosition;
-
-                //                    if(nCurrentPosition==-1)
-                //                    {
-                //                        break;
-                //                    }
-                //                }
-
-                // TODO Check Big5
-                for (qint32 i = 0; i < _nSize; i++) {
-                    QChar _char = QChar(_sResult.at(i));
-
-                    QByteArray _baData = g_pCodec->fromUnicode(&_char, 1);
+            
+            for (qint32 i = 0; i < nSize; i++) {
+                QChar _char;
+                if (i < _nSize) {
+                    _char = _sResult.at(i);
 
                     if (!_char.isPrint()) {
                         _char = '.';
                     }
-
-                    // if (_sChar.at(0) < QChar(0x20)) {
-                    //     _sChar = '.';
-                    // }
-
-                    listResult.append(_char);
-
-                    if (_baData.size() > 1) {
-                        qint32 nAppendSize = _baData.size() - 1;
-
-                        for (qint32 j = 0; j < nAppendSize; j++) {
-                            listResult.append(QChar(' '));  // mb TODO another symbol
-                        }
-                    }
+                } else {
+                    _char = QChar(' ');
                 }
+                
+                // if (_char < QChar(0x20)) {
+                //     _char = '.';
+                // }
+                listResult.append(_char);
             }
+
+//            if (_nSize == nSize) {  // TODO Check
+//                for (qint32 i = 0; i < nSize; i++) {
+//                    QChar _char = _sResult.at(i);
+
+//                    // if (_char < QChar(0x20)) {
+//                    //     _char = '.';
+//                    // }
+//                    if (!_char.isPrint()) {
+//                        _char = '.';
+//                    }
+
+//                    listResult.append(_char);
+//                }
+//            } else {
+//                //                QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme,_sResult);
+
+//                //                qint32 nCurrentPosition=0;
+
+//                //                while(true)
+//                //                {
+//                //                    qint32 _nCurrentPosition=finder.toNextBoundary();
+
+//                //                    QString _sChar=_sResult.mid(nCurrentPosition,_nCurrentPosition-nCurrentPosition);
+//                //                    QByteArray _baData=pCodec->fromUnicode(_sChar);
+
+//                //                    if(_sChar.size()==1)
+//                //                    {
+//                //                        if(_sChar.at(0)<QChar(0x20))
+//                //                        {
+//                //                            _sChar='.';
+//                //                        }
+//                //                    }
+
+//                //                    sResult.append(_sChar);
+
+//                //                    if(_baData.size()>1)
+//                //                    {
+//                //                        qint32 nAppendSize=_baData.size()-1;
+
+//                //                        for(qint32 j=0;j<nAppendSize;j++)
+//                //                        {
+//                //                            sResult.append(" "); // mb TODO another symbol
+//                //                        }
+//                //                    }
+
+//                //                    nCurrentPosition=_nCurrentPosition;
+
+//                //                    if(nCurrentPosition==-1)
+//                //                    {
+//                //                        break;
+//                //                    }
+//                //                }
+
+//                // TODO Check Big5
+//                for (qint32 i = 0; i < _nSize; i++) {
+//                    QChar _char = QChar(_sResult.at(i));
+
+//                    QByteArray _baData = g_pCodec->fromUnicode(&_char, 1);
+
+//                    if (!_char.isPrint()) {
+//                        _char = '.';
+//                    }
+
+//                    // if (_sChar.at(0) < QChar(0x20)) {
+//                    //     _sChar = '.';
+//                    // }
+
+//                    listResult.append(_char);
+
+//                    if (_baData.size() > 1) {
+//                        qint32 nAppendSize = _baData.size() - 1;
+
+//                        for (qint32 j = 0; j < nAppendSize; j++) {
+//                            listResult.append(QChar(' '));  // mb TODO another symbol
+//                        }
+//                    }
+//                }
+//            }
         }
 
 //    #ifdef QT_DEBUG
@@ -1316,9 +1362,24 @@ void XHexView::changeMode()
     QAction *pAction = qobject_cast<QAction *>(sender());
 
     if (pAction) {
-        g_mode = (MODE)pAction->property("mode").toUInt();
+        MODE mode = (MODE)pAction->property("mode").toUInt();
+
+        _setMode(mode);
 
         adjustColumns();
         adjust(true);
+    }
+}
+
+void XHexView::_setMode(MODE mode)
+{
+    g_mode = mode;
+
+    if (mode == MODE_BYTE) {
+        g_nSymbolsProElement = 2;
+    } else if (mode == MODE_UINT8) {
+        g_nSymbolsProElement = 3;
+    } else if (mode == MODE_INT8) {
+        g_nSymbolsProElement = 4;
     }
 }
