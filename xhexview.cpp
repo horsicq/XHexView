@@ -245,7 +245,7 @@ void XHexView::updateData()
                 BYTERECORD record = {};
 
                 if (g_mode == MODE_BYTE) {
-                    record.sElement = sDataHexBuffer.mid(i * 2, 2); // g_nSymbolsProElement
+                    record.sElement = sDataHexBuffer.mid(i * 2, 2);  // g_nSymbolsProElement
                 } else if (g_mode == MODE_UINT8) {
                     record.sElement = QString::number(XBinary::_read_uint8(g_baDataBuffer.data() + i));
                 } else if (g_mode == MODE_INT8) {
@@ -1176,7 +1176,7 @@ QList<QChar> XHexView::getStringBuffer(QByteArray *pbaData)
             QString _sResult = g_pCodec->toUnicode(*pbaData);
             QVector<uint> vecSymbols = _sResult.toUcs4();
             qint32 _nSize = vecSymbols.size();
-            
+
             for (qint32 i = 0; i < nSize; i++) {
                 QChar _char;
                 if (i < _nSize) {
@@ -1188,91 +1188,91 @@ QList<QChar> XHexView::getStringBuffer(QByteArray *pbaData)
                 } else {
                     _char = QChar(' ');
                 }
-                
+
                 // if (_char < QChar(0x20)) {
                 //     _char = '.';
                 // }
                 listResult.append(_char);
             }
 
-//            if (_nSize == nSize) {  // TODO Check
-//                for (qint32 i = 0; i < nSize; i++) {
-//                    QChar _char = _sResult.at(i);
+            //            if (_nSize == nSize) {  // TODO Check
+            //                for (qint32 i = 0; i < nSize; i++) {
+            //                    QChar _char = _sResult.at(i);
 
-//                    // if (_char < QChar(0x20)) {
-//                    //     _char = '.';
-//                    // }
-//                    if (!_char.isPrint()) {
-//                        _char = '.';
-//                    }
+            //                    // if (_char < QChar(0x20)) {
+            //                    //     _char = '.';
+            //                    // }
+            //                    if (!_char.isPrint()) {
+            //                        _char = '.';
+            //                    }
 
-//                    listResult.append(_char);
-//                }
-//            } else {
-//                //                QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme,_sResult);
+            //                    listResult.append(_char);
+            //                }
+            //            } else {
+            //                //                QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme,_sResult);
 
-//                //                qint32 nCurrentPosition=0;
+            //                //                qint32 nCurrentPosition=0;
 
-//                //                while(true)
-//                //                {
-//                //                    qint32 _nCurrentPosition=finder.toNextBoundary();
+            //                //                while(true)
+            //                //                {
+            //                //                    qint32 _nCurrentPosition=finder.toNextBoundary();
 
-//                //                    QString _sChar=_sResult.mid(nCurrentPosition,_nCurrentPosition-nCurrentPosition);
-//                //                    QByteArray _baData=pCodec->fromUnicode(_sChar);
+            //                //                    QString _sChar=_sResult.mid(nCurrentPosition,_nCurrentPosition-nCurrentPosition);
+            //                //                    QByteArray _baData=pCodec->fromUnicode(_sChar);
 
-//                //                    if(_sChar.size()==1)
-//                //                    {
-//                //                        if(_sChar.at(0)<QChar(0x20))
-//                //                        {
-//                //                            _sChar='.';
-//                //                        }
-//                //                    }
+            //                //                    if(_sChar.size()==1)
+            //                //                    {
+            //                //                        if(_sChar.at(0)<QChar(0x20))
+            //                //                        {
+            //                //                            _sChar='.';
+            //                //                        }
+            //                //                    }
 
-//                //                    sResult.append(_sChar);
+            //                //                    sResult.append(_sChar);
 
-//                //                    if(_baData.size()>1)
-//                //                    {
-//                //                        qint32 nAppendSize=_baData.size()-1;
+            //                //                    if(_baData.size()>1)
+            //                //                    {
+            //                //                        qint32 nAppendSize=_baData.size()-1;
 
-//                //                        for(qint32 j=0;j<nAppendSize;j++)
-//                //                        {
-//                //                            sResult.append(" "); // mb TODO another symbol
-//                //                        }
-//                //                    }
+            //                //                        for(qint32 j=0;j<nAppendSize;j++)
+            //                //                        {
+            //                //                            sResult.append(" "); // mb TODO another symbol
+            //                //                        }
+            //                //                    }
 
-//                //                    nCurrentPosition=_nCurrentPosition;
+            //                //                    nCurrentPosition=_nCurrentPosition;
 
-//                //                    if(nCurrentPosition==-1)
-//                //                    {
-//                //                        break;
-//                //                    }
-//                //                }
+            //                //                    if(nCurrentPosition==-1)
+            //                //                    {
+            //                //                        break;
+            //                //                    }
+            //                //                }
 
-//                // TODO Check Big5
-//                for (qint32 i = 0; i < _nSize; i++) {
-//                    QChar _char = QChar(_sResult.at(i));
+            //                // TODO Check Big5
+            //                for (qint32 i = 0; i < _nSize; i++) {
+            //                    QChar _char = QChar(_sResult.at(i));
 
-//                    QByteArray _baData = g_pCodec->fromUnicode(&_char, 1);
+            //                    QByteArray _baData = g_pCodec->fromUnicode(&_char, 1);
 
-//                    if (!_char.isPrint()) {
-//                        _char = '.';
-//                    }
+            //                    if (!_char.isPrint()) {
+            //                        _char = '.';
+            //                    }
 
-//                    // if (_sChar.at(0) < QChar(0x20)) {
-//                    //     _sChar = '.';
-//                    // }
+            //                    // if (_sChar.at(0) < QChar(0x20)) {
+            //                    //     _sChar = '.';
+            //                    // }
 
-//                    listResult.append(_char);
+            //                    listResult.append(_char);
 
-//                    if (_baData.size() > 1) {
-//                        qint32 nAppendSize = _baData.size() - 1;
+            //                    if (_baData.size() > 1) {
+            //                        qint32 nAppendSize = _baData.size() - 1;
 
-//                        for (qint32 j = 0; j < nAppendSize; j++) {
-//                            listResult.append(QChar(' '));  // mb TODO another symbol
-//                        }
-//                    }
-//                }
-//            }
+            //                        for (qint32 j = 0; j < nAppendSize; j++) {
+            //                            listResult.append(QChar(' '));  // mb TODO another symbol
+            //                        }
+            //                    }
+            //                }
+            //            }
         }
 
 //    #ifdef QT_DEBUG
