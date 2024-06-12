@@ -196,7 +196,7 @@ void XHexView::updateData()
 
         g_listHighlightsRegion.clear();
         if (getXInfoDB()) {
-            QList<XInfoDB::BOOKMARKRECORD> listBookMarks = getXInfoDB()->getBookmarkRecords(nDataBlockStartOffset + nInitLocation, XInfoDB::LT_OFFSET, nDataBlockSize);
+            QList<XInfoDB::BOOKMARKRECORD> listBookMarks = getXInfoDB()->getBookmarkRecords(nDataBlockStartOffset + nInitLocation, XBinary::LT_OFFSET, nDataBlockSize);
             g_listHighlightsRegion.append(_convertBookmarksToHighlightRegion(&listBookMarks));
         }
 
@@ -255,7 +255,7 @@ void XHexView::updateData()
                 record.sSymbol = listElements.at(i);
                 record.bIsBold = (g_baDataBuffer.at(i) != 0);  // TODO optimize !!!
 
-                QList<HIGHLIGHTREGION> listHighLightRegions = getHighlightRegion(&g_listHighlightsRegion, nDataBlockStartOffset + i + nInitLocation, XInfoDB::LT_OFFSET);
+                QList<HIGHLIGHTREGION> listHighLightRegions = getHighlightRegion(&g_listHighlightsRegion, nDataBlockStartOffset + i + nInitLocation, XBinary::LT_OFFSET);
 
                 if (listHighLightRegions.count()) {
                     record.bIsHighlighted = true;
