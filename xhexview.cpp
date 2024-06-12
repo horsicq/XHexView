@@ -726,6 +726,14 @@ void XHexView::contextMenu(const QPoint &pos)
             actionStrings.setCheckable(true);
             actionStrings.setChecked(true);
         }
+
+        QAction actionVisualization(tr("Visualization"), this);
+        actionVisualization.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_STRINGS));
+        connect(&actionVisualization, SIGNAL(triggered()), this, SLOT(_visualization()));
+        if (getViewWidgetState(VIEWWIDGET_VISUALIZATION)) {
+            actionVisualization.setCheckable(true);
+            actionVisualization.setChecked(true);
+        }
 #if defined(QT_SCRIPT_LIB) || defined(QT_QML_LIB)
         QAction actionScripts(tr("Scripts"), this);
         actionScripts.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_SCRIPTS));
@@ -813,6 +821,7 @@ void XHexView::contextMenu(const QPoint &pos)
         }
 #endif
         contextMenu.addAction(&actionStrings);
+        contextMenu.addAction(&actionVisualization);
 #if defined(QT_SCRIPT_LIB) || defined(QT_QML_LIB)
         contextMenu.addAction(&actionScripts);
 #endif
