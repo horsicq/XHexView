@@ -63,7 +63,6 @@ void XHexView::_adjustView()
 
 void XHexView::adjustView()
 {
-    XShortcutstScrollArea::adjustView();
     _adjustView();
 
     if (getDevice()) {

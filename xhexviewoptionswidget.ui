@@ -60,41 +60,6 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QGroupBox" name="groupBoxHexFont">
-         <property name="title">
-          <string>Font</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <property name="leftMargin">
-           <number>2</number>
-          </property>
-          <property name="topMargin">
-           <number>2</number>
-          </property>
-          <property name="rightMargin">
-           <number>2</number>
-          </property>
-          <property name="bottomMargin">
-           <number>2</number>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="lineEditHexFont">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="toolButtonHexFont">
-            <property name="text">
-             <string notr="true">...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <widget class="QCheckBox" name="checkBoxHexAddressColon">
          <property name="text">
           <string>Show colons in addresses</string>

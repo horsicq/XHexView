@@ -46,6 +46,7 @@ public:
     void setReadonlyVisible(bool bState);
     qint64 getStartAddress();
     void setSelection(qint64 nOffset, qint64 nSize);
+    virtual void adjustView();
     //    void blockSignals(bool bState);
     //    void addValue(QString sTitle, DATAINS datains, LIED lied);
 

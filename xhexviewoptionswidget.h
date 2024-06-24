@@ -43,9 +43,6 @@ public slots:
     void save();
     void reload();
 
-private slots:
-    void on_toolButtonHexFont_clicked();
-
 private:
     Ui::XHexViewOptionsWidget *ui;
     XOptions *g_pOptions;

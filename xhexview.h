@@ -71,7 +71,7 @@ public:
     explicit XHexView(QWidget *pParent = nullptr);
 
     void _adjustView();
-    void adjustView();
+    virtual void adjustView();
     void setData(QIODevice *pDevice, const OPTIONS &options, bool bReload);
     void goToAddress(XADDR nAddress);
     void goToOffset(qint64 nOffset);

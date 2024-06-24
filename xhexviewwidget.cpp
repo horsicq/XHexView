@@ -119,6 +119,10 @@ void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
     ui->scrollAreaHex->goToOffset(nOffset);
 }
 
+void XHexViewWidget::adjustView()
+{
+}
+
 // void XHexViewWidget::blockSignals(bool bState)
 //{
 //     _blockSignals((QObject **)g_lineEdit, __LIED_size, bState);
