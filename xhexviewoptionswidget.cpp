@@ -22,7 +22,7 @@
 
 #include "ui_xhexviewoptionswidget.h"
 
-XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) : QWidget(pParent), ui(new Ui::XHexViewOptionsWidget)
+XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui(new Ui::XHexViewOptionsWidget)
 {
     ui->setupUi(this);
 
@@ -34,6 +34,11 @@ XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) : QWidget(pParent
 XHexViewOptionsWidget::~XHexViewOptionsWidget()
 {
     delete ui;
+}
+
+void XHexViewOptionsWidget::adjustView()
+{
+    // TODO
 }
 
 void XHexViewOptionsWidget::setOptions(XOptions *pOptions)
@@ -57,5 +62,10 @@ void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions)
 void XHexViewOptionsWidget::reload()
 {
     g_pOptions->setCheckBox(ui->checkBoxHexAddressColon, XOptions::ID_HEX_ADDRESSCOLON);
+}
+
+void XHexViewOptionsWidget::registerShortcuts(bool bState)
+{
+    Q_UNUSED(bState)
 }
 

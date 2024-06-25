@@ -21,20 +21,20 @@
 #ifndef XHEXVIEWOPTIONSWIDGET_H
 #define XHEXVIEWOPTIONSWIDGET_H
 
-#include <QFontDialog>
-
+#include "xshortcutswidget.h"
 #include "xoptions.h"
 
 namespace Ui {
 class XHexViewOptionsWidget;
 }
 
-class XHexViewOptionsWidget : public QWidget {
+class XHexViewOptionsWidget : public XShortcutsWidget {
     Q_OBJECT
 
 public:
     explicit XHexViewOptionsWidget(QWidget *pParent = nullptr);
     ~XHexViewOptionsWidget();
+    virtual void adjustView();
 
     void setOptions(XOptions *pOptions);
     static void setDefaultValues(XOptions *pOptions);
@@ -42,6 +42,9 @@ public:
 public slots:
     void save();
     void reload();
+
+protected:
+    virtual void registerShortcuts(bool bState);
 
 private:
     Ui::XHexViewOptionsWidget *ui;
