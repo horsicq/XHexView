@@ -26,8 +26,6 @@ DialogHexView::DialogHexView(QWidget *pParent) : XShortcutsDialog(pParent), ui(n
 {
     ui->setupUi(this);
 
-    setWindowFlags(Qt::Window);
-
     connect(ui->widgetHex, SIGNAL(dataChanged(qint64, qint64)), this, SIGNAL(dataChanged(qint64, qint64)));
     connect(ui->widgetHex, SIGNAL(deviceSizeChanged(qint64, qint64)), this, SIGNAL(deviceSizeChanged(qint64, qint64)));
 

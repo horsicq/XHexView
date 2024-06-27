@@ -21,6 +21,7 @@
 #ifndef DIALOGHEXVIEW_H
 #define DIALOGHEXVIEW_H
 
+#include "xshortcutsdialog.h"
 #include "xhexview.h"
 
 namespace Ui {
