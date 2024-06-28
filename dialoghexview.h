@@ -36,7 +36,9 @@ public:
     explicit DialogHexView(QWidget *pParent, QIODevice *pDevice, const XHexView::OPTIONS &options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice = nullptr);
     ~DialogHexView();
 
-    virtual void adjustView() {}
+    virtual void adjustView()
+    {
+    }
 
     void setData(QIODevice *pDevice, const XHexView::OPTIONS &options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice = nullptr);
     void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions);
@@ -50,7 +52,10 @@ private slots:
     void on_pushButtonClose_clicked();
 
 protected:
-    virtual void registerShortcuts(bool bState) { Q_UNUSED(bState) }
+    virtual void registerShortcuts(bool bState)
+    {
+        Q_UNUSED(bState)
+    }
 
 private:
     Ui::DialogHexView *ui;

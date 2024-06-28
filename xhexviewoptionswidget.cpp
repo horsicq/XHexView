@@ -68,4 +68,3 @@ void XHexViewOptionsWidget::registerShortcuts(bool bState)
 {
     Q_UNUSED(bState)
 }
-

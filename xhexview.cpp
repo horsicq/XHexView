@@ -39,7 +39,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     addColumn(tr("Symbols"), 0, true);
 
     setTextFont(XOptions::getMonoFont());  // mb TODO move to XDeviceTableView !!!
-                                 //    setBlinkingCursorEnable(true);
+                                           //    setBlinkingCursorEnable(true);
     // setBlinkingCursorEnable(false);
     g_sCodePage = "";
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
