@@ -168,12 +168,14 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_P
 
 void XHexView::updateData()
 {
-    if (getDevice()) {
+    QIODevice *_pDevice = getDevice();
+
+    if (_pDevice) {
         // Update cursor position
         qint64 nDataBlockStartOffset = getViewOffsetStart();  // TODO Check
         quint64 nInitLocation = 0;
 
-        XIODevice *pSubDevice = dynamic_cast<XIODevice *>(getDevice());
+        XIODevice *pSubDevice = dynamic_cast<XIODevice *>(_pDevice);
 
         if (pSubDevice) {
             nInitLocation = pSubDevice->getInitLocation();
