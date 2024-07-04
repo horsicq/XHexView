@@ -118,16 +118,16 @@
         <number>0</number>
        </property>
        <property name="leftMargin">
-        <number>0</number>
+        <number>2</number>
        </property>
        <property name="topMargin">
-        <number>0</number>
+        <number>2</number>
        </property>
        <property name="rightMargin">
-        <number>0</number>
+        <number>2</number>
        </property>
        <property name="bottomMargin">
-        <number>0</number>
+        <number>2</number>
        </property>
        <item>
         <widget class="XHexView" name="scrollAreaHex" native="true">
@@ -147,19 +147,6 @@
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="labelSelectionStatus">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
     </widget>
    </item>
   </layout>

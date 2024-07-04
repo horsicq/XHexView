@@ -144,17 +144,17 @@ void XHexViewWidget::adjustView()
 
 void XHexViewWidget::adjust()
 {
-    XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
+    // XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
 
-    //    QString sCursor = XBinary::valueToHex(state.nCursorViewOffset);
-    QString sSelectionStart = XBinary::valueToHex(deviceState.nSelectionDeviceOffset);
-    QString sSelectionSize = XBinary::valueToHex(deviceState.nSelectionSize);
+    // //    QString sCursor = XBinary::valueToHex(state.nCursorViewOffset);
+    // QString sSelectionStart = XBinary::valueToHex(deviceState.nSelectionDeviceOffset);
+    // QString sSelectionSize = XBinary::valueToHex(deviceState.nSelectionSize);
 
-    QString sSelection;
+    // QString sSelection;
 
-    sSelection = QString("%1:%2 %3:%4").arg(tr("Selection"), sSelectionStart, tr("Size"), sSelectionSize);
+    // sSelection = QString("%1:%2 %3:%4").arg(tr("Selection"), sSelectionStart, tr("Size"), sSelectionSize);
 
-    ui->labelSelectionStatus->setText(sSelection);
+    // ui->labelSelectionStatus->setText(sSelection);
 }
 
 void XHexViewWidget::viewWidgetsState()
