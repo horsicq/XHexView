@@ -22,7 +22,7 @@
 
 #include "ui_dialoghexview.h"
 
-DialogHexView::DialogHexView(QWidget *pParent) : XShortcutsDialog(pParent), ui(new Ui::DialogHexView)
+DialogHexView::DialogHexView(QWidget *pParent) : XShortcutsDialog(pParent, true), ui(new Ui::DialogHexView)
 {
     ui->setupUi(this);
 
