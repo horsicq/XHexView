@@ -54,16 +54,16 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     setVerticalLinesVisible(false);
 }
 
-void XHexView::_adjustView()
+void XHexView::adjustView()
 {
     setTextFontFromOptions(XOptions::ID_HEX_FONT);
 
     g_bIsAddressColon = getGlobalOptions()->getValue(XOptions::ID_HEX_ADDRESSCOLON).toBool();
 }
 
-void XHexView::adjustView()
+void XHexView::_adjustView()
 {
-    _adjustView();
+    adjustView();
 
     if (getDevice()) {
         reload(true);
@@ -75,6 +75,8 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
     g_hexOptions = options;
 
     setDevice(pDevice);
+
+    adjustView();
 
     XBinary binary(pDevice, true, options.nStartAddress);
     XBinary::_MEMORY_MAP memoryMap = binary.getMemoryMap();
@@ -96,8 +98,6 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
 
     _initSetSelection(options.nStartSelectionOffset, options.nSizeOfSelection);
     //    setCursorViewOffset(options.nStartSelectionOffset, COLUMN_HEX);
-
-    _adjustView();
 
     if (bReload) {
         reload(true);
