@@ -53,6 +53,11 @@ DialogHexView::~DialogHexView()
     delete ui;
 }
 
+void DialogHexView::adjustView()
+{
+
+}
+
 void DialogHexView::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
 {
     ui->widgetHex->setGlobal(pShortcuts, pXOptions);
