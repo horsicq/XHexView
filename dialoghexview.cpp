@@ -55,7 +55,6 @@ DialogHexView::~DialogHexView()
 
 void DialogHexView::adjustView()
 {
-
 }
 
 void DialogHexView::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
