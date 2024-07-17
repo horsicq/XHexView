@@ -67,3 +67,8 @@ void DialogHexView::on_pushButtonClose_clicked()
 {
     this->close();
 }
+
+void DialogHexView::registerShortcuts(bool bState)
+{
+    Q_UNUSED(bState)
+}
