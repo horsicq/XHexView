@@ -109,7 +109,7 @@ private:
     QList<QChar> getStringBuffer(QByteArray *pbaData);  // TODO QList
 
 protected:
-    virtual OS cursorPositionToOS(CURSOR_POSITION cursorPosition);
+    virtual OS cursorPositionToOS(const CURSOR_POSITION &cursorPosition);
     virtual void updateData();
     virtual void paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight);
     virtual void paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight);

@@ -49,6 +49,8 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     connect(&g_xCodePageOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
 #endif
     setAddressMode(LOCMODE_OFFSET);
+    setMapEnable(true);
+    setMapWidth(20);
 
     // g_pixmapCache.setCacheLimit(1024);
     setVerticalLinesVisible(false);
@@ -129,7 +131,7 @@ XADDR XHexView::getSelectionInitAddress()
     return getSelectionInitOffset() + g_hexOptions.nStartAddress;
 }
 
-XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_POSITION cursorPosition)
+XAbstractTableView::OS XHexView::cursorPositionToOS(const XAbstractTableView::CURSOR_POSITION &cursorPosition)
 {
     OS osResult = {};
 
@@ -143,11 +145,11 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_P
             //            osResult.nSize=g_nPieceSize;
             osResult.nSize = 1;
         } else if (cursorPosition.nColumn == COLUMN_ELEMENTS) {
-            osResult.nViewOffset = nBlockOffset + (cursorPosition.nCellLeft - getSideDelta() - getCharWidth()) / (getCharWidth() * g_nSymbolsProElement + getSideDelta());
+            osResult.nViewOffset = nBlockOffset + (cursorPosition.nAreaLeft - getSideDelta() - getCharWidth()) / (getCharWidth() * g_nSymbolsProElement + getSideDelta());
             //            osResult.nSize=g_nPieceSize;
             osResult.nSize = 1;
         } else if (cursorPosition.nColumn == COLUMN_SYMBOLS) {
-            osResult.nViewOffset = nBlockOffset + (cursorPosition.nCellLeft - getSideDelta() - getCharWidth()) / getCharWidth();
+            osResult.nViewOffset = nBlockOffset + (cursorPosition.nAreaLeft - getSideDelta() - getCharWidth()) / getCharWidth();
             //            osResult.nSize=g_nPieceSize;
             osResult.nSize = 1;
         }
@@ -163,8 +165,10 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(XAbstractTableView::CURSOR_P
         //        qDebug("cursorPosition.nCellLeft %x",cursorPosition.nCellLeft);
         //        qDebug("getCharWidth() %x",getCharWidth());
         //        qDebug("nOffset %x",osResult.nOffset);
+    } else if ((cursorPosition.bIsValid) && (cursorPosition.ptype == PT_MAP)) {
+        // osResult.nViewOffset = g_nViewSize;
+        osResult.nSize = 1;
     }
-
     return osResult;
 }
 
