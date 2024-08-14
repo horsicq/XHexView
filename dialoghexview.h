@@ -22,7 +22,7 @@
 #define DIALOGHEXVIEW_H
 
 #include "xshortcutsdialog.h"
-#include "xhexview.h"
+#include "xhexviewwidget.h"
 
 namespace Ui {
 class DialogHexView;
@@ -33,13 +33,14 @@ class DialogHexView : public XShortcutsDialog {
 
 public:
     explicit DialogHexView(QWidget *pParent);
-    explicit DialogHexView(QWidget *pParent, QIODevice *pDevice, const XHexView::OPTIONS &options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice = nullptr);
     ~DialogHexView();
 
     virtual void adjustView();
 
-    void setData(QIODevice *pDevice, const XHexView::OPTIONS &options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice = nullptr);
+    void setData(QIODevice *pDevice, const XHexViewWidget::OPTIONS &options);
     void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions);
+    void setXInfoDB(XInfoDB *pXInfoDB);
+    void setBackupDevice(QIODevice *pDevice);
 
 signals:
     //    void editState(bool bState);

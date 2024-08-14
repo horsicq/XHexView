@@ -32,11 +32,25 @@ class XHexViewWidget : public XShortcutsWidget {
     Q_OBJECT
 
 public:
+    struct OPTIONS {
+        XBinary::FT fileType;
+        XADDR nStartAddress;  // For FT_REGION
+        qint64 nStartSelectionOffset;  // -1 no selection
+        qint64 nSizeOfSelection;
+        QString sTitle;
+        bool bModeFixed; // TODO Check
+        bool bMenu_Disasm;
+        bool bMenu_MemoryMap;
+        bool bMenu_MainHex;
+        // bool bHideReadOnly;
+        XHexView::LOCMODE addressMode;
+    };
+
     explicit XHexViewWidget(QWidget *pParent = nullptr);
     ~XHexViewWidget();
 
     void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions);
-    void setData(QIODevice *pDevice, const XHexView::OPTIONS &options);
+    void setData(QIODevice *pDevice, const OPTIONS &options);
     void setDevice(QIODevice *pDevice);
     void setBackupDevice(QIODevice *pDevice);
     void setXInfoDB(XInfoDB *pXInfoDB);
@@ -49,6 +63,8 @@ public:
     virtual void adjustView();
     //    void blockSignals(bool bState);
     //    void addValue(QString sTitle, DATAINS datains, LIED lied);
+private:
+    void reloadFileType();
 
 private slots:
     void adjust();
@@ -57,6 +73,7 @@ private slots:
     //    void valueChangedSlot(quint64 nValue);
     void on_pushButtonDataInspector_clicked();
     void on_pushButtonStrings_clicked();
+    void on_comboBoxType_currentIndexChanged(int nIndex);
 
 signals:
     void dataChanged(qint64 nDeviceOffset, qint64 nDeviceSize);
@@ -70,6 +87,8 @@ protected:
 
 private:
     Ui::XHexViewWidget *ui;
+    QIODevice *g_pDevice;
+    OPTIONS g_options;
 };
 
 #endif  // XHEXVIEWWIDGET_H

@@ -81,6 +81,7 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
     setDevice(pDevice);
 
     adjustView();
+    adjustMap();
 
     XBinary binary(pDevice, true, options.nStartAddress);
     XBinary::_MEMORY_MAP memoryMap = binary.getMemoryMap();
@@ -166,8 +167,8 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(const XAbstractTableView::CU
         //        qDebug("getCharWidth() %x",getCharWidth());
         //        qDebug("nOffset %x",osResult.nOffset);
     } else if ((cursorPosition.bIsValid) && (cursorPosition.ptype == PT_MAP)) {
-        // osResult.nViewOffset = g_nViewSize;
-        osResult.nSize = 1;
+        osResult.nViewOffset = XBinary::align_down((getViewSize() * cursorPosition.nProcent) / getMapCount(), g_nBytesProLine);
+        osResult.nSize = 0;
     }
     return osResult;
 }
@@ -1163,6 +1164,22 @@ void XHexView::adjustScrollCount()
     setTotalScrollCount(nTotalLineCount);
 }
 
+void XHexView::adjustMap()
+{
+    if (isMapEnable()) {
+        if (getDevice()) {
+            qint64 nNumberOfLines = getDevice()->size() / g_nBytesProLine;
+            if (nNumberOfLines > 100) {
+                nNumberOfLines = 100;
+            } else if (nNumberOfLines == 0) {
+                nNumberOfLines = 1;
+            }
+
+            setMapCount((qint32)nNumberOfLines);
+        }
+    }
+}
+
 QList<QChar> XHexView::getStringBuffer(QByteArray *pbaData)
 {
     QList<QChar> listResult;
@@ -1369,6 +1386,8 @@ void XHexView::changeWidth()
     if (pAction) {
         g_nBytesProLine = pAction->property("width").toUInt();
 
+        adjustMap();
+        adjustScrollCount();
         adjustColumns();
         adjust(true);
     }

@@ -32,16 +32,9 @@ DialogHexView::DialogHexView(QWidget *pParent) : XShortcutsDialog(pParent, true)
     ui->widgetHex->setReadonlyVisible(true);
 }
 
-DialogHexView::DialogHexView(QWidget *pParent, QIODevice *pDevice, const XHexView::OPTIONS &options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice) : DialogHexView(pParent)
+void DialogHexView::setData(QIODevice *pDevice, const XHexViewWidget::OPTIONS &options)
 {
-    setData(pDevice, options, pXInfoDB, pBackupDevice);
-}
-
-void DialogHexView::setData(QIODevice *pDevice, const XHexView::OPTIONS &options, XInfoDB *pXInfoDB, QIODevice *pBackupDevice)
-{
-    ui->widgetHex->setXInfoDB(pXInfoDB);
     ui->widgetHex->setData(pDevice, options);
-    ui->widgetHex->setBackupDevice(pBackupDevice);
 
     if (options.sTitle != "") {
         setWindowTitle(options.sTitle);
@@ -61,6 +54,16 @@ void DialogHexView::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
 {
     ui->widgetHex->setGlobal(pShortcuts, pXOptions);
     XShortcutsDialog::setGlobal(pShortcuts, pXOptions);
+}
+
+void DialogHexView::setXInfoDB(XInfoDB *pXInfoDB)
+{
+    ui->widgetHex->setXInfoDB(pXInfoDB);
+}
+
+void DialogHexView::setBackupDevice(QIODevice *pDevice)
+{
+    ui->widgetHex->setBackupDevice(pDevice);
 }
 
 void DialogHexView::on_pushButtonClose_clicked()

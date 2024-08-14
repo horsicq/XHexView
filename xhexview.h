@@ -66,6 +66,7 @@ public:
         bool bMenu_MainHex;
         QString sTitle;  // For dialogs
         LOCMODE addressMode;
+        XBinary::_MEMORY_MAP memoryMapRegion;
     };
 
     explicit XHexView(QWidget *pParent = nullptr);
@@ -125,6 +126,7 @@ protected:
     virtual void _headerClicked(qint32 nColumn);
     virtual void _cellDoubleClicked(qint32 nRow, qint32 nColumn);
     virtual void adjustScrollCount();
+    virtual void adjustMap();
     //    SMODE getSmode();
     //    void setSmode(SMODE smode);
 

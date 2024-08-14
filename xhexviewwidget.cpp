@@ -26,6 +26,9 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 {
     ui->setupUi(this);
 
+    g_pDevice = nullptr;
+    g_options = {};
+
     connect(ui->scrollAreaHex, SIGNAL(showOffsetDisasm(qint64)), this, SIGNAL(showOffsetDisasm(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(showOffsetMemoryMap(qint64)), this, SIGNAL(showOffsetMemoryMap(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(errorMessage(QString)), this, SLOT(errorMessageSlot(QString)));
@@ -50,13 +53,25 @@ void XHexViewWidget::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
     XShortcutsWidget::setGlobal(pShortcuts, pXOptions);
 }
 
-void XHexViewWidget::setData(QIODevice *pDevice, const XHexView::OPTIONS &options)
+void XHexViewWidget::setData(QIODevice *pDevice, const OPTIONS &options)
 {
-    //    g_bIsEdited = false;
+    g_pDevice = pDevice;
+    g_options = options;
 
-    ui->checkBoxReadonly->setEnabled(pDevice->isWritable());
+    if (pDevice) {
+        XFormats::setFileTypeComboBox(options.fileType, pDevice, ui->comboBoxType, XBinary::TL_OPTION_ALL);
+        XFormats::getMapModesList(options.fileType, ui->comboBoxMapMode);
+    } else {
+        ui->scrollAreaHex->setDevice(nullptr);
+    }
 
-    ui->scrollAreaHex->setData(pDevice, options, true);
+    // adjustVisitedState();
+
+    reloadFileType();
+
+    // ui->checkBoxReadonly->setEnabled(pDevice->isWritable());
+
+    // ui->scrollAreaHex->setData(pDevice, options, true);
 }
 
 void XHexViewWidget::setDevice(QIODevice *pDevice)
@@ -121,6 +136,41 @@ void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
 
 void XHexViewWidget::adjustView()
 {
+}
+
+void XHexViewWidget::reloadFileType()
+{
+    if (g_pDevice) {
+        const bool bBlocked1 = ui->comboBoxMapMode->blockSignals(true);
+
+        g_options.fileType = (XBinary::FT)(ui->comboBoxType->currentData().toInt());
+
+        XHexView::OPTIONS options = {};
+        options.nStartAddress = g_options.nStartAddress;
+        options.bMenu_MainHex = g_options.bMenu_MainHex;
+        options.bMenu_Disasm = g_options.bMenu_Disasm;
+        options.bMenu_MemoryMap = g_options.bMenu_MemoryMap;
+        // options.bHideReadOnly = g_options.bHideReadOnly;
+
+        if (g_options.fileType == XBinary::FT_REGION) {
+            options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, g_pDevice, true, g_options.nStartAddress);
+        } else {
+            options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, (XBinary::MAPMODE)(ui->comboBoxMapMode->currentData().toInt()), g_pDevice);
+        }
+
+        // ui->scrollAreaDisasm->setData(g_pDevice, options);
+
+        // TODO Check
+        if (ui->scrollAreaHex->getXInfoDB()) {
+            ui->scrollAreaHex->getXInfoDB()->setData(g_pDevice, options.memoryMapRegion.fileType);
+            //            getSymbols();
+        }
+
+        ui->scrollAreaHex->setData(g_pDevice, options, true);
+        ui->scrollAreaHex->reload(true);
+
+        ui->comboBoxMapMode->blockSignals(bBlocked1);
+    }
 }
 
 // void XHexViewWidget::blockSignals(bool bState)
@@ -197,4 +247,14 @@ void XHexViewWidget::on_pushButtonDataInspector_clicked()
 void XHexViewWidget::on_pushButtonStrings_clicked()
 {
     ui->scrollAreaHex->_strings();
+}
+
+void XHexViewWidget::on_comboBoxType_currentIndexChanged(int nIndex)
+{
+    Q_UNUSED(nIndex)
+
+    XBinary::FT fileType = (XBinary::FT)(ui->comboBoxType->currentData().toInt());
+    XFormats::getMapModesList(fileType, ui->comboBoxMapMode);
+
+    reloadFileType();
 }
