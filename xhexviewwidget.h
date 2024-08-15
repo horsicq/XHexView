@@ -34,11 +34,11 @@ class XHexViewWidget : public XShortcutsWidget {
 public:
     struct OPTIONS {
         XBinary::FT fileType;
-        XADDR nStartAddress;  // For FT_REGION
+        XADDR nStartAddress;           // For FT_REGION
         qint64 nStartSelectionOffset;  // -1 no selection
         qint64 nSizeOfSelection;
         QString sTitle;
-        bool bModeFixed; // TODO Check
+        bool bModeFixed;  // TODO Check
         bool bMenu_Disasm;
         bool bMenu_MemoryMap;
         bool bMenu_MainHex;
