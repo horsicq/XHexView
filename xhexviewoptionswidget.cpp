@@ -50,18 +50,18 @@ void XHexViewOptionsWidget::setOptions(XOptions *pOptions)
 
 void XHexViewOptionsWidget::save()
 {
-    g_pOptions->getCheckBox(ui->checkBoxHexAddressColon, XOptions::ID_HEX_ADDRESSCOLON);
+    g_pOptions->getCheckBox(ui->checkBoxHexLocationColon, XOptions::ID_HEX_LOCATIONCOLON);
 }
 
 void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions)
 {
     pOptions->addID(XOptions::ID_HEX_FONT, XOptions::getMonoFont().toString());
-    pOptions->addID(XOptions::ID_HEX_ADDRESSCOLON, true);
+    pOptions->addID(XOptions::ID_HEX_LOCATIONCOLON, true);
 }
 
 void XHexViewOptionsWidget::reload()
 {
-    g_pOptions->setCheckBox(ui->checkBoxHexAddressColon, XOptions::ID_HEX_ADDRESSCOLON);
+    g_pOptions->setCheckBox(ui->checkBoxHexLocationColon, XOptions::ID_HEX_LOCATIONCOLON);
 }
 
 void XHexViewOptionsWidget::registerShortcuts(bool bState)

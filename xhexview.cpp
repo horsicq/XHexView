@@ -30,7 +30,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     g_nThisBase = 0;
     g_hexOptions = {};
     g_nAddressWidth = 8;        // TODO Set/Get
-    g_bIsAddressColon = false;  // TODO Check
+    g_bIsLocationColon = false;  // TODO Check
                                 //    g_nPieceSize=1; // TODO
     memset(g_shortCuts, 0, sizeof g_shortCuts);
 
@@ -48,7 +48,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 
     connect(&g_xCodePageOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
 #endif
-    setAddressMode(LOCMODE_OFFSET);
+    setLocationMode(LOCMODE_OFFSET);
     setMapEnable(true);
     setMapWidth(20);
 
@@ -60,7 +60,7 @@ void XHexView::adjustView()
 {
     setTextFontFromOptions(XOptions::ID_HEX_FONT);
 
-    g_bIsAddressColon = getGlobalOptions()->getValue(XOptions::ID_HEX_ADDRESSCOLON).toBool();
+    g_bIsLocationColon = getGlobalOptions()->getValue(XOptions::ID_HEX_LOCATIONCOLON).toBool();
 
     viewport()->update();
 }
@@ -90,7 +90,7 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
 
     //    resetCursorData();
 
-    setAddressMode(options.addressMode);
+    setLocationMode(options.addressMode);
 
     adjustHeader();
 
@@ -141,7 +141,7 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(const XAbstractTableView::CU
     if ((cursorPosition.bIsValid) && (cursorPosition.ptype == PT_CELL)) {
         qint64 nBlockOffset = getViewOffsetStart() + (cursorPosition.nRow * g_nBytesProLine);
 
-        if (cursorPosition.nColumn == COLUMN_ADDRESS) {
+        if (cursorPosition.nColumn == COLUMN_LOCATION) {
             osResult.nViewOffset = nBlockOffset;
             //            osResult.nSize=g_nPieceSize;
             osResult.nSize = 1;
@@ -227,20 +227,20 @@ void XHexView::updateData()
                 LOCATIONRECORD record = {};
                 record.nLocation = i + g_hexOptions.nStartAddress + nDataBlockStartOffset;
 
-                if (getAddressMode() == LOCMODE_THIS) {
+                if (getlocationMode() == LOCMODE_THIS) {
                     nCurrentAddress = record.nLocation;
 
                     qint64 nDelta = (qint64)nCurrentAddress - (qint64)g_nThisBase;
 
                     record.sLocation = XBinary::thisToString(nDelta);
                 } else {
-                    if (getAddressMode() == LOCMODE_ADDRESS) {
+                    if (getlocationMode() == LOCMODE_ADDRESS) {
                         nCurrentAddress = record.nLocation;
-                    } else if (getAddressMode() == LOCMODE_OFFSET) {
+                    } else if (getlocationMode() == LOCMODE_OFFSET) {
                         nCurrentAddress = i + nDataBlockStartOffset;
                     }
 
-                    if (g_bIsAddressColon) {
+                    if (g_bIsLocationColon) {
                         record.sLocation = XBinary::valueToHexColon(mode, nCurrentAddress);
                     } else {
                         record.sLocation = XBinary::valueToHex(mode, nCurrentAddress);
@@ -296,7 +296,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
     // #endif
     //     g_pPainterText->drawRect(nLeft,nTop,nWidth,nHeight);
 
-    if (nColumn == COLUMN_ADDRESS) {
+    if (nColumn == COLUMN_LOCATION) {
         //        if (nRow < g_listLocationRecords.count()) {
         //            QRect rectSymbol;
 
@@ -448,7 +448,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
 
     QString sKey;
 
-    if (nColumn == COLUMN_ADDRESS) {
+    if (nColumn == COLUMN_LOCATION) {
         sKey = QString("address");
     } else if (nColumn == COLUMN_ELEMENTS) {
         sKey = QString("hex");
@@ -483,7 +483,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
 
             qint32 nNumberOfRows = g_listLocationRecords.count();
 
-            if (nColumn == COLUMN_ADDRESS) {
+            if (nColumn == COLUMN_LOCATION) {
                 for (qint32 i = 0; i < nNumberOfRows; i++) {
                     QRect rectSymbol;
                     rectSymbol.setLeft(getCharWidth());
@@ -998,10 +998,10 @@ void XHexView::adjustColumns()
 
     if (XBinary::getWidthModeFromSize(getStartAddress() + getViewSize()) == XBinary::MODE_64) {
         g_nAddressWidth = 16;
-        setColumnWidth(COLUMN_ADDRESS, 2 * getCharWidth() + fm.boundingRect("00000000:00000000").width());
+        setColumnWidth(COLUMN_LOCATION, 2 * getCharWidth() + fm.boundingRect("00000000:00000000").width());
     } else {
         g_nAddressWidth = 8;
-        setColumnWidth(COLUMN_ADDRESS, 2 * getCharWidth() + fm.boundingRect("0000:0000").width());
+        setColumnWidth(COLUMN_LOCATION, 2 * getCharWidth() + fm.boundingRect("0000:0000").width());
     }
 
     setColumnWidth(COLUMN_ELEMENTS, g_nBytesProLine * g_nSymbolsProElement * getCharWidth() + 2 * getCharWidth() + getSideDelta() * g_nBytesProLine);
@@ -1048,26 +1048,47 @@ void XHexView::registerShortcuts(bool bState)
 
 void XHexView::adjustHeader()
 {
-    if (getAddressMode() == LOCMODE_ADDRESS) {
-        setColumnTitle(COLUMN_ADDRESS, tr("Address"));
-    } else if ((getAddressMode() == LOCMODE_OFFSET) || (getAddressMode() == LOCMODE_THIS)) {
-        setColumnTitle(COLUMN_ADDRESS, tr("Offset"));
+    if (getlocationMode() == LOCMODE_ADDRESS) {
+        setColumnTitle(COLUMN_LOCATION, tr("Address"));
+    } else if ((getlocationMode() == LOCMODE_OFFSET) || (getlocationMode() == LOCMODE_THIS)) {
+        setColumnTitle(COLUMN_LOCATION, tr("Offset"));
     }
 }
 
 void XHexView::_headerClicked(qint32 nColumn)
 {
-    if (nColumn == COLUMN_ADDRESS) {
-        // TODO Context Menu with
-        if (getAddressMode() == LOCMODE_ADDRESS) {
-            setColumnTitle(COLUMN_ADDRESS, tr("Offset"));
-            setAddressMode(LOCMODE_OFFSET);
-        } else if ((getAddressMode() == LOCMODE_OFFSET) || (getAddressMode() == LOCMODE_THIS)) {
-            setColumnTitle(COLUMN_ADDRESS, tr("Address"));
-            setAddressMode(LOCMODE_ADDRESS);
-        }
+    if (nColumn == COLUMN_LOCATION) {
+        // // TODO Context Menu with
+        // if (getAddressMode() == LOCMODE_ADDRESS) {
+        //     setColumnTitle(COLUMN_ADDRESS, tr("Offset"));
+        //     setAddressMode(LOCMODE_OFFSET);
+        // } else if ((getAddressMode() == LOCMODE_OFFSET) || (getAddressMode() == LOCMODE_THIS)) {
+        //     setColumnTitle(COLUMN_ADDRESS, tr("Address"));
+        //     setAddressMode(LOCMODE_ADDRESS);
+        // }
+        QMenu contextMenu(this);
 
-        adjust(true);
+        QMenu menuLocation(tr("Location"), this);
+
+        QAction actionAddress(QString("Address"), this);
+        actionAddress.setProperty("location", LOCMODE_ADDRESS);
+        actionAddress.setCheckable(true);
+        actionAddress.setChecked(getlocationMode() == LOCMODE_ADDRESS);
+        connect(&actionAddress, SIGNAL(triggered()), this, SLOT(changeLocationView()));
+        menuLocation.addAction(&actionAddress);
+
+        QAction actionOffset(QString("Offset"), this);
+        actionOffset.setProperty("location", LOCMODE_OFFSET);
+        actionOffset.setCheckable(true);
+        actionOffset.setChecked(getlocationMode() == LOCMODE_OFFSET);
+        connect(&actionOffset, SIGNAL(triggered()), this, SLOT(changeLocationView()));
+        menuLocation.addAction(&actionOffset);
+
+        contextMenu.addMenu(&menuLocation);
+
+        contextMenu.exec(QCursor::pos());
+
+        // adjust(true);
     } else if (nColumn == COLUMN_ELEMENTS) {
         QMenu contextMenu(this);
 
@@ -1077,7 +1098,7 @@ void XHexView::_headerClicked(qint32 nColumn)
         actionHex.setProperty("mode", MODE_BYTE);
         actionHex.setCheckable(true);
         actionHex.setChecked(g_mode == MODE_BYTE);
-        connect(&actionHex, SIGNAL(triggered()), this, SLOT(changeMode()));
+        connect(&actionHex, SIGNAL(triggered()), this, SLOT(changeModeView()));
         menuMode.addAction(&actionHex);
 
         menuMode.addSeparator();
@@ -1086,14 +1107,14 @@ void XHexView::_headerClicked(qint32 nColumn)
         actionUint8.setProperty("mode", MODE_UINT8);
         actionUint8.setCheckable(true);
         actionUint8.setChecked(g_mode == MODE_UINT8);
-        connect(&actionUint8, SIGNAL(triggered()), this, SLOT(changeMode()));
+        connect(&actionUint8, SIGNAL(triggered()), this, SLOT(changeModeView()));
         menuMode.addAction(&actionUint8);
 
         QAction actionInt8(QString("int8"), this);
         actionInt8.setProperty("mode", MODE_INT8);
         actionInt8.setCheckable(true);
         actionInt8.setChecked(g_mode == MODE_INT8);
-        connect(&actionInt8, SIGNAL(triggered()), this, SLOT(changeMode()));
+        connect(&actionInt8, SIGNAL(triggered()), this, SLOT(changeModeView()));
         menuMode.addAction(&actionInt8);
 
         QMenu menuWidth(tr("Width"), this);
@@ -1132,9 +1153,9 @@ void XHexView::_headerClicked(qint32 nColumn)
 
 void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
 {
-    if (nColumn == COLUMN_ADDRESS) {
-        setColumnTitle(COLUMN_ADDRESS, "");
-        setAddressMode(LOCMODE_THIS);
+    if (nColumn == COLUMN_LOCATION) {
+        setColumnTitle(COLUMN_LOCATION, "");
+        setLocationMode(LOCMODE_THIS);
 
         if (nRow < g_listLocationRecords.count()) {
             g_nThisBase = g_listLocationRecords.at(nRow).nLocation;
@@ -1393,7 +1414,7 @@ void XHexView::changeWidth()
     }
 }
 
-void XHexView::changeMode()
+void XHexView::changeModeView()
 {
     QAction *pAction = qobject_cast<QAction *>(sender());
 

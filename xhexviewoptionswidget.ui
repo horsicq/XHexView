@@ -60,7 +60,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QCheckBox" name="checkBoxHexAddressColon">
+        <widget class="QCheckBox" name="checkBoxHexLocationColon">
          <property name="text">
           <string>Show colons in addresses</string>
          </property>

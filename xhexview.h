@@ -81,12 +81,12 @@ public:
 
 private:
     enum COLUMN {
-        COLUMN_ADDRESS = 0,
+        COLUMN_LOCATION = 0,
         COLUMN_ELEMENTS,
         COLUMN_SYMBOLS
     };
 
-    struct LOCATIONRECORD {
+    struct LOCATIONRECORD { // TODO move
         QString sLocation;
         quint64 nLocation;
     };
@@ -136,7 +136,7 @@ private slots:
     void _mainHexSlot();
     void _setCodePage(const QString &sCodePage);
     void changeWidth();
-    void changeMode();
+    void changeModeView();
     void _setMode(MODE mode);
 
 signals:
@@ -159,7 +159,7 @@ private:
     qint32 g_nAddressWidth;
     qint64 g_nThisBase;
     //    SMODE g_smode;
-    bool g_bIsAddressColon;
+    bool g_bIsLocationColon;
 
     QString g_sCodePage;
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
