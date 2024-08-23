@@ -76,7 +76,7 @@ public:
     void setData(QIODevice *pDevice, const OPTIONS &options, bool bReload);
     void goToAddress(XADDR nAddress);
     void goToOffset(qint64 nOffset);
-    XADDR getStartAddress();
+    XADDR getStartAddress(); // TODO Check mb remove
     XADDR getSelectionInitAddress();
 
 private:
@@ -118,8 +118,8 @@ protected:
     virtual void contextMenu(const QPoint &pos);
     virtual void wheelEvent(QWheelEvent *pEvent);
     virtual void keyPressEvent(QKeyEvent *pEvent);
-    virtual qint64 getCurrentViewOffsetFromScroll();
-    virtual void setCurrentViewOffsetToScroll(qint64 nOffset);
+    virtual qint64 getCurrentViewPosFromScroll();
+    virtual void setCurrentViewPosToScroll(qint64 nOffset);
     virtual void adjustColumns();
     virtual void registerShortcuts(bool bState);
     virtual void adjustHeader();

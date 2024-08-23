@@ -196,7 +196,7 @@ void XHexViewWidget::adjust()
 {
     // XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
 
-    // //    QString sCursor = XBinary::valueToHex(state.nCursorViewOffset);
+    // //    QString sCursor = XBinary::valueToHex(state.nCursorViewPos);
     // QString sSelectionStart = XBinary::valueToHex(deviceState.nSelectionDeviceOffset);
     // QString sSelectionSize = XBinary::valueToHex(deviceState.nSelectionSize);
 
