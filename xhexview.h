@@ -76,7 +76,7 @@ public:
     void setData(QIODevice *pDevice, const OPTIONS &options, bool bReload);
     void goToAddress(XADDR nAddress);
     void goToOffset(qint64 nOffset);
-    XADDR getStartAddress(); // TODO Check mb remove
+    XADDR getStartAddress();  // TODO Check mb remove
     XADDR getSelectionInitAddress();
 
 private:
@@ -86,7 +86,7 @@ private:
         COLUMN_SYMBOLS
     };
 
-    struct LOCATIONRECORD { // TODO move
+    struct LOCATIONRECORD {  // TODO move
         QString sLocation;
         quint64 nLocation;
     };

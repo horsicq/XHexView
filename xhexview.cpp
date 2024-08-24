@@ -29,9 +29,9 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     //    g_smode=SMODE_ANSI;  // TODO Set/Get
     g_nThisBase = 0;
     g_hexOptions = {};
-    g_nAddressWidth = 8;        // TODO Set/Get
+    g_nAddressWidth = 8;         // TODO Set/Get
     g_bIsLocationColon = false;  // TODO Check
-                                //    g_nPieceSize=1; // TODO
+                                 //    g_nPieceSize=1; // TODO
     memset(g_shortCuts, 0, sizeof g_shortCuts);
 
     addColumn(tr("Address"), 0, true);
