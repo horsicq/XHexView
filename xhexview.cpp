@@ -167,7 +167,7 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(const XAbstractTableView::CU
         //        qDebug("getCharWidth() %x",getCharWidth());
         //        qDebug("nOffset %x",osResult.nOffset);
     } else if ((cursorPosition.bIsValid) && (cursorPosition.ptype == PT_MAP)) {
-        osResult.nViewPos = XBinary::align_down((getViewSize() * cursorPosition.nProcent) / getMapCount(), g_nBytesProLine);
+        osResult.nViewPos = XBinary::align_down((getViewSize() * cursorPosition.nPercentage) / getMapCount(), g_nBytesProLine);
         osResult.nSize = 0;
     }
     return osResult;
