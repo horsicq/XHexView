@@ -605,256 +605,197 @@ void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint
 
 void XHexView::contextMenu(const QPoint &pos)
 {
-    // TODO multisearch
-
     if (isContextMenuEnable()) {
-        QAction actionDataInspector(tr("Data inspector"), this);
-        actionDataInspector.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATAINSPECTOR));
-        connect(&actionDataInspector, SIGNAL(triggered()), this, SLOT(_showDataInspector()));
-        if (getViewWidgetState(VIEWWIDGET_DATAINSPECTOR)) {
-            actionDataInspector.setCheckable(true);
-            actionDataInspector.setChecked(true);
+        STATE menuState = getState();
+
+        // TODO string from XShortcuts
+        QMenu contextMenu(this);
+
+        QAction actionDataInspector(this);
+        QAction actionDataConvertor(this);
+
+        if (menuState.nSelectionViewSize) {
+            getShortcuts()->adjustAction(&contextMenu, &actionDataInspector, X_ID_HEX_DATAINSPECTOR, this, SLOT(_showDataInspector()));
+            getShortcuts()->adjustAction(&contextMenu, &actionDataConvertor, X_ID_HEX_DATACONVERTOR, this, SLOT(_showDataConvertor()));
+
+            if (getViewWidgetState(VIEWWIDGET_DATAINSPECTOR)) {
+                actionDataInspector.setCheckable(true);
+                actionDataInspector.setChecked(true);
+            }
+
+            if (getViewWidgetState(VIEWWIDGET_DATACONVERTOR)) {
+                actionDataConvertor.setCheckable(true);
+                actionDataConvertor.setChecked(true);
+            }
+
+            contextMenu.addSeparator();
         }
 
-        QAction actionDataConvertor(tr("Data convertor"), this);
-        actionDataConvertor.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATACONVERTOR));
-        connect(&actionDataConvertor, SIGNAL(triggered()), this, SLOT(_showDataConvertor()));
-        if (getViewWidgetState(VIEWWIDGET_DATACONVERTOR)) {
-            actionDataConvertor.setCheckable(true);
-            actionDataConvertor.setChecked(true);
+        QMenu menuGoTo(this);
+        QMenu menuGoToSelection(this);
+        QAction actionGoToOffset(this);
+        QAction actionGoToAddress(this);
+        QAction actionGoToSelectionStart(this);
+        QAction actionGoToSelectionEnd(this);
+
+        {
+            getShortcuts()->adjustAction(&menuGoTo, &actionGoToOffset, X_ID_HEX_GOTO_OFFSET, this, SLOT(_goToOffsetSlot()));
+            getShortcuts()->adjustAction(&menuGoTo, &actionGoToAddress, X_ID_HEX_GOTO_ADDRESS, this, SLOT(_goToAddressSlot()));
+
+            getShortcuts()->adjustAction(&menuGoToSelection, &actionGoToSelectionStart, X_ID_HEX_GOTO_SELECTION_START, this, SLOT(_goToSelectionStart()));
+            getShortcuts()->adjustAction(&menuGoToSelection, &actionGoToSelectionEnd, X_ID_HEX_GOTO_SELECTION_END, this, SLOT(_goToSelectionEnd()));
+
+            getShortcuts()->adjustMenu(&contextMenu, &menuGoTo, XShortcuts::GROUPID_GOTO);
+            getShortcuts()->adjustMenu(&menuGoTo, &menuGoToSelection, XShortcuts::GROUPID_SELECTION);
         }
 
-        QAction actionMultisearch(tr("Multisearch"), this);
-        actionMultisearch.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_MULTISEARCH));
-        connect(&actionMultisearch, SIGNAL(triggered()), this, SLOT(_showMultisearch()));
+        QAction actionMultisearch(this);
+
+        getShortcuts()->adjustAction(&contextMenu, &actionMultisearch, X_ID_HEX_MULTISEARCH, this, SLOT(_showMultisearch()));
+
         if (getViewWidgetState(VIEWWIDGET_MULTISEARCH)) {
             actionMultisearch.setCheckable(true);
             actionMultisearch.setChecked(true);
         }
 
-        QAction actionGoToOffset(tr("Offset"), this);
-        actionGoToOffset.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET));
-        connect(&actionGoToOffset, SIGNAL(triggered()), this, SLOT(_goToOffsetSlot()));
+        QAction actionDumpToFile(this);
 
-        QAction actionGoToAddress(tr("Address"), this);
-        actionGoToAddress.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS));
-        connect(&actionGoToAddress, SIGNAL(triggered()), this, SLOT(_goToAddressSlot()));
+        if (menuState.nSelectionViewSize) {
+            getShortcuts()->adjustAction(&contextMenu, &actionDumpToFile, X_ID_HEX_DUMPTOFILE, this, SLOT(_dumpToFileSlot()));
+        }
 
-        QAction actionGoToSelectionStart(tr("Start"), this);
-        actionGoToSelectionStart.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_SELECTION_START));
-        connect(&actionGoToSelectionStart, SIGNAL(triggered()), this, SLOT(_goToSelectionStart()));
+        QAction actionSignature(this);
 
-        QAction actionGoToSelectionEnd(tr("End"), this);
-        actionGoToSelectionEnd.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_SELECTION_END));
-        connect(&actionGoToSelectionEnd, SIGNAL(triggered()), this, SLOT(_goToSelectionEnd()));
+        if (menuState.nSelectionViewSize) {
+            getShortcuts()->adjustAction(&contextMenu, &actionSignature, X_ID_HEX_SIGNATURE, this, SLOT(_hexSignatureSlot()));
+        }
 
-        QAction actionDumpToFile(tr("Dump to file"), this);
-        actionDumpToFile.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_DUMPTOFILE));
-        connect(&actionDumpToFile, SIGNAL(triggered()), this, SLOT(_dumpToFileSlot()));
+        QMenu menuFind(this);
+        QAction actionFindString(this);
+        QAction actionFindSignature(this);
+        QAction actionFindValue(this);
+        QAction actionFindNext(this);
 
-        QAction actionSignature(tr("Signature"), this);
-        actionSignature.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_SIGNATURE));
-        connect(&actionSignature, SIGNAL(triggered()), this, SLOT(_hexSignatureSlot()));
+        {
+            getShortcuts()->adjustAction(&menuFind, &actionFindString, X_ID_HEX_FIND_STRING, this, SLOT(_findStringSlot()));
+            getShortcuts()->adjustAction(&menuFind, &actionFindSignature, X_ID_HEX_FIND_SIGNATURE, this, SLOT(_findSignatureSlot()));
+            getShortcuts()->adjustAction(&menuFind, &actionFindValue, X_ID_HEX_FIND_VALUE, this, SLOT(_findValueSlot()));
+            getShortcuts()->adjustAction(&menuFind, &actionFindNext, X_ID_HEX_FIND_NEXT, this, SLOT(_findNextSlot()));
 
-        QAction actionFindString(tr("String"), this);
-        actionFindString.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_FIND_STRING));
-        connect(&actionFindString, SIGNAL(triggered()), this, SLOT(_findStringSlot()));
+            getShortcuts()->adjustMenu(&contextMenu, &menuFind, XShortcuts::GROUPID_FIND);
+        }
 
-        QAction actionFindSignature(tr("Signature"), this);
-        actionFindSignature.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_FIND_SIGNATURE));
-        connect(&actionFindSignature, SIGNAL(triggered()), this, SLOT(_findSignatureSlot()));
+        QMenu menuSelect(this);
+        QAction actionSelectAll(this);
 
-        QAction actionFindValue(tr("Value"), this);
-        actionFindValue.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_FIND_VALUE));
-        connect(&actionFindValue, SIGNAL(triggered()), this, SLOT(_findValueSlot()));
+        {
+            getShortcuts()->adjustAction(&menuSelect, &actionSelectAll, X_ID_HEX_SELECT_ALL, this, SLOT(_selectAllSlot()));
 
-        QAction actionFindNext(tr("Find next"), this);
-        actionFindNext.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_FIND_NEXT));
-        connect(&actionFindNext, SIGNAL(triggered()), this, SLOT(_findNextSlot()));
+            getShortcuts()->adjustMenu(&contextMenu, &menuSelect, XShortcuts::GROUPID_SELECT);
+        }
 
-        QAction actionSelectAll(tr("Select all"), this);
-        actionSelectAll.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_SELECT_ALL));
-        connect(&actionSelectAll, SIGNAL(triggered()), this, SLOT(_selectAllSlot()));
+        QMenu menuCopy(this);
+        QAction actionCopyData(this);
+        QAction actionCopyCursorOffset(this);
+        QAction actionCopyCursorAddress(this);
 
-        QAction actionCopyData(tr("Data"), this);
-        actionCopyData.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_DATA));
-        connect(&actionCopyData, SIGNAL(triggered()), this, SLOT(_copyDataSlot()));
+        {
+            getShortcuts()->adjustAction(&menuCopy, &actionCopyCursorOffset, X_ID_HEX_COPY_OFFSET, this, SLOT(_copyOffsetSlot()));
+            getShortcuts()->adjustAction(&menuCopy, &actionCopyCursorAddress, X_ID_HEX_COPY_ADDRESS, this, SLOT(_copyAddressSlot()));
+            menuCopy.addSeparator();
+            getShortcuts()->adjustAction(&menuCopy, &actionCopyData, X_ID_HEX_COPY_DATA, this, SLOT(_copyDataSlot()));
 
-        QAction actionCopyCursorOffset(tr("Offset"), this);
-        actionCopyCursorOffset.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_OFFSET));
-        connect(&actionCopyCursorOffset, SIGNAL(triggered()), this, SLOT(_copyOffsetSlot()));
+            getShortcuts()->adjustMenu(&contextMenu, &menuCopy, XShortcuts::GROUPID_COPY);
+        }
 
-        QAction actionCopyCursorAddress(tr("Address"), this);
-        actionCopyCursorAddress.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_ADDRESS));
-        connect(&actionCopyCursorAddress, SIGNAL(triggered()), this, SLOT(_copyAddressSlot()));
+        QMenu menuFollowIn(this);
+        QAction actionDisasm(this);
+        QAction actionMemoryMap(this);
+        QAction actionMainHex(this);
 
-        QAction actionDisasm(tr("Disasm"), this);
-        actionDisasm.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_DISASM));
-        connect(&actionDisasm, SIGNAL(triggered()), this, SLOT(_disasmSlot()));
+        if ((g_hexOptions.bMenu_Disasm) || (g_hexOptions.bMenu_MemoryMap) || (g_hexOptions.bMenu_MainHex)) {
+            if (g_hexOptions.bMenu_Disasm) {
+                getShortcuts()->adjustAction(&menuFollowIn, &actionDisasm, X_ID_HEX_FOLLOWIN_DISASM, this, SLOT(_disasmSlot()));
+            }
 
-        QAction actionMemoryMap(tr("Memory map"), this);
-        actionMemoryMap.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_MEMORYMAP));
-        connect(&actionMemoryMap, SIGNAL(triggered()), this, SLOT(_memoryMapSlot()));
+            if (g_hexOptions.bMenu_MemoryMap) {
+                getShortcuts()->adjustAction(&menuFollowIn, &actionMemoryMap, X_ID_HEX_FOLLOWIN_MEMORYMAP, this, SLOT(_memoryMapSlot()));
+            }
 
-        QAction actionMainHex(tr("Hex"), this);
-        actionMainHex.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_HEX));
-        connect(&actionMainHex, SIGNAL(triggered()), this, SLOT(_mainHexSlot()));
+            if (g_hexOptions.bMenu_MainHex) {
+                getShortcuts()->adjustAction(&menuFollowIn, &actionMainHex, X_ID_HEX_FOLLOWIN_HEX, this, SLOT(_mainHexSlot()));
+            }
 
-        QAction actionEditHex(tr("Hex"), this);
-        actionEditHex.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_HEX));
-        connect(&actionEditHex, SIGNAL(triggered()), this, SLOT(_editHex()));
+            getShortcuts()->adjustMenu(&contextMenu, &menuFollowIn, XShortcuts::GROUPID_FOLLOWIN);
+        }
 
-        QAction actionEditPatch(tr("Patch"), this);
-        actionEditPatch.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_PATCH));
-        connect(&actionEditPatch, SIGNAL(triggered()), this, SLOT(_editPatch()));
+        QMenu menuEdit(this);
+        QAction actionEditHex(this);
+        QAction actionEditPatch(this);
+        QAction actionEditRemove(this);
+        QAction actionEditResize(this);
 
-        QAction actionEditRemove(tr("Remove"), this);
-        actionEditRemove.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_REMOVE));
-        connect(&actionEditRemove, SIGNAL(triggered()), this, SLOT(_editRemove()));
+        {
+            getShortcuts()->adjustMenu(&contextMenu, &menuEdit, XShortcuts::GROUPID_EDIT);
 
-        QAction actionEditResize(tr("Resize"), this);
-        actionEditResize.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_RESIZE));
-        connect(&actionEditResize, SIGNAL(triggered()), this, SLOT(_editResize()));
+            if (isReadonly()) {
+                menuEdit.setEnabled(false);
+            } else {
+                if (menuState.nSelectionViewSize) {
+                    getShortcuts()->adjustAction(&menuEdit, &actionEditHex, X_ID_HEX_EDIT_HEX, this, SLOT(_editHex()));
+                }
+
+                getShortcuts()->adjustAction(&menuEdit, &actionEditPatch, X_ID_HEX_EDIT_PATCH, this, SLOT(_editPatch()));
+
+                if (XBinary::isResizeEnable(getDevice())) {
+                    menuEdit.addSeparator();
+                    getShortcuts()->adjustAction(&menuEdit, &actionEditRemove, X_ID_HEX_EDIT_REMOVE, this, SLOT(_editRemove()));
+                    getShortcuts()->adjustAction(&menuEdit, &actionEditResize, X_ID_HEX_EDIT_RESIZE, this, SLOT(_editResize()));
+                }
+            }
+        }
+
 #ifdef QT_SQL_LIB
-        QAction actionBookmarkNew(tr("New"), this);
-        actionBookmarkNew.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_BOOKMARKS_NEW));
-        connect(&actionBookmarkNew, SIGNAL(triggered()), this, SLOT(_bookmarkNew()));
+        QMenu menuBookmarks(this);
+        QAction actionBookmarkNew(this);
+        QAction actionBookmarkList(this);
 
-        QAction actionBookmarkList(tr("List"), this);
-        actionBookmarkList.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_BOOKMARKS_LIST));
-        connect(&actionBookmarkList, SIGNAL(triggered()), this, SLOT(_bookmarkList()));
-        if (getViewWidgetState(VIEWWIDGET_BOOKMARKS)) {
-            actionBookmarkList.setCheckable(true);
-            actionBookmarkList.setChecked(true);
+        if (getXInfoDB()) {
+            getShortcuts()->adjustMenu(&contextMenu, &menuBookmarks, XShortcuts::GROUPID_BOOKMARKS);
+
+            getShortcuts()->adjustAction(&menuBookmarks, &actionBookmarkNew, X_ID_HEX_BOOKMARKS_NEW, this, SLOT(_bookmarkNew()));
+            getShortcuts()->adjustAction(&menuBookmarks, &actionBookmarkList, X_ID_HEX_BOOKMARKS_LIST, this, SLOT(_bookmarkList()));
+
+            if (getViewWidgetState(VIEWWIDGET_BOOKMARKS)) {
+                actionBookmarkList.setCheckable(true);
+                actionBookmarkList.setChecked(true);
+            }
         }
 #endif
-        QAction actionStrings(tr("Strings"), this);
-        actionStrings.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_STRINGS));
-        connect(&actionStrings, SIGNAL(triggered()), this, SLOT(_strings()));
+        QAction actionStrings(this);
+        getShortcuts()->adjustAction(&contextMenu, &actionStrings, X_ID_HEX_STRINGS, this, SLOT(_strings()));
+
         if (getViewWidgetState(VIEWWIDGET_STRINGS)) {
             actionStrings.setCheckable(true);
             actionStrings.setChecked(true);
         }
 
-        QAction actionVisualization(tr("Visualization"), this);
-        actionVisualization.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_STRINGS));
-        connect(&actionVisualization, SIGNAL(triggered()), this, SLOT(_visualization()));
+        QAction actionVisualization(this);
+        getShortcuts()->adjustAction(&contextMenu, &actionVisualization, X_ID_HEX_VISUALIZATION, this, SLOT(_visualization()));
+
         if (getViewWidgetState(VIEWWIDGET_VISUALIZATION)) {
             actionVisualization.setCheckable(true);
             actionVisualization.setChecked(true);
         }
 #if defined(QT_SCRIPT_LIB) || defined(QT_QML_LIB)
-        QAction actionScripts(tr("Scripts"), this);
-        actionScripts.setShortcut(getShortcuts()->getShortcut(X_ID_HEX_SCRIPTS));
-        connect(&actionScripts, SIGNAL(triggered()), this, SLOT(_scripts()));
+        QAction actionScripts(this);
+        getShortcuts()->adjustAction(&contextMenu, &actionScripts, X_ID_HEX_SCRIPTS, this, SLOT(_scripts()));
         if (getViewWidgetState(VIEWWIDGET_SCRIPTS)) {
             actionScripts.setCheckable(true);
             actionScripts.setChecked(true);
         }
 #endif
-
-        STATE menuState = getState();
-
-        // TODO string from XShortcuts
-        QMenu contextMenu(this);
-        QMenu menuGoTo(tr("Go to"), this);
-        QMenu menuGoToSelection(tr("Selection"), this);
-        QMenu menuFind(tr("Find"), this);
-        QMenu menuSelect(tr("Select"), this);
-        QMenu menuCopy(tr("Copy"), this);
-        QMenu menuFollowIn(tr("Follow in"), this);
-        QMenu menuEdit(tr("Edit"), this);
-
-#ifdef QT_SQL_LIB
-        QMenu menuBookmarks(tr("Bookmarks"), this);
-#endif
-        contextMenu.addAction(&actionDataInspector);
-
-        if (menuState.nSelectionViewSize) {
-            contextMenu.addAction(&actionDataConvertor);
-        }
-
-        contextMenu.addSeparator();
-
-        menuGoTo.addAction(&actionGoToOffset);
-        menuGoTo.addAction(&actionGoToAddress);
-        menuGoTo.addMenu(&menuGoToSelection);
-        menuGoToSelection.addAction(&actionGoToSelectionStart);
-        menuGoToSelection.addAction(&actionGoToSelectionEnd);
-
-        contextMenu.addMenu(&menuGoTo);
-
-        menuFind.addAction(&actionFindString);
-        menuFind.addAction(&actionFindSignature);
-        menuFind.addAction(&actionFindValue);
-        menuFind.addAction(&actionFindNext);
-
-        contextMenu.addMenu(&menuFind);
-
-        contextMenu.addAction(&actionMultisearch);
-
-        menuCopy.addAction(&actionCopyCursorOffset);
-        menuCopy.addAction(&actionCopyCursorAddress);
-
-        if (menuState.nSelectionViewSize) {
-            contextMenu.addAction(&actionDumpToFile);
-            contextMenu.addAction(&actionSignature);
-
-            menuCopy.addSeparator();
-            menuCopy.addAction(&actionCopyData);
-        }
-
-        contextMenu.addMenu(&menuCopy);
-
-        if (g_hexOptions.bMenu_Disasm) {
-            menuFollowIn.addAction(&actionDisasm);
-        }
-
-        if (g_hexOptions.bMenu_MemoryMap) {
-            menuFollowIn.addAction(&actionMemoryMap);
-        }
-
-        if (g_hexOptions.bMenu_MainHex) {
-            menuFollowIn.addAction(&actionMainHex);
-        }
-
-        if ((g_hexOptions.bMenu_Disasm) || (g_hexOptions.bMenu_MemoryMap)) {
-            contextMenu.addMenu(&menuFollowIn);
-        }
-
-#ifdef QT_SQL_LIB
-        if (getXInfoDB()) {
-            menuBookmarks.addAction(&actionBookmarkNew);
-            menuBookmarks.addAction(&actionBookmarkList);
-            contextMenu.addMenu(&menuBookmarks);
-        }
-#endif
-        contextMenu.addAction(&actionStrings);
-        contextMenu.addAction(&actionVisualization);
-#if defined(QT_SCRIPT_LIB) || defined(QT_QML_LIB)
-        contextMenu.addAction(&actionScripts);
-#endif
-        menuEdit.setEnabled(!isReadonly());
-
-        if (menuState.nSelectionViewSize) {
-            menuEdit.addAction(&actionEditHex);
-        }
-
-        menuEdit.addAction(&actionEditPatch);
-
-        if (XBinary::isResizeEnable(getDevice())) {
-            menuEdit.addSeparator();
-            menuEdit.addAction(&actionEditRemove);
-            menuEdit.addAction(&actionEditResize);
-        }
-
-        contextMenu.addMenu(&menuEdit);
-
-        menuSelect.addAction(&actionSelectAll);
-        contextMenu.addMenu(&menuSelect);
-
         // TODO reset select
-
         contextMenu.exec(pos);
     }
 }
