@@ -71,8 +71,8 @@ private slots:
     void viewWidgetsState();
     void on_checkBoxReadonly_toggled(bool bChecked);
     //    void valueChangedSlot(quint64 nValue);
-    void on_pushButtonDataInspector_clicked();
-    void on_pushButtonStrings_clicked();
+    void on_toolButtonDataInspector_clicked();
+    void on_toolButtonStrings_clicked();
     void on_comboBoxType_currentIndexChanged(int nIndex);
 
 signals:

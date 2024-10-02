@@ -32,36 +32,23 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QGroupBox" name="groupBoxType">
+      <widget class="QComboBox" name="comboBoxType">
        <property name="minimumSize">
         <size>
-         <width>240</width>
+         <width>120</width>
          <height>0</height>
         </size>
        </property>
-       <property name="title">
-        <string>Type</string>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxMapMode">
+       <property name="minimumSize">
+        <size>
+         <width>120</width>
+         <height>0</height>
+        </size>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <property name="leftMargin">
-         <number>2</number>
-        </property>
-        <property name="topMargin">
-         <number>2</number>
-        </property>
-        <property name="rightMargin">
-         <number>2</number>
-        </property>
-        <property name="bottomMargin">
-         <number>2</number>
-        </property>
-        <item>
-         <widget class="QComboBox" name="comboBoxType"/>
-        </item>
-        <item>
-         <widget class="QComboBox" name="comboBoxMapMode"/>
-        </item>
-       </layout>
       </widget>
      </item>
      <item>
@@ -78,7 +65,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonDataInspector">
+      <widget class="QToolButton" name="toolButtonDataInspector">
        <property name="text">
         <string>Data inspector</string>
        </property>
@@ -91,7 +78,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonStrings">
+      <widget class="QToolButton" name="toolButtonStrings">
        <property name="text">
         <string>Strings</string>
        </property>

@@ -26,6 +26,15 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 {
     ui->setupUi(this);
 
+    XOptions::adjustToolButton(ui->toolButtonDataInspector, XOptions::ICONTYPE_DATAINSPECTOR);
+    XOptions::adjustToolButton(ui->toolButtonStrings, XOptions::ICONTYPE_STRING);
+
+    ui->toolButtonDataInspector->setToolTip(tr("Data inspector"));
+    ui->toolButtonStrings->setToolTip(tr("Strings"));
+    ui->checkBoxReadonly->setText(tr("Readonly"));
+    ui->comboBoxType->setToolTip(tr("Type"));
+    ui->comboBoxMapMode->setToolTip(tr("Mode"));
+
     g_pDevice = nullptr;
     g_options = {};
 
@@ -211,10 +220,10 @@ void XHexViewWidget::viewWidgetsState()
 {
     // ui->pushButtonBookmarks->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_BOOKMARKS));
     // ui->pushButtonDataConverter->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_DATACONVERTOR));
-    ui->pushButtonDataInspector->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_DATAINSPECTOR));
+    ui->toolButtonDataInspector->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_DATAINSPECTOR));
     // ui->pushButtonMultiSearch->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_MULTISEARCH));
     // ui->pushButtonScripts->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_SCRIPTS));
-    ui->pushButtonStrings->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_STRINGS));
+    ui->toolButtonStrings->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_STRINGS));
     // ui->pushButtonVisualization->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_VISUALIZATION));
 }
 
@@ -238,13 +247,13 @@ void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
 //    setValue(nValue, nStype);
 //}
 
-void XHexViewWidget::on_pushButtonDataInspector_clicked()
+void XHexViewWidget::on_toolButtonDataInspector_clicked()
 {
     // TODO set Readonly
     ui->scrollAreaHex->_showDataInspector();
 }
 
-void XHexViewWidget::on_pushButtonStrings_clicked()
+void XHexViewWidget::on_toolButtonStrings_clicked()
 {
     ui->scrollAreaHex->_strings();
 }
