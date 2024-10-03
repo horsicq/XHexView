@@ -640,9 +640,7 @@ void XHexView::contextMenu(const QPoint &pos)
 
         {
             getShortcuts()->adjustAction(&menuGoTo, &actionGoToOffset, X_ID_HEX_GOTO_OFFSET, this, SLOT(_goToOffsetSlot()));
-            //actionGoToOffset.setProperty("OFFSET", menuState.nDeviceOffset);
             getShortcuts()->adjustAction(&menuGoTo, &actionGoToAddress, X_ID_HEX_GOTO_ADDRESS, this, SLOT(_goToAddressSlot()));
-            //actionGoToAddress.setProperty("ADDRESS", menuState.nDeviceOffset);
 
             getShortcuts()->adjustAction(&menuGoToSelection, &actionGoToSelectionStart, X_ID_HEX_GOTO_SELECTION_START, this, SLOT(_goToSelectionStart()));
             getShortcuts()->adjustAction(&menuGoToSelection, &actionGoToSelectionEnd, X_ID_HEX_GOTO_SELECTION_END, this, SLOT(_goToSelectionEnd()));
