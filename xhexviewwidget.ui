@@ -110,60 +110,19 @@
     </layout>
    </item>
    <item>
-    <widget class="QSplitter" name="splitter">
+    <widget class="XHexView" name="scrollAreaHex" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
      </property>
-     <widget class="QGroupBox" name="groupBoxHex">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="title">
-       <string>Hex</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <property name="leftMargin">
-        <number>2</number>
-       </property>
-       <property name="topMargin">
-        <number>2</number>
-       </property>
-       <property name="rightMargin">
-        <number>2</number>
-       </property>
-       <property name="bottomMargin">
-        <number>2</number>
-       </property>
-       <item>
-        <widget class="XHexView" name="scrollAreaHex" native="true">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::StrongFocus</enum>
-         </property>
-         <property name="widgetResizable" stdset="0">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
+     <property name="widgetResizable" stdset="0">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
   </layout>
@@ -176,9 +135,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <tabstops>
-  <tabstop>scrollAreaHex</tabstop>
- </tabstops>
  <resources/>
  <connections/>
 </ui>
