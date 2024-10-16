@@ -292,23 +292,39 @@ void XHexView::paintMap(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nW
 {
     pPainter->save();
 
-    // QString sKey = "Map";
+    QString sKey = "Map_0_0";
+    sKey += QString("_%1").arg(nWidth);
+    sKey += QString("_%1").arg(nHeight);
 
-    // sKey += QString("_%1").arg(0);
-    // sKey += QString("_%1").arg(0);
-    // sKey += QString("_%1").arg(nWidth);
-    // sKey += QString("_%1").arg(nHeight);
+    QPixmap _pixmap(0, 0);
 
-    // QPixmap _pixmap(0, 0);
+    if (g_pixmapCache.find(sKey, &_pixmap)) {
+        //        if (false) {
+        pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
+    } else {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+        qreal ratio = QPaintDevice::devicePixelRatioF();
+#else
+        qreal ratio = QPaintDevice::devicePixelRatio();
+#endif
+        qint32 nPartCount = qMin(nHeight, (qint32)nHeight);
+        qint32 nPartSize = getDevice()->size() / nPartCount;
 
-    // if (g_pixmapCache.find(sKey, &_pixmap)) {
-    //     //        if (false) {
-    //     pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
-    // } else {
+        XBinary::_MEMORY_MAP *pMemoryMap = getMemoryMap();
 
-    // }
-    pPainter->setPen(viewport()->palette().color(QPalette::Dark));
-    pPainter->fillRect(nLeft, nTop, nWidth, nHeight, QBrush(Qt::green));
+        // TODO memoryMap tooltips
+
+        QPixmap pixmap(nWidth * ratio, nHeight * ratio);
+        pixmap.setDevicePixelRatio(ratio);
+        pixmap.fill(Qt::transparent);
+
+        QPainter painterPixmap(&pixmap);
+        painterPixmap.fillRect(0, 0, nWidth, nHeight, QBrush(Qt::darkYellow));
+
+        g_pixmapCache.insert(sKey, pixmap);
+
+        pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, pixmap);
+    }
 
     pPainter->restore();
 }
