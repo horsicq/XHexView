@@ -288,6 +288,31 @@ void XHexView::updateData()
     }
 }
 
+void XHexView::paintMap(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
+{
+    pPainter->save();
+
+    // QString sKey = "Map";
+
+    // sKey += QString("_%1").arg(0);
+    // sKey += QString("_%1").arg(0);
+    // sKey += QString("_%1").arg(nWidth);
+    // sKey += QString("_%1").arg(nHeight);
+
+    // QPixmap _pixmap(0, 0);
+
+    // if (g_pixmapCache.find(sKey, &_pixmap)) {
+    //     //        if (false) {
+    //     pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
+    // } else {
+
+    // }
+    pPainter->setPen(viewport()->palette().color(QPalette::Dark));
+    pPainter->fillRect(nLeft, nTop, nWidth, nHeight, QBrush(Qt::green));
+
+    pPainter->restore();
+}
+
 void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
 {
     // #ifdef QT_DEBUG
@@ -449,9 +474,9 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
     QString sKey;
 
     if (nColumn == COLUMN_LOCATION) {
-        sKey = QString("address");
+        sKey = QString("location");
     } else if (nColumn == COLUMN_ELEMENTS) {
-        sKey = QString("hex");
+        sKey = QString("elements");
     } else if (nColumn == COLUMN_SYMBOLS) {
         sKey = QString("symbols");
     }
@@ -465,7 +490,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
         QPixmap _pixmap(0, 0);
 
         if (g_pixmapCache.find(sKey, &_pixmap)) {
-            //        if (false) {
+            // qDebug("g_pixmapCache");
             pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
         } else {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)

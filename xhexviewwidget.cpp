@@ -26,7 +26,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 {
     ui->setupUi(this);
 
-    XOptions::adjustToolButton(ui->toolButtonDataInspector, XOptions::ICONTYPE_DATAINSPECTOR);
+    XOptions::adjustToolButton(ui->toolButtonDataInspector, XOptions::ICONTYPE_DATA);
     XOptions::adjustToolButton(ui->toolButtonStrings, XOptions::ICONTYPE_STRING);
 
     ui->toolButtonDataInspector->setToolTip(tr("Data inspector"));
