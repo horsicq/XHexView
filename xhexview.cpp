@@ -307,10 +307,10 @@ void XHexView::paintMap(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nW
 #else
         qreal ratio = QPaintDevice::devicePixelRatio();
 #endif
-        qint32 nPartCount = qMin(nHeight, (qint32)nHeight);
-        qint32 nPartSize = getDevice()->size() / nPartCount;
+        // qint32 nPartCount = qMin(nHeight, (qint32)nHeight);
+        // qint32 nPartSize = getDevice()->size() / nPartCount;
 
-        XBinary::_MEMORY_MAP *pMemoryMap = getMemoryMap();
+        // XBinary::_MEMORY_MAP *pMemoryMap = getMemoryMap();
 
         // TODO memoryMap tooltips
 
