@@ -319,7 +319,7 @@ void XHexView::paintMap(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nW
         pixmap.fill(Qt::transparent);
 
         QPainter painterPixmap(&pixmap);
-        painterPixmap.fillRect(0, 0, nWidth, nHeight, QBrush(Qt::darkYellow));
+        // painterPixmap.fillRect(0, 0, nWidth, nHeight, QBrush(Qt::darkYellow));
 
         g_pixmapCache.insert(sKey, pixmap);
 
@@ -650,7 +650,7 @@ void XHexView::contextMenu(const QPoint &pos)
         STATE menuState = getState();
 
         // TODO string from XShortcuts
-        QMenu contextMenu(this);
+        QMenu contextMenu(this); // TODO
 
         QAction actionDataInspector(this);
         QAction actionDataConvertor(this);
@@ -1048,7 +1048,7 @@ void XHexView::_headerClicked(qint32 nColumn)
         //     setColumnTitle(COLUMN_ADDRESS, tr("Address"));
         //     setAddressMode(LOCMODE_ADDRESS);
         // }
-        QMenu contextMenu(this);
+        QMenu contextMenu(this); // TODO
 
         QMenu menuLocation(tr("Location"), this);
 
@@ -1072,7 +1072,7 @@ void XHexView::_headerClicked(qint32 nColumn)
 
         // adjust(true);
     } else if (nColumn == COLUMN_ELEMENTS) {
-        QMenu contextMenu(this);
+        QMenu contextMenu(this); // TODO
 
         QMenu menuMode(tr("Mode"), this);
 
