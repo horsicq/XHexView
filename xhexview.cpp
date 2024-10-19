@@ -650,7 +650,7 @@ void XHexView::contextMenu(const QPoint &pos)
         STATE menuState = getState();
 
         // TODO string from XShortcuts
-        QMenu contextMenu(this); // TODO
+        QMenu contextMenu(this);  // TODO
 
         QAction actionDataInspector(this);
         QAction actionDataConvertor(this);
@@ -1048,7 +1048,7 @@ void XHexView::_headerClicked(qint32 nColumn)
         //     setColumnTitle(COLUMN_ADDRESS, tr("Address"));
         //     setAddressMode(LOCMODE_ADDRESS);
         // }
-        QMenu contextMenu(this); // TODO
+        QMenu contextMenu(this);  // TODO
 
         QMenu menuLocation(tr("Location"), this);
 
@@ -1072,7 +1072,7 @@ void XHexView::_headerClicked(qint32 nColumn)
 
         // adjust(true);
     } else if (nColumn == COLUMN_ELEMENTS) {
-        QMenu contextMenu(this); // TODO
+        QMenu contextMenu(this);  // TODO
 
         QMenu menuMode(tr("Mode"), this);
 
