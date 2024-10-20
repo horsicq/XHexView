@@ -1210,27 +1210,85 @@ QList<QChar> XHexView::getStringBuffer(QByteArray *pbaData)
         //    #endif
 
         if (g_pCodec) {
-            QString _sResult = g_pCodec->toUnicode(*pbaData);
-            QVector<uint> vecSymbols = _sResult.toUcs4();
-            qint32 _nSize = vecSymbols.size();
+            QTextCodec::ConverterState converterState = {};
+            QString _sResult = g_pCodec->toUnicode(pbaData->data(), nSize, &converterState);
 
-            for (qint32 i = 0; i < nSize; i++) {
-                QChar _char;
-                if (i < _nSize) {
-                    _char = _sResult.at(i);
+            qint32 nStringSize = _sResult.size();
 
-                    if (!_char.isPrint()) {
-                        _char = '.';
-                    }
-                } else {
-                    _char = QChar(' ');
+            nStringSize = qMin(nStringSize, nSize);
+
+            for (qint32 i = 0; i < nStringSize; i++) {
+                QChar _char = _sResult.at(i);
+
+                QTextCodec::ConverterState _converterState = {};
+
+                QByteArray _baData = g_pCodec->fromUnicode(&_char, 1, &_converterState);
+
+                if (!_char.isPrint()) {
+                    _char = '.';
                 }
 
-                // if (_char < QChar(0x20)) {
-                //     _char = '.';
-                // }
                 listResult.append(_char);
+
+                qint32 _nSize = _baData.size();
+
+                if (_nSize == 8) {
+                    quint8 nFirst = _baData.at(0);
+                    quint8 nSecond = _baData.at(1);
+                    quint8 nThird = _baData.at(2);
+                    quint8 nFourth = _baData.at(3);
+
+                    if ((nFirst == 0xFF) && (nSecond == 0xFE) && (nThird == 0x00) && (nFourth == 0x00)) {
+                        _baData = _baData.remove(0, 4);
+                        _nSize = _baData.size();
+                    } else if ((nFirst == 0x00) && (nSecond == 0x00) && (nThird == 0xFE) && (nFourth == 0xFF)) {
+                        _baData = _baData.remove(0, 4);
+                        _nSize = _baData.size();
+                    }
+                } else if (_nSize >= 4) {
+                    quint8 nFirst = _baData.at(0);
+                    quint8 nSecond = _baData.at(1);
+                    quint8 nThird = _baData.at(2);
+
+                    if ((nFirst == 0xFF) && (nSecond == 0xFE)) {
+                        _baData = _baData.remove(0, 2);
+                        _nSize = _baData.size();
+                    } else if ((nFirst == 0xFE) && (nSecond == 0xFF)) {
+                        _baData = _baData.remove(0, 2);
+                        _nSize = _baData.size();
+                    } else if ((nFirst == 0xEF) && (nSecond == 0xBB) && (nThird == 0xBF)) {
+                        _baData = _baData.remove(0, 3);
+                        _nSize = _baData.size();
+                    }
+                }
+
+                if (_nSize > 1) {
+                    for (qint32 j = 0; j < _nSize - 1; j++) {
+                        listResult.append(QChar(' '));
+                    }
+                }
             }
+
+            // QVector<uint> vecSymbols = _sResult.toUcs4();
+            // qint32 _nSize = vecSymbols.size();
+
+            // for (qint32 i = 0; i < nSize; i++) {
+            //     QChar _char;
+            //     if (i < _nSize) {
+            //         _char = _sResult.at(i);
+
+            //         if (!_char.isPrint()) {
+            //             _char = '.';
+            //         }
+            //     } else {
+            //         _char = QChar(' ');
+            //     }
+
+            //     // if (_char < QChar(0x20)) {
+            //     //     _char = '.';
+            //     // }
+            //     listResult.append(_char);
+            // }
 
             //            if (_nSize == nSize) {  // TODO Check
             //                for (qint32 i = 0; i < nSize; i++) {
