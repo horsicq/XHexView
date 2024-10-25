@@ -652,25 +652,24 @@ void XHexView::contextMenu(const QPoint &pos)
         // TODO string from XShortcuts
         QMenu contextMenu(this);  // TODO
 
-        QAction actionDataInspector(this);
-        QAction actionDataConvertor(this);
+        QList<XShortcuts::MENUITEM> listMenuItems;
 
         if (menuState.nSelectionViewSize) {
-            getShortcuts()->adjustAction(&contextMenu, &actionDataInspector, X_ID_HEX_DATAINSPECTOR, this, SLOT(_showDataInspector()));
-            getShortcuts()->adjustAction(&contextMenu, &actionDataConvertor, X_ID_HEX_DATACONVERTOR, this, SLOT(_showDataConvertor()));
-
-            if (getViewWidgetState(VIEWWIDGET_DATAINSPECTOR)) {
-                actionDataInspector.setCheckable(true);
-                actionDataInspector.setChecked(true);
-            }
-
-            if (getViewWidgetState(VIEWWIDGET_DATACONVERTOR)) {
-                actionDataConvertor.setCheckable(true);
-                actionDataConvertor.setChecked(true);
-            }
-
-            contextMenu.addSeparator();
+            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATAINSPECTOR, this, SLOT(_showDataInspector()), XShortcuts::GROUPID_NONE, getViewWidgetState(VIEWWIDGET_DATAINSPECTOR));
+            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATACONVERTOR, this, SLOT(_showDataConvertor()), XShortcuts::GROUPID_NONE, getViewWidgetState(VIEWWIDGET_DATACONVERTOR));
+            getShortcuts()->_addMenuSeparator(&listMenuItems);
         }
+
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_OFFSET, this, SLOT(_goToOffsetSlot()), XShortcuts::GROUPID_GOTO);
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_ADDRESS, this, SLOT(_goToAddressSlot()), XShortcuts::GROUPID_GOTO);
+
+        QList<QObject *> listObjects = getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
+
+        contextMenu.exec(pos);
+
+        XOptions::deleteQObjectList(&listObjects);
+
+        return;
 
         QMenu menuGoTo(this);
         QMenu menuGoToSelection(this);
