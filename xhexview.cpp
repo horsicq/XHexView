@@ -657,11 +657,35 @@ void XHexView::contextMenu(const QPoint &pos)
         if (menuState.nSelectionViewSize) {
             getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATAINSPECTOR, this, SLOT(_showDataInspector()), XShortcuts::GROUPID_NONE, getViewWidgetState(VIEWWIDGET_DATAINSPECTOR));
             getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATACONVERTOR, this, SLOT(_showDataConvertor()), XShortcuts::GROUPID_NONE, getViewWidgetState(VIEWWIDGET_DATACONVERTOR));
-            getShortcuts()->_addMenuSeparator(&listMenuItems);
+            getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_NONE);
         }
 
         getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_OFFSET, this, SLOT(_goToOffsetSlot()), XShortcuts::GROUPID_GOTO);
         getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_ADDRESS, this, SLOT(_goToAddressSlot()), XShortcuts::GROUPID_GOTO);
+
+        if (menuState.nSelectionViewSize) {
+            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_SELECTION_START, this, SLOT(_goToSelectionStart()), (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
+            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_SELECTION_END, this, SLOT(_goToSelectionEnd()), (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
+        }
+
+        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_MULTISEARCH, this, SLOT(_showMultisearch()), XShortcuts::GROUPID_NONE, getViewWidgetState(VIEWWIDGET_MULTISEARCH));
+
+        if (menuState.nSelectionViewSize) {
+            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_DUMPTOFILE, this, SLOT(_dumpToFileSlot()), XShortcuts::GROUPID_NONE);
+            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_SIGNATURE, this, SLOT(_hexSignatureSlot()), XShortcuts::GROUPID_NONE);
+        }
+
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FIND_STRING, this, SLOT(_findStringSlot()), XShortcuts::GROUPID_FIND);
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FIND_SIGNATURE, this, SLOT(_findSignatureSlot()), XShortcuts::GROUPID_FIND);
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FIND_VALUE, this, SLOT(_findValueSlot()), XShortcuts::GROUPID_FIND);
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FIND_NEXT, this, SLOT(_findNextSlot()), XShortcuts::GROUPID_FIND);
+
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_SELECT_ALL, this, SLOT(_selectAllSlot()), XShortcuts::GROUPID_SELECT);
+
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_COPY_OFFSET, this, SLOT(_copyOffsetSlot()), XShortcuts::GROUPID_COPY);
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_COPY_ADDRESS, this, SLOT(_copyAddressSlot()), XShortcuts::GROUPID_COPY);
+        getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_COPY);
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_COPY_DATA, this, SLOT(_copyDataSlot()), XShortcuts::GROUPID_COPY);
 
         QList<QObject *> listObjects = getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
 
@@ -670,83 +694,6 @@ void XHexView::contextMenu(const QPoint &pos)
         XOptions::deleteQObjectList(&listObjects);
 
         return;
-
-        QMenu menuGoTo(this);
-        QMenu menuGoToSelection(this);
-        QAction actionGoToOffset(this);
-        QAction actionGoToAddress(this);
-        QAction actionGoToSelectionStart(this);
-        QAction actionGoToSelectionEnd(this);
-
-        {
-            getShortcuts()->adjustAction(&menuGoTo, &actionGoToOffset, X_ID_HEX_GOTO_OFFSET, this, SLOT(_goToOffsetSlot()));
-            getShortcuts()->adjustAction(&menuGoTo, &actionGoToAddress, X_ID_HEX_GOTO_ADDRESS, this, SLOT(_goToAddressSlot()));
-
-            getShortcuts()->adjustAction(&menuGoToSelection, &actionGoToSelectionStart, X_ID_HEX_GOTO_SELECTION_START, this, SLOT(_goToSelectionStart()));
-            getShortcuts()->adjustAction(&menuGoToSelection, &actionGoToSelectionEnd, X_ID_HEX_GOTO_SELECTION_END, this, SLOT(_goToSelectionEnd()));
-
-            getShortcuts()->adjustMenu(&contextMenu, &menuGoTo, XShortcuts::GROUPID_GOTO);
-            getShortcuts()->adjustMenu(&menuGoTo, &menuGoToSelection, XShortcuts::GROUPID_SELECTION);
-        }
-
-        QAction actionMultisearch(this);
-
-        getShortcuts()->adjustAction(&contextMenu, &actionMultisearch, X_ID_HEX_MULTISEARCH, this, SLOT(_showMultisearch()));
-
-        if (getViewWidgetState(VIEWWIDGET_MULTISEARCH)) {
-            actionMultisearch.setCheckable(true);
-            actionMultisearch.setChecked(true);
-        }
-
-        QAction actionDumpToFile(this);
-
-        if (menuState.nSelectionViewSize) {
-            getShortcuts()->adjustAction(&contextMenu, &actionDumpToFile, X_ID_HEX_DUMPTOFILE, this, SLOT(_dumpToFileSlot()));
-        }
-
-        QAction actionSignature(this);
-
-        if (menuState.nSelectionViewSize) {
-            getShortcuts()->adjustAction(&contextMenu, &actionSignature, X_ID_HEX_SIGNATURE, this, SLOT(_hexSignatureSlot()));
-        }
-
-        QMenu menuFind(this);
-        QAction actionFindString(this);
-        QAction actionFindSignature(this);
-        QAction actionFindValue(this);
-        QAction actionFindNext(this);
-
-        {
-            getShortcuts()->adjustAction(&menuFind, &actionFindString, X_ID_HEX_FIND_STRING, this, SLOT(_findStringSlot()));
-            getShortcuts()->adjustAction(&menuFind, &actionFindSignature, X_ID_HEX_FIND_SIGNATURE, this, SLOT(_findSignatureSlot()));
-            getShortcuts()->adjustAction(&menuFind, &actionFindValue, X_ID_HEX_FIND_VALUE, this, SLOT(_findValueSlot()));
-            getShortcuts()->adjustAction(&menuFind, &actionFindNext, X_ID_HEX_FIND_NEXT, this, SLOT(_findNextSlot()));
-
-            getShortcuts()->adjustMenu(&contextMenu, &menuFind, XShortcuts::GROUPID_FIND);
-        }
-
-        QMenu menuSelect(this);
-        QAction actionSelectAll(this);
-
-        {
-            getShortcuts()->adjustAction(&menuSelect, &actionSelectAll, X_ID_HEX_SELECT_ALL, this, SLOT(_selectAllSlot()));
-
-            getShortcuts()->adjustMenu(&contextMenu, &menuSelect, XShortcuts::GROUPID_SELECT);
-        }
-
-        QMenu menuCopy(this);
-        QAction actionCopyData(this);
-        QAction actionCopyCursorOffset(this);
-        QAction actionCopyCursorAddress(this);
-
-        {
-            getShortcuts()->adjustAction(&menuCopy, &actionCopyCursorOffset, X_ID_HEX_COPY_OFFSET, this, SLOT(_copyOffsetSlot()));
-            getShortcuts()->adjustAction(&menuCopy, &actionCopyCursorAddress, X_ID_HEX_COPY_ADDRESS, this, SLOT(_copyAddressSlot()));
-            menuCopy.addSeparator();
-            getShortcuts()->adjustAction(&menuCopy, &actionCopyData, X_ID_HEX_COPY_DATA, this, SLOT(_copyDataSlot()));
-
-            getShortcuts()->adjustMenu(&contextMenu, &menuCopy, XShortcuts::GROUPID_COPY);
-        }
 
         QMenu menuFollowIn(this);
         QAction actionDisasm(this);
