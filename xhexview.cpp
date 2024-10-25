@@ -655,8 +655,10 @@ void XHexView::contextMenu(const QPoint &pos)
         QList<XShortcuts::MENUITEM> listMenuItems;
 
         if (menuState.nSelectionViewSize) {
-            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATAINSPECTOR, this, SLOT(_showDataInspector()), XShortcuts::GROUPID_NONE, getViewWidgetState(VIEWWIDGET_DATAINSPECTOR));
-            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATACONVERTOR, this, SLOT(_showDataConvertor()), XShortcuts::GROUPID_NONE, getViewWidgetState(VIEWWIDGET_DATACONVERTOR));
+            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATAINSPECTOR, this, SLOT(_showDataInspector()), XShortcuts::GROUPID_NONE,
+                                                 getViewWidgetState(VIEWWIDGET_DATAINSPECTOR));
+            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATACONVERTOR, this, SLOT(_showDataConvertor()), XShortcuts::GROUPID_NONE,
+                                                 getViewWidgetState(VIEWWIDGET_DATACONVERTOR));
             getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_NONE);
         }
 
@@ -664,11 +666,14 @@ void XHexView::contextMenu(const QPoint &pos)
         getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_ADDRESS, this, SLOT(_goToAddressSlot()), XShortcuts::GROUPID_GOTO);
 
         if (menuState.nSelectionViewSize) {
-            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_SELECTION_START, this, SLOT(_goToSelectionStart()), (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
-            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_SELECTION_END, this, SLOT(_goToSelectionEnd()), (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
+            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_SELECTION_START, this, SLOT(_goToSelectionStart()),
+                                         (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
+            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_SELECTION_END, this, SLOT(_goToSelectionEnd()),
+                                         (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
         }
 
-        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_MULTISEARCH, this, SLOT(_showMultisearch()), XShortcuts::GROUPID_NONE, getViewWidgetState(VIEWWIDGET_MULTISEARCH));
+        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_MULTISEARCH, this, SLOT(_showMultisearch()), XShortcuts::GROUPID_NONE,
+                                             getViewWidgetState(VIEWWIDGET_MULTISEARCH));
 
         if (menuState.nSelectionViewSize) {
             getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_DUMPTOFILE, this, SLOT(_dumpToFileSlot()), XShortcuts::GROUPID_NONE);
