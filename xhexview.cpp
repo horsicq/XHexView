@@ -692,6 +692,18 @@ void XHexView::contextMenu(const QPoint &pos)
         getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_COPY);
         getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_COPY_DATA, this, SLOT(_copyDataSlot()), XShortcuts::GROUPID_COPY);
 
+        if (g_hexOptions.bMenu_Disasm) {
+            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FOLLOWIN_DISASM, this, SLOT(_disasmSlot()), XShortcuts::GROUPID_FOLLOWIN);
+        }
+
+        if (g_hexOptions.bMenu_MemoryMap) {
+            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FOLLOWIN_MEMORYMAP, this, SLOT(_memoryMapSlot()), XShortcuts::GROUPID_FOLLOWIN);
+        }
+
+        if (g_hexOptions.bMenu_MainHex) {
+            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FOLLOWIN_HEX, this, SLOT(_mainHexSlot()), XShortcuts::GROUPID_FOLLOWIN);
+        }
+
         QList<QObject *> listObjects = getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
 
         contextMenu.exec(pos);
@@ -699,27 +711,6 @@ void XHexView::contextMenu(const QPoint &pos)
         XOptions::deleteQObjectList(&listObjects);
 
         return;
-
-        QMenu menuFollowIn(this);
-        QAction actionDisasm(this);
-        QAction actionMemoryMap(this);
-        QAction actionMainHex(this);
-
-        if ((g_hexOptions.bMenu_Disasm) || (g_hexOptions.bMenu_MemoryMap) || (g_hexOptions.bMenu_MainHex)) {
-            if (g_hexOptions.bMenu_Disasm) {
-                getShortcuts()->adjustAction(&menuFollowIn, &actionDisasm, X_ID_HEX_FOLLOWIN_DISASM, this, SLOT(_disasmSlot()));
-            }
-
-            if (g_hexOptions.bMenu_MemoryMap) {
-                getShortcuts()->adjustAction(&menuFollowIn, &actionMemoryMap, X_ID_HEX_FOLLOWIN_MEMORYMAP, this, SLOT(_memoryMapSlot()));
-            }
-
-            if (g_hexOptions.bMenu_MainHex) {
-                getShortcuts()->adjustAction(&menuFollowIn, &actionMainHex, X_ID_HEX_FOLLOWIN_HEX, this, SLOT(_mainHexSlot()));
-            }
-
-            getShortcuts()->adjustMenu(&contextMenu, &menuFollowIn, XShortcuts::GROUPID_FOLLOWIN);
-        }
 
         QMenu menuEdit(this);
         QAction actionEditHex(this);
