@@ -49,6 +49,8 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 
     setReadonlyVisible(false);
     setReadonly(true);
+
+    ui->checkBoxValueAsHex->setChecked(true);
 }
 
 XHexViewWidget::~XHexViewWidget()
@@ -147,6 +149,11 @@ void XHexViewWidget::adjustView()
 {
 }
 
+void XHexViewWidget::setWidgetFocus()
+{
+    ui->scrollAreaHex->setFocus();
+}
+
 void XHexViewWidget::reloadFileType()
 {
     if (g_pDevice) {
@@ -203,17 +210,27 @@ void XHexViewWidget::reloadFileType()
 
 void XHexViewWidget::adjust()
 {
-    // XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
+    XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
 
-    // //    QString sCursor = XBinary::valueToHex(state.nCursorViewPos);
-    // QString sSelectionStart = XBinary::valueToHex(deviceState.nSelectionDeviceOffset);
-    // QString sSelectionSize = XBinary::valueToHex(deviceState.nSelectionSize);
+    bool bIsHEX = ui->checkBoxValueAsHex->isChecked();
 
-    // QString sSelection;
+    QString sSelectionStart;
+    QString sSelectionEnd;
+    QString sSelectionSize;
 
-    // sSelection = QString("%1:%2 %3:%4").arg(tr("Selection"), sSelectionStart, tr("Size"), sSelectionSize);
+    if (bIsHEX) {
+        sSelectionStart = "0x" + XBinary::valueToHexEx(deviceState.nSelectionDeviceOffset);
+        sSelectionEnd = "0x" + XBinary::valueToHexEx(deviceState.nSelectionDeviceOffset + deviceState.nSelectionSize);
+        sSelectionSize = "0x" + XBinary::valueToHexEx(deviceState.nSelectionSize);
+    } else {
+        sSelectionStart = QString::number(deviceState.nSelectionDeviceOffset);
+        sSelectionEnd = QString::number(deviceState.nSelectionDeviceOffset + deviceState.nSelectionSize);
+        sSelectionSize = QString::number(deviceState.nSelectionSize);
+    }
 
-    // ui->labelSelectionStatus->setText(sSelection);
+    QString sSelection = QString("%1 - %2 : %3").arg(sSelectionStart, sSelectionEnd, sSelectionSize);
+
+    ui->lineEditStatus->setText(sSelection);
 }
 
 void XHexViewWidget::viewWidgetsState()
@@ -267,3 +284,11 @@ void XHexViewWidget::on_comboBoxType_currentIndexChanged(int nIndex)
 
     reloadFileType();
 }
+
+void XHexViewWidget::on_checkBoxValueAsHex_stateChanged(int nArg)
+{
+    Q_UNUSED(nArg)
+
+    adjust();
+}
+

@@ -63,6 +63,7 @@ public:
     virtual void adjustView();
     //    void blockSignals(bool bState);
     //    void addValue(QString sTitle, DATAINS datains, LIED lied);
+    void setWidgetFocus();
 private:
     void reloadFileType();
 
@@ -74,6 +75,7 @@ private slots:
     void on_toolButtonDataInspector_clicked();
     void on_toolButtonStrings_clicked();
     void on_comboBoxType_currentIndexChanged(int nIndex);
+    void on_checkBoxValueAsHex_stateChanged(int nArg);
 
 signals:
     void dataChanged(qint64 nDeviceOffset, qint64 nDeviceSize);

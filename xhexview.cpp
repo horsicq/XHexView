@@ -692,6 +692,16 @@ void XHexView::contextMenu(const QPoint &pos)
         getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_COPY);
         getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_COPY_DATA, this, SLOT(_copyDataSlot()), XShortcuts::GROUPID_COPY);
 
+        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_STRINGS, this, SLOT(_strings()), XShortcuts::GROUPID_NONE,
+                                             getViewWidgetState(VIEWWIDGET_STRINGS));
+        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_VISUALIZATION, this, SLOT(_visualization()), XShortcuts::GROUPID_NONE,
+                                             getViewWidgetState(VIEWWIDGET_VISUALIZATION));
+
+#ifdef QT_SQL_LIB
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_BOOKMARKS_NEW, this, SLOT(_bookmarkNew()), XShortcuts::GROUPID_BOOKMARKS);
+        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_BOOKMARKS_LIST, this, SLOT(_bookmarkList()), XShortcuts::GROUPID_BOOKMARKS, getViewWidgetState(VIEWWIDGET_BOOKMARKS));
+#endif
+
         if (g_hexOptions.bMenu_Disasm) {
             getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FOLLOWIN_DISASM, this, SLOT(_disasmSlot()), XShortcuts::GROUPID_FOLLOWIN);
         }
@@ -704,6 +714,19 @@ void XHexView::contextMenu(const QPoint &pos)
             getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FOLLOWIN_HEX, this, SLOT(_mainHexSlot()), XShortcuts::GROUPID_FOLLOWIN);
         }
 
+        if (!isReadonly()) {
+            if (menuState.nSelectionViewSize) {
+                getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_EDIT_HEX, this, SLOT(_editHex()), XShortcuts::GROUPID_EDIT);
+            }
+            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_EDIT_PATCH, this, SLOT(_editPatch()), XShortcuts::GROUPID_EDIT);
+
+            if (XBinary::isResizeEnable(getDevice())) {
+                getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_EDIT);
+                getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_EDIT_REMOVE, this, SLOT(_editRemove()), XShortcuts::GROUPID_EDIT);
+                getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_EDIT_RESIZE, this, SLOT(_editResize()), XShortcuts::GROUPID_EDIT);
+            }
+        }
+
         QList<QObject *> listObjects = getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
 
         contextMenu.exec(pos);
@@ -712,64 +735,7 @@ void XHexView::contextMenu(const QPoint &pos)
 
         return;
 
-        QMenu menuEdit(this);
-        QAction actionEditHex(this);
-        QAction actionEditPatch(this);
-        QAction actionEditRemove(this);
-        QAction actionEditResize(this);
-
-        {
-            getShortcuts()->adjustMenu(&contextMenu, &menuEdit, XShortcuts::GROUPID_EDIT);
-
-            if (isReadonly()) {
-                menuEdit.setEnabled(false);
-            } else {
-                if (menuState.nSelectionViewSize) {
-                    getShortcuts()->adjustAction(&menuEdit, &actionEditHex, X_ID_HEX_EDIT_HEX, this, SLOT(_editHex()));
-                }
-
-                getShortcuts()->adjustAction(&menuEdit, &actionEditPatch, X_ID_HEX_EDIT_PATCH, this, SLOT(_editPatch()));
-
-                if (XBinary::isResizeEnable(getDevice())) {
-                    menuEdit.addSeparator();
-                    getShortcuts()->adjustAction(&menuEdit, &actionEditRemove, X_ID_HEX_EDIT_REMOVE, this, SLOT(_editRemove()));
-                    getShortcuts()->adjustAction(&menuEdit, &actionEditResize, X_ID_HEX_EDIT_RESIZE, this, SLOT(_editResize()));
-                }
-            }
-        }
-
-#ifdef QT_SQL_LIB
-        QMenu menuBookmarks(this);
-        QAction actionBookmarkNew(this);
-        QAction actionBookmarkList(this);
-
-        if (getXInfoDB()) {
-            getShortcuts()->adjustMenu(&contextMenu, &menuBookmarks, XShortcuts::GROUPID_BOOKMARKS);
-
-            getShortcuts()->adjustAction(&menuBookmarks, &actionBookmarkNew, X_ID_HEX_BOOKMARKS_NEW, this, SLOT(_bookmarkNew()));
-            getShortcuts()->adjustAction(&menuBookmarks, &actionBookmarkList, X_ID_HEX_BOOKMARKS_LIST, this, SLOT(_bookmarkList()));
-
-            if (getViewWidgetState(VIEWWIDGET_BOOKMARKS)) {
-                actionBookmarkList.setCheckable(true);
-                actionBookmarkList.setChecked(true);
-            }
-        }
-#endif
-        QAction actionStrings(this);
-        getShortcuts()->adjustAction(&contextMenu, &actionStrings, X_ID_HEX_STRINGS, this, SLOT(_strings()));
-
-        if (getViewWidgetState(VIEWWIDGET_STRINGS)) {
-            actionStrings.setCheckable(true);
-            actionStrings.setChecked(true);
-        }
-
-        QAction actionVisualization(this);
-        getShortcuts()->adjustAction(&contextMenu, &actionVisualization, X_ID_HEX_VISUALIZATION, this, SLOT(_visualization()));
-
-        if (getViewWidgetState(VIEWWIDGET_VISUALIZATION)) {
-            actionVisualization.setCheckable(true);
-            actionVisualization.setChecked(true);
-        }
+        // TODO
 #if defined(QT_SCRIPT_LIB) || defined(QT_QML_LIB)
         QAction actionScripts(this);
         getShortcuts()->adjustAction(&contextMenu, &actionScripts, X_ID_HEX_SCRIPTS, this, SLOT(_scripts()));
