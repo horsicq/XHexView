@@ -649,8 +649,7 @@ void XHexView::contextMenu(const QPoint &pos)
     if (isContextMenuEnable()) {
         STATE menuState = getState();
 
-        // TODO string from XShortcuts
-        QMenu contextMenu(this);  // TODO
+        QMenu contextMenu(this);
 
         QList<XShortcuts::MENUITEM> listMenuItems;
 
