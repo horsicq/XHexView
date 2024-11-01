@@ -691,14 +691,14 @@ void XHexView::contextMenu(const QPoint &pos)
         getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_COPY);
         getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_COPY_DATA, this, SLOT(_copyDataSlot()), XShortcuts::GROUPID_COPY);
 
-        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_STRINGS, this, SLOT(_strings()), XShortcuts::GROUPID_NONE,
-                                             getViewWidgetState(VIEWWIDGET_STRINGS));
+        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_STRINGS, this, SLOT(_strings()), XShortcuts::GROUPID_NONE, getViewWidgetState(VIEWWIDGET_STRINGS));
         getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_VISUALIZATION, this, SLOT(_visualization()), XShortcuts::GROUPID_NONE,
                                              getViewWidgetState(VIEWWIDGET_VISUALIZATION));
 
 #ifdef QT_SQL_LIB
         getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_BOOKMARKS_NEW, this, SLOT(_bookmarkNew()), XShortcuts::GROUPID_BOOKMARKS);
-        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_BOOKMARKS_LIST, this, SLOT(_bookmarkList()), XShortcuts::GROUPID_BOOKMARKS, getViewWidgetState(VIEWWIDGET_BOOKMARKS));
+        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_BOOKMARKS_LIST, this, SLOT(_bookmarkList()), XShortcuts::GROUPID_BOOKMARKS,
+                                             getViewWidgetState(VIEWWIDGET_BOOKMARKS));
 #endif
 
         if (g_hexOptions.bMenu_Disasm) {

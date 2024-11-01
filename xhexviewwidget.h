@@ -64,6 +64,7 @@ public:
     //    void blockSignals(bool bState);
     //    void addValue(QString sTitle, DATAINS datains, LIED lied);
     void setWidgetFocus();
+
 private:
     void reloadFileType();
 

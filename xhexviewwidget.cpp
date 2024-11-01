@@ -291,4 +291,3 @@ void XHexViewWidget::on_checkBoxValueAsHex_stateChanged(int nArg)
 
     adjust();
 }
-
