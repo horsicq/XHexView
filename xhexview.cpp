@@ -43,9 +43,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     // setBlinkingCursorEnable(false);
     g_sCodePage = "";
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
-
     g_pCodePageMenu = g_xCodePageOptions.createCodePagesMenu(this, true);
-
     connect(&g_xCodePageOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
 #endif
     setLocationMode(LOCMODE_OFFSET);
@@ -211,6 +209,7 @@ void XHexView::updateData()
 
         g_baDataBuffer = read_array(nDataBlockStartOffset, nDataBlockSize);
         QList<QChar> listElements = getStringBuffer(&g_baDataBuffer);
+        qint32 nNumberOfElements = listElements.count();
 
         g_nDataBlockSize = g_baDataBuffer.size();
 
@@ -261,7 +260,10 @@ void XHexView::updateData()
                     record.sElement = QString::number(XBinary::_read_int8(g_baDataBuffer.data() + i));
                 }
 
-                record.sSymbol = listElements.at(i);
+                if (i < nNumberOfElements) {
+                    record.sSymbol = listElements.at(i);
+                }
+
                 record.bIsBold = (g_baDataBuffer.at(i) != 0);  // TODO optimize !!! TODO Different rules
 
                 QList<HIGHLIGHTREGION> listHighLightRegions = getHighlightRegion(&g_listHighlightsRegion, nDataBlockStartOffset + i + nInitLocation, XBinary::LT_OFFSET);
@@ -957,25 +959,41 @@ void XHexView::_headerClicked(qint32 nColumn)
         // }
         QMenu contextMenu(this);  // TODO
 
-        QMenu menuLocation(tr("Location"), this);
+        QList<XShortcuts::MENUITEM> listMenuItems;
 
-        QAction actionAddress(QString("Address"), this);
-        actionAddress.setProperty("location", LOCMODE_ADDRESS);
-        actionAddress.setCheckable(true);
-        actionAddress.setChecked(getlocationMode() == LOCMODE_ADDRESS);
-        connect(&actionAddress, SIGNAL(triggered()), this, SLOT(changeLocationView()));
-        menuLocation.addAction(&actionAddress);
+        {
+            XShortcuts::MENUITEM menuItem = {};
+            menuItem.sText = tr("Address");
+            menuItem.pRecv = this;
+            menuItem.pMethod = SLOT(changeLocationView());
+            menuItem.nSubgroups = XShortcuts::GROUPID_LOCATION;
+            menuItem.bIsCheckable = true;
+            menuItem.bIsChecked = getlocationMode() == LOCMODE_ADDRESS;
+            menuItem.sPropertyName = "location";
+            menuItem.varProperty = LOCMODE_ADDRESS;
 
-        QAction actionOffset(QString("Offset"), this);
-        actionOffset.setProperty("location", LOCMODE_OFFSET);
-        actionOffset.setCheckable(true);
-        actionOffset.setChecked(getlocationMode() == LOCMODE_OFFSET);
-        connect(&actionOffset, SIGNAL(triggered()), this, SLOT(changeLocationView()));
-        menuLocation.addAction(&actionOffset);
+            listMenuItems.append(menuItem);
+        }
 
-        contextMenu.addMenu(&menuLocation);
+        {
+            XShortcuts::MENUITEM menuItem = {};
+            menuItem.sText = tr("Offset");
+            menuItem.pRecv = this;
+            menuItem.pMethod = SLOT(changeLocationView());
+            menuItem.nSubgroups = XShortcuts::GROUPID_LOCATION;
+            menuItem.bIsCheckable = true;
+            menuItem.bIsChecked = getlocationMode() == LOCMODE_OFFSET;
+            menuItem.sPropertyName = "location";
+            menuItem.varProperty = LOCMODE_OFFSET;
+
+            listMenuItems.append(menuItem);
+        }
+
+        QList<QObject *> listObjects = getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
 
         contextMenu.exec(QCursor::pos());
+
+        XOptions::deleteQObjectList(&listObjects);
 
         // adjust(true);
     } else if (nColumn == COLUMN_ELEMENTS) {
