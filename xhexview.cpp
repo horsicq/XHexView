@@ -458,7 +458,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                     bIsSelectedNext = isViewPosSelected(g_listShowRecords.at(i + 1).nViewPos);
                 }
 
-                QRect rectSymbol;
+                QRectF rectSymbol;
 
                 if (bIsSelected) {
                     if (nColumn == COLUMN_ELEMENTS) {
@@ -602,7 +602,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                 qint32 nNumberOfRows = g_listLocationRecords.count();
 
                 for (qint32 i = 0; i < nNumberOfRows; i++) {
-                    QRect rectSymbol;
+                    QRectF rectSymbol;
                     rectSymbol.setLeft(getCharWidth());
                     rectSymbol.setTop(getLineHeight() * i + getLineDelta());
                     rectSymbol.setWidth(nWidth);
@@ -626,7 +626,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                         bIsHighlightedNext = g_listShowRecords.at(i + 1).bIsHighlighted;
                     }
 
-                    QRect rectSymbol;
+                    QRectF rectSymbol;
 
                     if (nColumn == COLUMN_ELEMENTS) {
                         rectSymbol.setLeft(getCharWidth() + (record.nRowOffset * (g_nSymbolsProElement * getCharWidth() + getSideDelta())));
@@ -695,7 +695,7 @@ void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint
         for (qint8 i = 0; i < g_nBytesProLine; i++) {
             QString sSymbol = XBinary::valueToHex(i);
 
-            QRect rectSymbol;
+            QRectF rectSymbol;
 
             rectSymbol.setLeft(nLeft + getCharWidth() + (i * g_nSymbolsProElement) * getCharWidth() + i * getSideDelta());
             rectSymbol.setTop(nTop);
