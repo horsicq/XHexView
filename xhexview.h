@@ -27,6 +27,7 @@
 #include "dialoghexedit.h"
 #include "xdevicetableeditview.h"
 
+// TODO if cursor moved -> highlight location and header
 class XHexView : public XDeviceTableEditView {
     Q_OBJECT
 
@@ -91,7 +92,13 @@ private:
         quint64 nLocation;
     };
 
-    struct BYTERECORD {
+    struct SHOWRECORD {
+        qint32 nRow;
+        qint32 nViewPos;
+        qint32 nRowOffset;
+        qint32 nSize;
+        bool bFirstRowSymbol;
+        bool bLastRowSymbol;
         QString sElement;
         QString sSymbol;
         bool bIsBold;
@@ -102,12 +109,13 @@ private:
     };
 
     enum MODE {
-        MODE_BYTE = 0,
+        MODE_HEX = 0,
+        MODE_BYTE,
         MODE_UINT8,
         MODE_INT8
     };
 
-    QList<QChar> getStringBuffer(QByteArray *pbaData);  // TODO QList
+    SHOWRECORD _getShowRecordByOffset(qint64 nOffset);
 
 protected:
     virtual OS cursorPositionToOS(const CURSOR_POSITION &cursorPosition);
@@ -155,7 +163,7 @@ private:
     qint32 g_nViewStartDelta;
     QByteArray g_baDataBuffer;
     QList<LOCATIONRECORD> g_listLocationRecords;
-    QList<BYTERECORD> g_listByteRecords;
+    QList<SHOWRECORD> g_listShowRecords;
     QShortcut *g_shortCuts[__SC_SIZE];
     qint32 g_nAddressWidth;
     qint64 g_nThisBase;
