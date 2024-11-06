@@ -313,7 +313,17 @@ void XHexView::updateData()
                             for (int j = 0; j < nJmax; j++) {
                                 QTextCodec::ConverterState converterState = {};
                                 record.nSize = j + 1;
-                                record.sSymbol = g_pCodec->toUnicode(pData + i, record.nSize, &converterState);
+                                QString sString = g_pCodec->toUnicode(pData + i, record.nSize, &converterState);
+
+                                if (sString.size() > 0) {
+                                    QChar _char = sString.at(0);
+
+                                    if (!_char.isPrint()) {
+                                        _char = '.';
+                                    }
+
+                                    record.sSymbol = _char;
+                                }
 
                                 if (converterState.remainingChars == 0) {
                                     break;
