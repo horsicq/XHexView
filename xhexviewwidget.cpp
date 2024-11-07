@@ -29,7 +29,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     XOptions::adjustToolButton(ui->toolButtonDataInspector, XOptions::ICONTYPE_DATA);
     XOptions::adjustToolButton(ui->toolButtonStrings, XOptions::ICONTYPE_STRING);
 
-    ui->toolButtonDataInspector->setToolTip(tr("Data inspector"));
+    ui->toolButtonDataInspector->setToolTip(tr("Inspector"));
     ui->toolButtonStrings->setToolTip(tr("Strings"));
     ui->checkBoxReadonly->setText(tr("Readonly"));
     ui->comboBoxType->setToolTip(tr("Type"));

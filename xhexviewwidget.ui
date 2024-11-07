@@ -67,7 +67,7 @@
      <item>
       <widget class="QToolButton" name="toolButtonDataInspector">
        <property name="text">
-        <string>Data inspector</string>
+        <string>Inspector</string>
        </property>
        <property name="checkable">
         <bool>false</bool>

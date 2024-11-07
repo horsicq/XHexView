@@ -28,6 +28,7 @@
 #include "xdevicetableeditview.h"
 
 // TODO if cursor moved -> highlight location and header
+// TODO modes symbols/disasm/types
 class XHexView : public XDeviceTableEditView {
     Q_OBJECT
 
@@ -103,6 +104,7 @@ private:
         QString sSymbol;
         bool bIsBold;
         bool bIsHighlighted;
+        bool bIsSymbolError;
         QColor colBackground;
         QColor colBackgroundSelected;
         //        bool bIsSelected;
@@ -111,8 +113,17 @@ private:
     enum MODE {
         MODE_HEX = 0,
         MODE_BYTE,
+        MODE_WORD,
+        MODE_DWORD,
+        MODE_QWORD,
         MODE_UINT8,
-        MODE_INT8
+        MODE_INT8,
+        MODE_UINT16,
+        MODE_INT16,
+        MODE_UINT32,
+        MODE_INT32,
+        MODE_UINT64,
+        MODE_INT64,
     };
 
     SHOWRECORD _getShowRecordByOffset(qint64 nOffset);
@@ -155,6 +166,7 @@ signals:
 
 private:
     OPTIONS g_hexOptions;
+    qint32 g_nElementsProLine;
     qint32 g_nBytesProLine;
     qint32 g_nSymbolsProElement;
     MODE g_mode;
