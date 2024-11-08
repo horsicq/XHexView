@@ -96,7 +96,7 @@ private:
     struct SHOWRECORD {
         qint32 nRow;
         qint32 nViewPos;
-        qint32 nRowOffset;
+        qint32 nRowViewOffset;
         qint32 nSize;
         bool bFirstRowSymbol;
         bool bLastRowSymbol;
@@ -166,9 +166,10 @@ signals:
 
 private:
     OPTIONS g_hexOptions;
-    qint32 g_nElementsProLine;
     qint32 g_nBytesProLine;
-    qint32 g_nSymbolsProElement;
+    qint32 g_nPrintsProElement;
+    qint32 g_nElementByteSize;
+    qint32 g_nSymbolByteSize;
     MODE g_mode;
     qint32 g_nDataBlockSize;
     QList<HIGHLIGHTREGION> g_listHighlightsRegion;
