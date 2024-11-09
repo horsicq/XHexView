@@ -163,7 +163,8 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(const XAbstractTableView::CU
             //            osResult.nSize=g_nPieceSize;
             osResult.nSize = 1;
         } else if (cursorPosition.nColumn == COLUMN_ELEMENTS) {
-            osResult.nViewPos = nBlockOffset + ((cursorPosition.nAreaLeft - getSideDelta() - getCharWidth()) / (getCharWidth() * g_nPrintsProElement + getSideDelta())) * g_nElementByteSize;
+            osResult.nViewPos = nBlockOffset + ((cursorPosition.nAreaLeft - getSideDelta() - getCharWidth()) / (getCharWidth() * g_nPrintsProElement + getSideDelta())) *
+                                                   g_nElementByteSize;
             //            osResult.nSize=g_nPieceSize;
             osResult.nSize = 1;
         } else if (cursorPosition.nColumn == COLUMN_SYMBOLS) {
@@ -236,7 +237,6 @@ void XHexView::updateData()
         g_baDataBuffer = read_array(nDataBlockStartOffset, nDataBlockSize);
         // QList<QChar> listElements = getStringBuffer(&g_baDataBuffer);
 
-
         // qint32 nNumberOfElements = listElements.count();
 
         g_nDataBlockSize = g_baDataBuffer.size();
@@ -282,7 +282,7 @@ void XHexView::updateData()
             qint32 nMaxBytes = 1;
 
             if (g_mode == MODE_HEX) {
-                nMaxBytes = 8; // TODO compare with XBinary::getHexSize
+                nMaxBytes = 8;  // TODO compare with XBinary::getHexSize
             } else {
                 nMaxBytes = g_nElementByteSize;
             }
@@ -292,7 +292,7 @@ void XHexView::updateData()
             qint32 nRow = 0;
             bool bFirst = true;
 
-            for (qint32 i = 0; i < g_nDataBlockSize; ) {
+            for (qint32 i = 0; i < g_nDataBlockSize;) {
                 SHOWRECORD record = {};
 
                 record.nSize = g_nElementByteSize;
@@ -306,7 +306,7 @@ void XHexView::updateData()
                 }
 
                 if (g_sCodePage == "") {
-                    QChar _char = g_baDataBuffer.at(i); // TODO
+                    QChar _char = g_baDataBuffer.at(i);  // TODO
 
                     if (!_char.isPrint()) {
                         _char = '.';
@@ -657,7 +657,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                 QFont fontBold = painterPixmap.font();
                 fontBold.setBold(true);
 
-                qint32 nNumberOfShowRecords= g_listShowRecords.count();
+                qint32 nNumberOfShowRecords = g_listShowRecords.count();
 
                 for (int i = 0; i < nNumberOfShowRecords; i++) {
                     SHOWRECORD record = g_listShowRecords.at(i);
@@ -706,7 +706,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                     }
 
                     if (record.bIsSymbolError) {
-                        painterPixmap.fillRect(rectSymbol, QBrush(Qt::red)); // TODO
+                        painterPixmap.fillRect(rectSymbol, QBrush(Qt::red));  // TODO
                     } else if (bIsHighlighted) {
                         painterPixmap.fillRect(rectSymbol, record.colBackground);
                     }
@@ -739,7 +739,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
 void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight, const QString &sTitle)
 {
     if (nColumn == COLUMN_ELEMENTS) {
-        for (qint32 i = 0; i < g_nBytesProLine/ g_nElementByteSize; i++) {
+        for (qint32 i = 0; i < g_nBytesProLine / g_nElementByteSize; i++) {
             QString sSymbol = XBinary::valueToHex((quint8)(i * g_nElementByteSize));
 
             QRectF rectSymbol;
@@ -888,9 +888,9 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
         state.nSelectionViewSize = 1;
 
         if (pEvent->matches(QKeySequence::MoveToNextChar)) {
-            state.nSelectionViewPos+= g_nElementByteSize; // TODO fix UTF8
+            state.nSelectionViewPos += g_nElementByteSize;  // TODO fix UTF8
         } else if (pEvent->matches(QKeySequence::MoveToPreviousChar)) {
-            state.nSelectionViewPos-= g_nElementByteSize;
+            state.nSelectionViewPos -= g_nElementByteSize;
         } else if (pEvent->matches(QKeySequence::MoveToNextLine)) {
             state.nSelectionViewPos += g_nBytesProLine;
         } else if (pEvent->matches(QKeySequence::MoveToPreviousLine)) {
