@@ -243,9 +243,14 @@ void XHexView::updateData()
 
         if (g_nDataBlockSize) {
             QString sDataHexBuffer;
+            QString sANSI;
 
             if ((g_mode == MODE_HEX) || (g_mode == MODE_BYTE)) {
                 sDataHexBuffer = QByteArray(g_baDataBuffer.toHex());
+            }
+
+            if (g_sCodePage == "") {
+                sANSI = XBinary::dataToString(g_baDataBuffer, XBinary::DSMODE_NOPRINT_TO_DOT);
             }
 
             // Locations
@@ -306,13 +311,7 @@ void XHexView::updateData()
                 }
 
                 if (g_sCodePage == "") {
-                    QChar _char = g_baDataBuffer.at(i);  // TODO
-
-                    if (!_char.isPrint()) {
-                        _char = '.';
-                    }
-
-                    record.sSymbol = _char;
+                    record.sSymbol = sANSI.mid(i, g_nElementByteSize);
                 } else {
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
                     if (g_pCodec) {
@@ -323,16 +322,6 @@ void XHexView::updateData()
                             record.nSize = j;
                             record.sSymbol = g_pCodec->toUnicode(pData + i, record.nSize, &converterState);
                             record.bIsSymbolError = (converterState.remainingChars > 0);
-
-                            if (record.sSymbol.size() == 1) {
-                                QChar _char = record.sSymbol.at(0);
-
-                                if (!_char.isPrint()) {
-                                    _char = '.';
-                                }
-
-                                record.sSymbol = _char;
-                            }
 
                             if (converterState.remainingChars == 0) {
                                 break;
@@ -1321,7 +1310,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("8");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeWidth());
             menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (g_nBytesProLine == 8);
@@ -1335,7 +1324,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("16");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeWidth());
             menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (g_nBytesProLine == 16);
@@ -1347,14 +1336,56 @@ void XHexView::_headerClicked(qint32 nColumn)
 
         {
             XShortcuts::MENUITEM menuItem = {};
+            menuItem.sText = QString("24");
+            menuItem.pRecv = this;
+            menuItem.pMethod = SLOT(changeWidth());
+            menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
+            menuItem.bIsCheckable = true;
+            menuItem.bIsChecked = (g_nBytesProLine == 24);
+            menuItem.sPropertyName = "width";
+            menuItem.varProperty = 32;
+
+            listMenuItems.append(menuItem);
+        }
+
+        {
+            XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("32");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeWidth());
             menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (g_nBytesProLine == 32);
             menuItem.sPropertyName = "width";
             menuItem.varProperty = 32;
+
+            listMenuItems.append(menuItem);
+        }
+
+        {
+            XShortcuts::MENUITEM menuItem = {};
+            menuItem.sText = QString("48");
+            menuItem.pRecv = this;
+            menuItem.pMethod = SLOT(changeWidth());
+            menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
+            menuItem.bIsCheckable = true;
+            menuItem.bIsChecked = (g_nBytesProLine == 48);
+            menuItem.sPropertyName = "width";
+            menuItem.varProperty = 48;
+
+            listMenuItems.append(menuItem);
+        }
+
+        {
+            XShortcuts::MENUITEM menuItem = {};
+            menuItem.sText = QString("64");
+            menuItem.pRecv = this;
+            menuItem.pMethod = SLOT(changeWidth());
+            menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
+            menuItem.bIsCheckable = true;
+            menuItem.bIsChecked = (g_nBytesProLine == 64);
+            menuItem.sPropertyName = "width";
+            menuItem.varProperty = 64;
 
             listMenuItems.append(menuItem);
         }
