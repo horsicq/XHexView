@@ -278,9 +278,9 @@ void XHexView::updateData()
                         } else {
                             record.sLocation = XBinary::valueToHex(mode, nCurrentLocation);
                         }
-                    }
-                    else {
-                        record.sLocation = QString("%1").arg(nCurrentLocation, g_nAddressWidth, getLocationBase(), QChar('0'));;
+                    } else {
+                        record.sLocation = QString("%1").arg(nCurrentLocation, g_nAddressWidth, getLocationBase(), QChar('0'));
+                        ;
                     }
                 }
 
@@ -733,7 +733,8 @@ void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint
 {
     if (nColumn == COLUMN_ELEMENTS) {
         for (qint32 i = 0; i < g_nBytesProLine / g_nElementByteSize; i++) {
-            QString sSymbol = QString("%1").arg(i * g_nElementByteSize, 2, getLocationBase(), QChar('0'));;
+            QString sSymbol = QString("%1").arg(i * g_nElementByteSize, 2, getLocationBase(), QChar('0'));
+            ;
 
             QRectF rectSymbol;
 
