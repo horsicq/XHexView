@@ -76,7 +76,7 @@ private slots:
     void on_toolButtonDataInspector_clicked();
     void on_toolButtonStrings_clicked();
     void on_comboBoxType_currentIndexChanged(int nIndex);
-    void on_checkBoxValueAsHex_stateChanged(int nArg);
+    void on_comboBoxLocationBase_currentIndexChanged(int nIndex);
 
 signals:
     void dataChanged(qint64 nDeviceOffset, qint64 nDeviceSize);

@@ -34,6 +34,9 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     ui->checkBoxReadonly->setText(tr("Readonly"));
     ui->comboBoxType->setToolTip(tr("Type"));
     ui->comboBoxMapMode->setToolTip(tr("Mode"));
+    ui->comboBoxLocationBase->setToolTip(tr("Base"));
+
+    XFormats::setBaseComboBox(ui->comboBoxLocationBase, 10);
 
     g_pDevice = nullptr;
     g_options = {};
@@ -49,8 +52,6 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 
     setReadonlyVisible(false);
     setReadonly(true);
-
-    ui->checkBoxValueAsHex->setChecked(true);
 }
 
 XHexViewWidget::~XHexViewWidget()
@@ -212,7 +213,11 @@ void XHexViewWidget::adjust()
 {
     XDeviceTableView::DEVICESTATE deviceState = ui->scrollAreaHex->getDeviceState();
 
-    bool bIsHEX = ui->checkBoxValueAsHex->isChecked();
+    qint32 nLocationBase = ui->scrollAreaHex->getLocationBase();
+
+    XFormats::setComboBoxCurrent(ui->comboBoxLocationBase, nLocationBase);
+
+    bool bIsHEX = (nLocationBase == 16);
 
     QString sSelectionStart;
     QString sSelectionEnd;
@@ -285,9 +290,10 @@ void XHexViewWidget::on_comboBoxType_currentIndexChanged(int nIndex)
     reloadFileType();
 }
 
-void XHexViewWidget::on_checkBoxValueAsHex_stateChanged(int nArg)
+void XHexViewWidget::on_comboBoxLocationBase_currentIndexChanged(int nIndex)
 {
-    Q_UNUSED(nArg)
+    Q_UNUSED(nIndex)
 
-    adjust();
+    ui->scrollAreaHex->setLocationBase(ui->comboBoxLocationBase->currentData().toInt());
 }
+

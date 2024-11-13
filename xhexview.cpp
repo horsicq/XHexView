@@ -25,7 +25,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     g_nBytesProLine = 16;  // Default
     g_nElementByteSize = 1;
     g_nSymbolByteSize = 1;
-    _setMode(MODE_HEX);
+    _setMode(ELEMENT_MODE_HEX);
     g_nDataBlockSize = 0;
     g_nViewStartDelta = 0;
     //    g_smode=SMODE_ANSI;  // TODO Set/Get
@@ -93,7 +93,6 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
     setLocationMode(options.addressMode);
 
     adjustHeader();
-
     adjustColumns();
     adjustScrollCount();
 
@@ -245,7 +244,7 @@ void XHexView::updateData()
             QString sDataHexBuffer;
             QString sANSI;
 
-            if ((g_mode == MODE_HEX) || (g_mode == MODE_BYTE)) {
+            if ((g_mode == ELEMENT_MODE_HEX) || (g_mode == ELEMENT_MODE_BYTE)) {
                 sDataHexBuffer = QByteArray(g_baDataBuffer.toHex());
             }
 
@@ -265,7 +264,7 @@ void XHexView::updateData()
 
                     qint64 nDelta = (qint64)nCurrentLocation - (qint64)g_nThisBase;
 
-                    record.sLocation = XBinary::thisToString(nDelta);
+                    record.sLocation = XBinary::thisToString(nDelta, getLocationBase());
                 } else {
                     if (getlocationMode() == LOCMODE_ADDRESS) {
                         nCurrentLocation = record.nLocation;
@@ -273,10 +272,15 @@ void XHexView::updateData()
                         nCurrentLocation = i + nDataBlockStartOffset;
                     }
 
-                    if (g_bIsLocationColon) {
-                        record.sLocation = XBinary::valueToHexColon(mode, nCurrentLocation);
-                    } else {
-                        record.sLocation = XBinary::valueToHex(mode, nCurrentLocation);
+                    if (getLocationBase() == 16) {
+                        if (g_bIsLocationColon) {
+                            record.sLocation = XBinary::valueToHexColon(mode, nCurrentLocation);
+                        } else {
+                            record.sLocation = XBinary::valueToHex(mode, nCurrentLocation);
+                        }
+                    }
+                    else {
+                        record.sLocation = QString("%1").arg(nCurrentLocation, g_nAddressWidth, getLocationBase(), QChar('0'));;
                     }
                 }
 
@@ -286,7 +290,7 @@ void XHexView::updateData()
             // Elements
             qint32 nMaxBytes = 1;
 
-            if (g_mode == MODE_HEX) {
+            if (g_mode == ELEMENT_MODE_HEX) {
                 nMaxBytes = 8;  // TODO compare with XBinary::getHexSize
             } else {
                 nMaxBytes = g_nElementByteSize;
@@ -331,31 +335,31 @@ void XHexView::updateData()
 #endif
                 }
 
-                if (g_mode == MODE_HEX) {
+                if (g_mode == ELEMENT_MODE_HEX) {
                     record.sElement = sDataHexBuffer.mid(i * 2, 2 * record.nSize);
-                } else if (g_mode == MODE_BYTE) {
+                } else if (g_mode == ELEMENT_MODE_BYTE) {
                     record.sElement = sDataHexBuffer.mid(i * 2, 2);  // g_nSymbolsProElement
-                } else if (g_mode == MODE_UINT8) {
+                } else if (g_mode == ELEMENT_MODE_UINT8) {
                     record.sElement = QString::number(XBinary::_read_uint8(pData + i));
-                } else if (g_mode == MODE_INT8) {
+                } else if (g_mode == ELEMENT_MODE_INT8) {
                     record.sElement = QString::number(XBinary::_read_int8(pData + i));
-                } else if (g_mode == MODE_WORD) {
+                } else if (g_mode == ELEMENT_MODE_WORD) {
                     record.sElement = XBinary::valueToHex(XBinary::_read_uint16(pData + i));
-                } else if (g_mode == MODE_UINT16) {
+                } else if (g_mode == ELEMENT_MODE_UINT16) {
                     record.sElement = QString::number(XBinary::_read_uint16(pData + i));
-                } else if (g_mode == MODE_INT16) {
+                } else if (g_mode == ELEMENT_MODE_INT16) {
                     record.sElement = QString::number(XBinary::_read_int16(pData + i));
-                } else if (g_mode == MODE_DWORD) {
+                } else if (g_mode == ELEMENT_MODE_DWORD) {
                     record.sElement = XBinary::valueToHex(XBinary::_read_uint32(pData + i));
-                } else if (g_mode == MODE_UINT32) {
+                } else if (g_mode == ELEMENT_MODE_UINT32) {
                     record.sElement = QString::number(XBinary::_read_uint32(pData + i));
-                } else if (g_mode == MODE_INT32) {
+                } else if (g_mode == ELEMENT_MODE_INT32) {
                     record.sElement = QString::number(XBinary::_read_int32(pData + i));
-                } else if (g_mode == MODE_QWORD) {
+                } else if (g_mode == ELEMENT_MODE_QWORD) {
                     record.sElement = XBinary::valueToHex(XBinary::_read_uint64(pData + i));
-                } else if (g_mode == MODE_UINT64) {
+                } else if (g_mode == ELEMENT_MODE_UINT64) {
                     record.sElement = QString::number(XBinary::_read_uint64(pData + i));
-                } else if (g_mode == MODE_INT64) {
+                } else if (g_mode == ELEMENT_MODE_INT64) {
                     record.sElement = QString::number(XBinary::_read_int64(pData + i));
                 }
 
@@ -729,7 +733,7 @@ void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint
 {
     if (nColumn == COLUMN_ELEMENTS) {
         for (qint32 i = 0; i < g_nBytesProLine / g_nElementByteSize; i++) {
-            QString sSymbol = XBinary::valueToHex((quint8)(i * g_nElementByteSize));
+            QString sSymbol = QString("%1").arg(i * g_nElementByteSize, 2, getLocationBase(), QChar('0'));;
 
             QRectF rectSymbol;
 
@@ -1076,13 +1080,41 @@ void XHexView::_headerClicked(qint32 nColumn)
 
         {
             XShortcuts::MENUITEM menuItem = {};
+            menuItem.sText = QString("10");
+            menuItem.pRecv = this;
+            menuItem.pMethod = SLOT(changeLocationBase());
+            menuItem.nSubgroups = XShortcuts::GROUPID_BASE;
+            menuItem.bIsCheckable = true;
+            menuItem.bIsChecked = (getLocationBase() == 10);
+            menuItem.sPropertyName = "base";
+            menuItem.varProperty = 10;
+
+            listMenuItems.append(menuItem);
+        }
+
+        {
+            XShortcuts::MENUITEM menuItem = {};
+            menuItem.sText = QString("16");
+            menuItem.pRecv = this;
+            menuItem.pMethod = SLOT(changeLocationBase());
+            menuItem.nSubgroups = XShortcuts::GROUPID_BASE;
+            menuItem.bIsCheckable = true;
+            menuItem.bIsChecked = (getLocationBase() == 16);
+            menuItem.sPropertyName = "base";
+            menuItem.varProperty = 16;
+
+            listMenuItems.append(menuItem);
+        }
+
+        {
+            XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = tr("Address");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeLocationView());
+            menuItem.pMethod = SLOT(changeLocationMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_LOCATION;
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (getlocationMode() == LOCMODE_ADDRESS);
-            menuItem.sPropertyName = "location";
+            menuItem.sPropertyName = "mode";
             menuItem.varProperty = LOCMODE_ADDRESS;
 
             listMenuItems.append(menuItem);
@@ -1092,11 +1124,11 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = tr("Offset");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeLocationView());
+            menuItem.pMethod = SLOT(changeLocationMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_LOCATION;
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (getlocationMode() == LOCMODE_OFFSET);
-            menuItem.sPropertyName = "location";
+            menuItem.sPropertyName = "mode";
             menuItem.varProperty = LOCMODE_OFFSET;
 
             listMenuItems.append(menuItem);
@@ -1118,12 +1150,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = tr("Hex");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_HEX);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_HEX);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_HEX;
+            menuItem.varProperty = ELEMENT_MODE_HEX;
 
             listMenuItems.append(menuItem);
         }
@@ -1134,12 +1166,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("byte");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_BYTE);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_BYTE);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_BYTE;
+            menuItem.varProperty = ELEMENT_MODE_BYTE;
 
             listMenuItems.append(menuItem);
         }
@@ -1148,12 +1180,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("word");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_WORD);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_WORD);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_WORD;
+            menuItem.varProperty = ELEMENT_MODE_WORD;
 
             listMenuItems.append(menuItem);
         }
@@ -1162,12 +1194,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("dword");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_DWORD);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_DWORD);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_DWORD;
+            menuItem.varProperty = ELEMENT_MODE_DWORD;
 
             listMenuItems.append(menuItem);
         }
@@ -1176,12 +1208,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("qword");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_QWORD);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_QWORD);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_QWORD;
+            menuItem.varProperty = ELEMENT_MODE_QWORD;
 
             listMenuItems.append(menuItem);
         }
@@ -1192,12 +1224,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("uint8");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_UINT8);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_UINT8);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_UINT8;
+            menuItem.varProperty = ELEMENT_MODE_UINT8;
 
             listMenuItems.append(menuItem);
         }
@@ -1206,12 +1238,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("int8");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_INT8);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_INT8);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_INT8;
+            menuItem.varProperty = ELEMENT_MODE_INT8;
 
             listMenuItems.append(menuItem);
         }
@@ -1222,12 +1254,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("uint16");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_UINT16);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_UINT16);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_UINT16;
+            menuItem.varProperty = ELEMENT_MODE_UINT16;
 
             listMenuItems.append(menuItem);
         }
@@ -1236,12 +1268,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("int16");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_INT16);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_INT16);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_INT16;
+            menuItem.varProperty = ELEMENT_MODE_INT16;
 
             listMenuItems.append(menuItem);
         }
@@ -1252,12 +1284,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("uint32");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_UINT32);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_UINT32);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_UINT32;
+            menuItem.varProperty = ELEMENT_MODE_UINT32;
 
             listMenuItems.append(menuItem);
         }
@@ -1266,12 +1298,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("int32");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_INT32);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_INT32);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_INT32;
+            menuItem.varProperty = ELEMENT_MODE_INT32;
 
             listMenuItems.append(menuItem);
         }
@@ -1282,12 +1314,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("uint64");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_UINT64);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_UINT64);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_UINT64;
+            menuItem.varProperty = ELEMENT_MODE_UINT64;
 
             listMenuItems.append(menuItem);
         }
@@ -1296,12 +1328,12 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("int64");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeModeView());
+            menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == MODE_INT64);
+            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_INT64);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = MODE_INT64;
+            menuItem.varProperty = ELEMENT_MODE_INT64;
 
             listMenuItems.append(menuItem);
         }
@@ -1310,7 +1342,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("8");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeWidth());
+            menuItem.pMethod = SLOT(changeElementWidth());
             menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (g_nBytesProLine == 8);
@@ -1324,7 +1356,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("16");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeWidth());
+            menuItem.pMethod = SLOT(changeElementWidth());
             menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (g_nBytesProLine == 16);
@@ -1338,7 +1370,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("24");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeWidth());
+            menuItem.pMethod = SLOT(changeElementWidth());
             menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (g_nBytesProLine == 24);
@@ -1352,7 +1384,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("32");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeWidth());
+            menuItem.pMethod = SLOT(changeElementWidth());
             menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (g_nBytesProLine == 32);
@@ -1366,7 +1398,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("48");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeWidth());
+            menuItem.pMethod = SLOT(changeElementWidth());
             menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (g_nBytesProLine == 48);
@@ -1380,7 +1412,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             XShortcuts::MENUITEM menuItem = {};
             menuItem.sText = QString("64");
             menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeWidth());
+            menuItem.pMethod = SLOT(changeElementWidth());
             menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (g_nBytesProLine == 64);
@@ -1515,7 +1547,7 @@ void XHexView::_setCodePage(const QString &sCodePage)
 #endif
 }
 
-void XHexView::changeWidth()
+void XHexView::changeElementWidth()
 {
     QAction *pAction = qobject_cast<QAction *>(sender());
 
@@ -1529,12 +1561,12 @@ void XHexView::changeWidth()
     }
 }
 
-void XHexView::changeModeView()
+void XHexView::changeElementMode()
 {
     QAction *pAction = qobject_cast<QAction *>(sender());
 
     if (pAction) {
-        MODE mode = (MODE)pAction->property("mode").toUInt();
+        ELEMENT_MODE mode = (ELEMENT_MODE)pAction->property("mode").toUInt();
 
         _setMode(mode);
 
@@ -1543,47 +1575,47 @@ void XHexView::changeModeView()
     }
 }
 
-void XHexView::_setMode(MODE mode)
+void XHexView::_setMode(ELEMENT_MODE mode)
 {
     g_mode = mode;
 
-    if (mode == MODE_HEX) {
+    if (mode == ELEMENT_MODE_HEX) {
         g_nPrintsProElement = 2;
         g_nElementByteSize = 1;
-    } else if (mode == MODE_BYTE) {
+    } else if (mode == ELEMENT_MODE_BYTE) {
         g_nPrintsProElement = 2;
         g_nElementByteSize = 1;
-    } else if (mode == MODE_UINT8) {
+    } else if (mode == ELEMENT_MODE_UINT8) {
         g_nPrintsProElement = 3;
         g_nElementByteSize = 1;
-    } else if (mode == MODE_INT8) {
+    } else if (mode == ELEMENT_MODE_INT8) {
         g_nPrintsProElement = 4;
         g_nElementByteSize = 1;
-    } else if (mode == MODE_WORD) {
+    } else if (mode == ELEMENT_MODE_WORD) {
         g_nPrintsProElement = 4;
         g_nElementByteSize = 2;
-    } else if (mode == MODE_UINT16) {
+    } else if (mode == ELEMENT_MODE_UINT16) {
         g_nPrintsProElement = 5;
         g_nElementByteSize = 2;
-    } else if (mode == MODE_INT16) {
+    } else if (mode == ELEMENT_MODE_INT16) {
         g_nPrintsProElement = 6;
         g_nElementByteSize = 2;
-    } else if (mode == MODE_DWORD) {
+    } else if (mode == ELEMENT_MODE_DWORD) {
         g_nPrintsProElement = 8;
         g_nElementByteSize = 4;
-    } else if (mode == MODE_UINT32) {
+    } else if (mode == ELEMENT_MODE_UINT32) {
         g_nPrintsProElement = 10;
         g_nElementByteSize = 4;
-    } else if (mode == MODE_INT32) {
+    } else if (mode == ELEMENT_MODE_INT32) {
         g_nPrintsProElement = 11;
         g_nElementByteSize = 4;
-    } else if (mode == MODE_QWORD) {
+    } else if (mode == ELEMENT_MODE_QWORD) {
         g_nPrintsProElement = 16;
         g_nElementByteSize = 8;
-    } else if (mode == MODE_UINT64) {
+    } else if (mode == ELEMENT_MODE_UINT64) {
         g_nPrintsProElement = 18;
         g_nElementByteSize = 8;
-    } else if (mode == MODE_INT64) {
+    } else if (mode == ELEMENT_MODE_INT64) {
         g_nPrintsProElement = 19;
         g_nElementByteSize = 8;
     }

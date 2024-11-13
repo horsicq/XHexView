@@ -110,20 +110,20 @@ private:
         //        bool bIsSelected;
     };
 
-    enum MODE {
-        MODE_HEX = 0,
-        MODE_BYTE,
-        MODE_WORD,
-        MODE_DWORD,
-        MODE_QWORD,
-        MODE_UINT8,
-        MODE_INT8,
-        MODE_UINT16,
-        MODE_INT16,
-        MODE_UINT32,
-        MODE_INT32,
-        MODE_UINT64,
-        MODE_INT64,
+    enum ELEMENT_MODE {
+        ELEMENT_MODE_HEX = 0,
+        ELEMENT_MODE_BYTE,
+        ELEMENT_MODE_WORD,
+        ELEMENT_MODE_DWORD,
+        ELEMENT_MODE_QWORD,
+        ELEMENT_MODE_UINT8,
+        ELEMENT_MODE_INT8,
+        ELEMENT_MODE_UINT16,
+        ELEMENT_MODE_INT16,
+        ELEMENT_MODE_UINT32,
+        ELEMENT_MODE_INT32,
+        ELEMENT_MODE_UINT64,
+        ELEMENT_MODE_INT64,
     };
 
     SHOWRECORD _getShowRecordByOffset(qint64 nOffset);
@@ -155,9 +155,9 @@ private slots:
     void _memoryMapSlot();
     void _mainHexSlot();
     void _setCodePage(const QString &sCodePage);
-    void changeWidth();
-    void changeModeView();
-    void _setMode(MODE mode);
+    void changeElementWidth();
+    void changeElementMode();
+    void _setMode(ELEMENT_MODE mode);
 
 signals:
     void showOffsetDisasm(qint64 nOffset);
@@ -170,7 +170,7 @@ private:
     qint32 g_nPrintsProElement;
     qint32 g_nElementByteSize;
     qint32 g_nSymbolByteSize;
-    MODE g_mode;
+    ELEMENT_MODE g_mode;
     qint32 g_nDataBlockSize;
     QList<HIGHLIGHTREGION> g_listHighlightsRegion;
     qint32 g_nViewStartDelta;
