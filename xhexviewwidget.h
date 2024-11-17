@@ -79,7 +79,6 @@ private slots:
     void on_comboBoxLocationBase_currentIndexChanged(int nIndex);
 
 signals:
-    void dataChanged(qint64 nDeviceOffset, qint64 nDeviceSize);
     void deviceSizeChanged(qint64 nOldSize, qint64 nNewSize);
     void showOffsetDisasm(qint64 nDeviceOffset);
     void showOffsetMemoryMap(qint64 nDeviceOffset);

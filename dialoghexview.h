@@ -44,7 +44,6 @@ public:
 
 signals:
     //    void editState(bool bState);
-    void dataChanged(qint64 nDeviceOffset, qint64 nDeviceSize);
     void deviceSizeChanged(qint64 nOldSize, qint64 nNewSize);
 
 private slots:
