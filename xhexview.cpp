@@ -134,6 +134,7 @@ XADDR XHexView::getSelectionInitAddress()
 void XHexView::setBytesProLine(qint32 nBytesProLine)
 {
     g_nBytesProLine = nBytesProLine;
+    adjustScrollCount();
     adjustView();
 }
 
