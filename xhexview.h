@@ -80,6 +80,7 @@ public:
     void goToOffset(qint64 nOffset);
     XADDR getStartAddress();  // TODO Check mb remove
     XADDR getSelectionInitAddress();
+    void setBytesProLine(qint32 nBytesProLine);
 
 private:
     enum COLUMN {

@@ -131,6 +131,12 @@ XADDR XHexView::getSelectionInitAddress()
     return getSelectionInitOffset() + g_hexOptions.nStartAddress;
 }
 
+void XHexView::setBytesProLine(qint32 nBytesProLine)
+{
+    g_nBytesProLine = nBytesProLine;
+    adjustView();
+}
+
 XHexView::SHOWRECORD XHexView::_getShowRecordByOffset(qint64 nOffset)
 {
     SHOWRECORD result = {};
