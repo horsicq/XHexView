@@ -91,10 +91,6 @@ void XHexViewWidget::setDevice(QIODevice *pDevice)
     ui->scrollAreaHex->setDevice(pDevice);
 }
 
-void XHexViewWidget::setBackupDevice(QIODevice *pDevice)
-{
-    ui->scrollAreaHex->setBackupDevice(pDevice);
-}
 
 void XHexViewWidget::setXInfoDB(XInfoDB *pXInfoDB)
 {
@@ -109,7 +105,6 @@ void XHexViewWidget::reload()
 void XHexViewWidget::cleanup()
 {
     ui->scrollAreaHex->setDevice(nullptr);
-    ui->scrollAreaHex->setBackupDevice(nullptr);
     ui->scrollAreaHex->setXInfoDB(nullptr);
 }
 

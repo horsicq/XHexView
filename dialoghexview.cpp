@@ -61,11 +61,6 @@ void DialogHexView::setXInfoDB(XInfoDB *pXInfoDB)
     ui->widgetHex->setXInfoDB(pXInfoDB);
 }
 
-void DialogHexView::setBackupDevice(QIODevice *pDevice)
-{
-    ui->widgetHex->setBackupDevice(pDevice);
-}
-
 void DialogHexView::on_pushButtonClose_clicked()
 {
     this->close();
