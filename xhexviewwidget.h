@@ -55,7 +55,7 @@ public:
     void setXInfoDB(XInfoDB *pXInfoDB);
     void reload();
     void cleanup();
-    void setReadonly(bool bState);
+    virtual void setReadonly(bool bState);
     void setReadonlyVisible(bool bState);
     qint64 getStartAddress();
     void setSelection(qint64 nOffset, qint64 nSize);
@@ -81,7 +81,6 @@ signals:
     void deviceSizeChanged(qint64 nOldSize, qint64 nNewSize);
     void showOffsetDisasm(qint64 nDeviceOffset);
     void showOffsetMemoryMap(qint64 nDeviceOffset);
-    void selectionChanged(qint64 nDeviceOffset, qint64 nSize);
 
 protected:
     virtual void registerShortcuts(bool bState);
