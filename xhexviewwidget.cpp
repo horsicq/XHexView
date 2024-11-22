@@ -150,6 +150,11 @@ void XHexViewWidget::setWidgetFocus()
     ui->scrollAreaHex->setFocus();
 }
 
+void XHexViewWidget::reloadData(bool bSaveSelection)
+{
+    ui->scrollAreaHex->reload(bSaveSelection);
+}
+
 void XHexViewWidget::reloadFileType()
 {
     if (g_pDevice) {
