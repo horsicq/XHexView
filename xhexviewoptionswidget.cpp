@@ -59,6 +59,12 @@ void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions)
     pOptions->addID(XOptions::ID_HEX_LOCATIONCOLON, true);
 }
 
+void XHexViewOptionsWidget::reloadData(bool bSaveSelection)
+{
+    Q_UNUSED(bSaveSelection)
+    reload();
+}
+
 void XHexViewOptionsWidget::reload()
 {
     g_pOptions->setCheckBox(ui->checkBoxHexLocationColon, XOptions::ID_HEX_LOCATIONCOLON);
