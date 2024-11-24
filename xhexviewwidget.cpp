@@ -44,7 +44,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     connect(ui->scrollAreaHex, SIGNAL(showOffsetDisasm(qint64)), this, SIGNAL(showOffsetDisasm(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(showOffsetMemoryMap(qint64)), this, SIGNAL(showOffsetMemoryMap(qint64)));
     connect(ui->scrollAreaHex, SIGNAL(errorMessage(QString)), this, SLOT(errorMessageSlot(QString)));
-    connect(ui->scrollAreaHex, SIGNAL(currentLocationChanged(quint64,qint32,qint64)), this, SIGNAL(currentLocationChanged(quint64,qint32,qint64)));
+    connect(ui->scrollAreaHex, SIGNAL(currentLocationChanged(quint64, qint32, qint64)), this, SIGNAL(currentLocationChanged(quint64, qint32, qint64)));
     connect(ui->scrollAreaHex, SIGNAL(selectionChanged()), this, SLOT(adjust()));
     connect(ui->scrollAreaHex, SIGNAL(dataChanged(qint64, qint64)), this, SIGNAL(dataChanged(qint64, qint64)));
     connect(ui->scrollAreaHex, SIGNAL(deviceSizeChanged(qint64, qint64)), this, SIGNAL(deviceSizeChanged(qint64, qint64)));
@@ -90,7 +90,6 @@ void XHexViewWidget::setDevice(QIODevice *pDevice)
 {
     ui->scrollAreaHex->setDevice(pDevice);
 }
-
 
 void XHexViewWidget::setXInfoDB(XInfoDB *pXInfoDB)
 {
