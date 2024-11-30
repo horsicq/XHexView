@@ -25,6 +25,7 @@
 #include <QPixmapCache>
 
 #include "dialoghexedit.h"
+#include "xformatwidget.h"
 #include "xdevicetableeditview.h"
 
 // TODO if cursor moved -> highlight location and header

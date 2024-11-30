@@ -113,6 +113,16 @@ FORMS += \
     include($$PWD/../XVisualizationWidget/xvisualizationwidget.pri)
 }
 
+!contains(XCONFIG, abstractwidgets) {
+    XCONFIG += abstractwidgets
+    include($$PWD/../FormatWidgets/AbstractWidgets/abstractwidgets.pri)
+}
+
+!contains(XCONFIG, dialogwidget) {
+    XCONFIG += dialogwidget
+    include($$PWD/../FormatDialogs/dialogwidget.pri)
+}
+
 DISTFILES += \
     $$PWD/LICENSE \
     $$PWD/README.md \

@@ -7,6 +7,7 @@ endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/../Controls/xabstracttableview.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../Controls/xlineedithex.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../Controls/xdatetimeeditx.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatDialogs/dialogdump.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatDialogs/dialogsearch.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatDialogs/dialogshowdata.cmake)
@@ -24,12 +25,26 @@ include(${CMAKE_CURRENT_LIST_DIR}/../XSymbolsWidget/xsymbolswidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../die_widget/die_widget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XVisualizationWidget/xvisualizationwidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatDialogs/dialogwidget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XDemangleWidget/xdemanglewidget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XEntropyWidget/xentropywidget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XDisasmView/xdisasmview.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XExtractorWidget/xextractorwidget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XFileInfo/xfileinfowidget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XMemoryMapWidget/xmemorymapwidget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../yara_widget/yara_widget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XYara/xyara.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../nfd_widget/nfd_widget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../die_widget/die_widget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XOnlineTools/xvirustotalwidget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../XHashWidget/xhashwidget.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../FormatWidgets/AbstractWidgets/abstractwidgets.cmake)
 
 set(XHEXVIEW_SOURCES
     ${XHEXVIEW_SOURCES}
     ${ABSTRACTWIDGETS_SOURCES}
     ${XABSTRACTTABLEVIEW_SOURCES}
     ${XLINEEDITHEX_SOURCES}
+    ${XDATETIMEEDITX_SOURCES}
     ${DIALOGDUMP_SOURCES}
     ${DIALOGSEARCH_SOURCES}
     ${DIALOGSHOWDATA_SOURCES}
@@ -46,6 +61,19 @@ set(XHEXVIEW_SOURCES
     ${XDATACONVERTORWIDGET_SOURCES}
     ${XVISUALIZATIONWIDGET_SOURCES}
     ${DIALOGWIDGET_SOURCES}
+    ${XDEMANGLEWIDGET_SOURCES}
+    ${XENTROPYWIDGET_SOURCES}
+    ${XDISASMVIEW_SOURCES}
+    ${XEXTRACTORWIDGET_SOURCES}
+    ${XFILEINFOWIDGET_SOURCES}
+    ${XMEMORYMAPWIDGET_SOURCES}
+    ${YARA_WIDGET_SOURCES}
+    ${XYARA_SOURCES}
+    ${NFD_WIDGET_SOURCES}
+    ${DIE_WIDGET_SOURCES}
+    ${XVIRUSTOTALWIDGET_SOURCES}
+    ${XHASHWIDGET_SOURCES}
+    ${ABSTRACTWIDGETS_SOURCES}
 )
 
 set(XHEXVIEW_SOURCES
