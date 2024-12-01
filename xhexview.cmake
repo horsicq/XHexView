@@ -4,8 +4,11 @@ if (NOT DEFINED DIALOGGOTOADDRESS_SOURCES)
     include(${CMAKE_CURRENT_LIST_DIR}/../FormatDialogs/dialoggotoaddress.cmake)
     set(XHEXVIEW_SOURCES ${XHEXVIEW_SOURCES} ${DIALOGGOTOADDRESS_SOURCES})
 endif()
+if (NOT DEFINED ABSTRACTWIDGETS_SOURCES)
+    include(${CMAKE_CURRENT_LIST_DIR}/../Controls/xabstracttableview.cmake)
+    set(XHEXVIEW_SOURCES ${XHEXVIEW_SOURCES} ${ABSTRACTWIDGETS_SOURCES})
+endif()
 
-include(${CMAKE_CURRENT_LIST_DIR}/../Controls/xabstracttableview.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../Controls/xlineedithex.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../Controls/xdatetimeeditx.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../FormatDialogs/dialogdump.cmake)
@@ -41,6 +44,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/../FormatWidgets/AbstractWidgets/abstractwidge
 
 set(XHEXVIEW_SOURCES
     ${XHEXVIEW_SOURCES}
+    ${DIALOGGOTOADDRESS_SOURCES}
     ${ABSTRACTWIDGETS_SOURCES}
     ${XABSTRACTTABLEVIEW_SOURCES}
     ${XLINEEDITHEX_SOURCES}
@@ -74,10 +78,6 @@ set(XHEXVIEW_SOURCES
     ${XVIRUSTOTALWIDGET_SOURCES}
     ${XHASHWIDGET_SOURCES}
     ${ABSTRACTWIDGETS_SOURCES}
-)
-
-set(XHEXVIEW_SOURCES
-    ${XHEXVIEW_SOURCES}
     ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.cpp
     ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.h
     ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.ui
