@@ -1383,7 +1383,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.bIsCheckable = true;
             menuItem.bIsChecked = (g_nBytesProLine == 24);
             menuItem.sPropertyName = "width";
-            menuItem.varProperty = 32;
+            menuItem.varProperty = 24;
 
             listMenuItems.append(menuItem);
         }
