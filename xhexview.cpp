@@ -841,6 +841,8 @@ void XHexView::contextMenu(const QPoint &pos)
             }
         }
 
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_STRUCTS, this, SLOT(_structsSlot()), XShortcuts::GROUPID_NONE);
+
         QList<QObject *> listObjects = getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
 
         contextMenu.exec(pos);
@@ -1533,6 +1535,12 @@ void XHexView::_mainHexSlot()
         DEVICESTATE deviceState = getDeviceState(true);
         emit showOffsetMainHex(deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
     }
+}
+
+void XHexView::_structsSlot()
+{
+    DialogSetGenericWidget dialogSetGenericWidget(this);
+    dialogSetGenericWidget.exec();
 }
 
 void XHexView::_setCodePage(const QString &sCodePage)

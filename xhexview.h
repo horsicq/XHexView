@@ -27,6 +27,7 @@
 #include "dialoghexedit.h"
 #include "xformatwidget.h"
 #include "xdevicetableeditview.h"
+#include "dialogsetgenericwidget.h"
 
 // TODO if cursor moved -> highlight location and header
 // TODO modes symbols/disasm/types
@@ -156,6 +157,7 @@ private slots:
     void _disasmSlot();
     void _memoryMapSlot();
     void _mainHexSlot();
+    void _structsSlot();
     void _setCodePage(const QString &sCodePage);
     void changeElementWidth();
     void changeElementMode();
