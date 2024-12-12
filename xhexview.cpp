@@ -121,6 +121,16 @@ void XHexView::goToOffset(qint64 nOffset)
     _goToViewPos(nViewPos);
 }
 
+void XHexView::setLocation(quint64 nLocation, qint32 nLocationType, qint64 nSize)
+{
+    if (nLocationType == XBinary::LT_OFFSET) {
+        setDeviceSelection(nLocation, nSize);
+        goToOffset(nLocation);
+    } else if (nLocationType == XBinary::LT_ADDRESS) {
+        goToAddress(nLocation);
+    }
+}
+
 XADDR XHexView::getStartAddress()
 {
     return g_hexOptions.nStartAddress;
@@ -1518,14 +1528,14 @@ void XHexView::adjustMap()
 void XHexView::_disasmSlot()
 {
     if (g_hexOptions.bMenu_Disasm) {
-        emit showOffsetDisasm(getDeviceState(true).nSelectionDeviceOffset);
+        emit followLocation(getDeviceState(true).nSelectionDeviceOffset, XBinary::LT_OFFSET, 0, XOptions::WIDGETTYPE_DISASM);
     }
 }
 
 void XHexView::_memoryMapSlot()
 {
     if (g_hexOptions.bMenu_MemoryMap) {
-        emit showOffsetMemoryMap(getDeviceState(true).nSelectionDeviceOffset);
+        emit followLocation(getDeviceState(true).nSelectionDeviceOffset, XBinary::LT_OFFSET, 0, XOptions::WIDGETTYPE_MEMORYMAP);
     }
 }
 
@@ -1533,7 +1543,7 @@ void XHexView::_mainHexSlot()
 {
     if (g_hexOptions.bMenu_MainHex) {
         DEVICESTATE deviceState = getDeviceState(true);
-        emit showOffsetMainHex(deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
+        emit followLocation(getDeviceState(true).nSelectionDeviceOffset, XBinary::LT_OFFSET, deviceState.nSelectionSize, XOptions::WIDGETTYPE_HEX);
     }
 }
 

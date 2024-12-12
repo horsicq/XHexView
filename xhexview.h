@@ -80,6 +80,7 @@ public:
     void setData(QIODevice *pDevice, const OPTIONS &options, bool bReload);
     void goToAddress(XADDR nAddress);
     void goToOffset(qint64 nOffset);
+    virtual void setLocation(quint64 nLocation, qint32 nLocationType, qint64 nSize);
     XADDR getStartAddress();  // TODO Check mb remove
     XADDR getSelectionInitAddress();
     void setBytesProLine(qint32 nBytesProLine);
@@ -162,11 +163,6 @@ private slots:
     void changeElementWidth();
     void changeElementMode();
     void _setMode(ELEMENT_MODE mode);
-
-signals:
-    void showOffsetDisasm(qint64 nOffset);
-    void showOffsetMemoryMap(qint64 nOffset);
-    void showOffsetMainHex(qint64 nOffset, qint64 nSize);
 
 private:
     OPTIONS g_hexOptions;

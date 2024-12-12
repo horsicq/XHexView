@@ -58,7 +58,8 @@ public:
     virtual void setReadonly(bool bState);
     void setReadonlyVisible(bool bState);
     qint64 getStartAddress();
-    void setSelection(qint64 nOffset, qint64 nSize);
+    void setSelection(qint64 nOffset, qint64 nSize); // TODO remove use setLocation
+    virtual void setLocation(quint64 nLocation, qint32 nLocationType, qint64 nSize);
     virtual void adjustView();
     //    void blockSignals(bool bState);
     //    void addValue(QString sTitle, DATAINS datains, LIED lied);
@@ -80,8 +81,6 @@ private slots:
 
 signals:
     void deviceSizeChanged(qint64 nOldSize, qint64 nNewSize);
-    void showOffsetDisasm(qint64 nDeviceOffset);
-    void showOffsetMemoryMap(qint64 nDeviceOffset);
 
 protected:
     virtual void registerShortcuts(bool bState);
