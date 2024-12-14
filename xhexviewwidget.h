@@ -58,7 +58,7 @@ public:
     virtual void setReadonly(bool bState);
     void setReadonlyVisible(bool bState);
     qint64 getStartAddress();
-    void setSelection(qint64 nOffset, qint64 nSize); // TODO remove use setLocation
+    void setSelection(qint64 nOffset, qint64 nSize);  // TODO remove use setLocation
     virtual void setLocation(quint64 nLocation, qint32 nLocationType, qint64 nSize);
     virtual void adjustView();
     //    void blockSignals(bool bState);
