@@ -52,8 +52,11 @@ if (NOT DEFINED XOPTIONSWIDGET_SOURCES)
     include(${CMAKE_CURRENT_LIST_DIR}/../XOptions/xoptionswidget.cmake)
     set(XHEXVIEW_SOURCES ${XHEXVIEW_SOURCES} ${XOPTIONSWIDGET_SOURCES})
 endif()
+if (NOT DEFINED XFORMATS_SOURCES)
+    include(${CMAKE_CURRENT_LIST_DIR}/../Formats/xformats.cmake)
+    set(XHEXVIEW_SOURCES ${XHEXVIEW_SOURCES} ${XFORMATS_SOURCES})
+endif()
 
-include(${CMAKE_CURRENT_LIST_DIR}/../Formats/xbinary.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XDataConvertorWidget/xdataconvertorwidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XHexEdit/xhexedit.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XSymbolsWidget/xsymbolswidget.cmake)
@@ -72,7 +75,11 @@ include(${CMAKE_CURRENT_LIST_DIR}/../nfd_widget/nfd_widget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../die_widget/die_widget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XOnlineTools/xvirustotalwidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XHashWidget/xhashwidget.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/../FormatWidgets/AbstractWidgets/abstractwidgets.cmake)
+
+if (NOT DEFINED XFORMATS_SOURCES)
+    include(${CMAKE_CURRENT_LIST_DIR}/../FormatWidgets/AbstractWidgets/abstractwidgets.cmake)
+    set(XHEXVIEW_SOURCES ${XHEXVIEW_SOURCES} ${ABSTRACTWIDGETS_SOURCES})
+endif()
 
 set(XHEXVIEW_SOURCES
     ${XHEXVIEW_SOURCES}
@@ -90,7 +97,7 @@ set(XHEXVIEW_SOURCES
     ${SEARCHSTRINGSWIDGET_SOURCES}
     ${SEARCHVALUESWIDGET_SOURCES}
     ${XOPTIONSWIDGET_SOURCES}
-    ${FORMATS_SOURCES}
+    ${XFORMATS_SOURCES}
     ${XHEXEDIT_SOURCES}
     ${XSYMBOLSWIDGET_SOURCES}
     ${DIE_WIDGET_SOURCES}
