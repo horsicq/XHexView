@@ -34,31 +34,6 @@
 class XHexView : public XDeviceTableEditView {
     Q_OBJECT
 
-    enum SC {
-        SC_DATAINSPECTOR = 0,
-        SC_DATACONVERTOR,
-        SC_MULTISEARCH,
-        SC_GOTO_OFFSET,
-        SC_GOTO_ADDRESS,
-        SC_DUMPTOFILE,
-        SC_SELECTALL,
-        SC_COPYASDATA,
-        SC_COPYOFFSET,
-        SC_COPYADDRESS,
-        SC_FINDSTRING,
-        SC_FINDSIGNATURE,
-        SC_FINDVALUE,
-        SC_FINDNEXT,
-        SC_SIGNATURE,
-        SC_DISASM,
-        SC_MEMORYMAP,
-        SC_MAINHEX,
-        SC_EDIT_HEX,
-        SC_EDIT_REMOVE,
-        SC_EDIT_RESIZE,
-        __SC_SIZE
-    };
-
 public:
     // TODO setOptions ???
     struct OPTIONS {
@@ -145,7 +120,6 @@ protected:
     virtual qint64 getCurrentViewPosFromScroll();
     virtual void setCurrentViewPosToScroll(qint64 nOffset);
     virtual void adjustColumns();
-    virtual void registerShortcuts(bool bState);
     virtual void adjustHeader();
     virtual void _headerClicked(qint32 nColumn);
     virtual void _cellDoubleClicked(qint32 nRow, qint32 nColumn);
@@ -177,7 +151,6 @@ private:
     QByteArray g_baDataBuffer;
     QList<LOCATIONRECORD> g_listLocationRecords;
     QList<SHOWRECORD> g_listShowRecords;
-    QShortcut *g_shortCuts[__SC_SIZE];
     qint32 g_nAddressWidth;
     qint64 g_nThisBase;
     //    SMODE g_smode;

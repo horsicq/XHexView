@@ -22,6 +22,29 @@
 
 XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 {
+    addShortcut(X_ID_HEX_DATA_INSPECTOR, this, SLOT(_showDataInspector()));
+    addShortcut(X_ID_HEX_DATA_CONVERTOR, this, SLOT(_showDataConvertor()));
+    addShortcut(X_ID_HEX_MULTISEARCH, this, SLOT(_showMultisearch()));
+    addShortcut(X_ID_HEX_GOTO_OFFSET, this, SLOT(_goToOffsetSlot()));
+    addShortcut(X_ID_HEX_GOTO_ADDRESS, this, SLOT(_goToAddressSlot()));
+    addShortcut(X_ID_HEX_DUMPTOFILE, this, SLOT(_dumpToFileSlot()));
+    addShortcut(X_ID_HEX_SELECT_ALL, this, SLOT(_selectAllSlot()));
+    addShortcut(X_ID_HEX_COPY_DATA, this, SLOT(_copyDataSlot()));
+    addShortcut(X_ID_HEX_COPY_OFFSET, this, SLOT(_copyOffsetSlot()));
+    addShortcut(X_ID_HEX_COPY_ADDRESS, this, SLOT(_copyAddressSlot()));
+    addShortcut(X_ID_HEX_FIND_STRING, this, SLOT(_findStringSlot()));
+    addShortcut(X_ID_HEX_FIND_SIGNATURE, this, SLOT(_findSignatureSlot()));
+    addShortcut(X_ID_HEX_FIND_VALUE, this, SLOT(_findValueSlot()));
+    addShortcut(X_ID_HEX_FIND_NEXT, this, SLOT(_findNextSlot()));
+    addShortcut(X_ID_HEX_SIGNATURE, this, SLOT(_hexSignatureSlot()));
+    addShortcut(X_ID_HEX_FOLLOWIN_DISASM, this, SLOT(_disasmSlot()));
+    addShortcut(X_ID_HEX_FOLLOWIN_MEMORYMAP, this, SLOT(_memoryMapSlot()));
+    addShortcut(X_ID_HEX_FOLLOWIN_HEX, this, SLOT(_mainHexSlot()));
+    addShortcut(X_ID_HEX_EDIT_HEX, this, SLOT(_editHex()));
+    addShortcut(X_ID_HEX_EDIT_REMOVE, this, SLOT(_editRemove()));
+    addShortcut(X_ID_HEX_EDIT_RESIZE, this, SLOT(_editResize()));
+    addShortcut(X_ID_HEX_STRUCTS, this, SLOT(_structsSlot()));
+
     g_nBytesProLine = 16;  // Default
     g_nElementByteSize = 1;
     g_nSymbolByteSize = 1;
@@ -34,7 +57,6 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     g_nAddressWidth = 8;         // TODO Set/Get
     g_bIsLocationColon = false;  // TODO Check
                                  //    g_nPieceSize=1; // TODO
-    memset(g_shortCuts, 0, sizeof g_shortCuts);
 
     addColumn(tr("Address"), 0, true);
     addColumn(tr("Hex"), 0, true);
@@ -1034,44 +1056,6 @@ void XHexView::adjustColumns()
 
     setColumnWidth(COLUMN_ELEMENTS, nNumberOfElements * g_nPrintsProElement * getCharWidth() + 2 * getCharWidth() + getSideDelta() * nNumberOfElements);
     setColumnWidth(COLUMN_SYMBOLS, (nNumberOfSymbols + 2) * getCharWidth());
-}
-
-void XHexView::registerShortcuts(bool bState)
-{
-    if (bState) {
-        if (!g_shortCuts[SC_DATAINSPECTOR])
-            g_shortCuts[SC_DATAINSPECTOR] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATA_INSPECTOR), this, SLOT(_showDataInspector()));
-        if (!g_shortCuts[SC_DATACONVERTOR])
-            g_shortCuts[SC_DATACONVERTOR] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DATA_CONVERTOR), this, SLOT(_showDataConvertor()));
-        if (!g_shortCuts[SC_MULTISEARCH]) g_shortCuts[SC_MULTISEARCH] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_MULTISEARCH), this, SLOT(_showMultisearch()));
-        if (!g_shortCuts[SC_GOTO_OFFSET]) g_shortCuts[SC_GOTO_OFFSET] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_OFFSET), this, SLOT(_goToOffsetSlot()));
-        if (!g_shortCuts[SC_GOTO_ADDRESS])
-            g_shortCuts[SC_GOTO_ADDRESS] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_GOTO_ADDRESS), this, SLOT(_goToAddressSlot()));
-        if (!g_shortCuts[SC_DUMPTOFILE]) g_shortCuts[SC_DUMPTOFILE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_DUMPTOFILE), this, SLOT(_dumpToFileSlot()));
-        if (!g_shortCuts[SC_SELECTALL]) g_shortCuts[SC_SELECTALL] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_SELECT_ALL), this, SLOT(_selectAllSlot()));
-        if (!g_shortCuts[SC_COPYASDATA]) g_shortCuts[SC_COPYASDATA] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_DATA), this, SLOT(_copyDataSlot()));
-        if (!g_shortCuts[SC_COPYOFFSET]) g_shortCuts[SC_COPYOFFSET] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_OFFSET), this, SLOT(_copyOffsetSlot()));
-        if (!g_shortCuts[SC_COPYADDRESS]) g_shortCuts[SC_COPYADDRESS] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_COPY_ADDRESS), this, SLOT(_copyAddressSlot()));
-        if (!g_shortCuts[SC_FINDSTRING]) g_shortCuts[SC_FINDSTRING] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FIND_STRING), this, SLOT(_findStringSlot()));
-        if (!g_shortCuts[SC_FINDSIGNATURE])
-            g_shortCuts[SC_FINDSIGNATURE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FIND_SIGNATURE), this, SLOT(_findSignatureSlot()));
-        if (!g_shortCuts[SC_FINDVALUE]) g_shortCuts[SC_FINDVALUE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FIND_VALUE), this, SLOT(_findValueSlot()));
-        if (!g_shortCuts[SC_FINDNEXT]) g_shortCuts[SC_FINDNEXT] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FIND_NEXT), this, SLOT(_findNextSlot()));
-        if (!g_shortCuts[SC_SIGNATURE]) g_shortCuts[SC_SIGNATURE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_SIGNATURE), this, SLOT(_hexSignatureSlot()));
-        if (!g_shortCuts[SC_DISASM]) g_shortCuts[SC_DISASM] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_DISASM), this, SLOT(_disasmSlot()));
-        if (!g_shortCuts[SC_MEMORYMAP]) g_shortCuts[SC_MEMORYMAP] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_MEMORYMAP), this, SLOT(_memoryMapSlot()));
-        if (!g_shortCuts[SC_MAINHEX]) g_shortCuts[SC_MAINHEX] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_FOLLOWIN_HEX), this, SLOT(_mainHexSlot()));
-        if (!g_shortCuts[SC_EDIT_HEX]) g_shortCuts[SC_EDIT_HEX] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_HEX), this, SLOT(_editHex()));
-        if (!g_shortCuts[SC_EDIT_REMOVE]) g_shortCuts[SC_EDIT_REMOVE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_REMOVE), this, SLOT(_editRemove()));
-        if (!g_shortCuts[SC_EDIT_RESIZE]) g_shortCuts[SC_EDIT_RESIZE] = new QShortcut(getShortcuts()->getShortcut(X_ID_HEX_EDIT_RESIZE), this, SLOT(_editResize()));
-    } else {
-        for (qint32 i = 0; i < __SC_SIZE; i++) {
-            if (g_shortCuts[i]) {
-                delete g_shortCuts[i];
-                g_shortCuts[i] = nullptr;
-            }
-        }
-    }
 }
 
 void XHexView::adjustHeader()
