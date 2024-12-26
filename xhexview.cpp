@@ -1533,7 +1533,10 @@ void XHexView::_mainHexSlot()
 
 void XHexView::_structsSlot()
 {
+    DEVICESTATE deviceState = getDeviceState(true);
+
     DialogSetGenericWidget dialogSetGenericWidget(this);
+    dialogSetGenericWidget.setData(getDevice(), deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
     dialogSetGenericWidget.exec();
 }
 

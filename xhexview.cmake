@@ -112,8 +112,11 @@ if (NOT DEFINED NFD_WIDGET_SOURCES)
     include(${CMAKE_CURRENT_LIST_DIR}/../nfd_widget/nfd_widget.cmake)
     set(XHEXVIEW_SOURCES ${XHEXVIEW_SOURCES} ${NFD_WIDGET_SOURCES})
 endif()
+if (NOT DEFINED DIE_WIDGET_SOURCES)
+    include(${CMAKE_CURRENT_LIST_DIR}/../die_widget/die_widget.cmake)
+    set(XHEXVIEW_SOURCES ${XHEXVIEW_SOURCES} ${DIE_WIDGET_SOURCES})
+endif()
 
-include(${CMAKE_CURRENT_LIST_DIR}/../die_widget/die_widget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XOnlineTools/xvirustotalwidget.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/../XHashWidget/xhashwidget.cmake)
 
