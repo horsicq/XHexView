@@ -105,10 +105,7 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
     adjustView();
     adjustMap();
 
-    XBinary binary(pDevice, true, options.nStartAddress);
-    XBinary::_MEMORY_MAP memoryMap = binary.getMemoryMap();
-
-    setMemoryMap(memoryMap);
+    setMemoryMap(options.memoryMapRegion);
 
     //    resetCursorData();
 
@@ -130,13 +127,6 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
     }
 }
 
-void XHexView::goToAddress(XADDR nAddress)
-{
-    qint64 nViewPos = deviceOffsetToViewPos(nAddress - g_hexOptions.nStartAddress);
-    _goToViewPos(nViewPos);
-    // TODO reload
-}
-
 void XHexView::goToOffset(qint64 nOffset)
 {
     qint64 nViewPos = deviceOffsetToViewPos(nOffset);
@@ -145,12 +135,8 @@ void XHexView::goToOffset(qint64 nOffset)
 
 void XHexView::setLocation(quint64 nLocation, qint32 nLocationType, qint64 nSize)
 {
-    if (nLocationType == XBinary::LT_OFFSET) {
-        setDeviceSelection(nLocation, nSize);
-        goToOffset(nLocation);
-    } else if (nLocationType == XBinary::LT_ADDRESS) {
-        goToAddress(nLocation);
-    }
+    goToLocation(nLocation, (XBinary::LT)nLocationType);
+    setLocationOffset(nLocation, (XBinary::LT)nLocationType, nSize);
 }
 
 XADDR XHexView::getStartAddress()

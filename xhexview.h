@@ -53,7 +53,6 @@ public:
     void _adjustView();
     virtual void adjustView();
     void setData(QIODevice *pDevice, const OPTIONS &options, bool bReload);
-    void goToAddress(XADDR nAddress);
     void goToOffset(qint64 nOffset);
     virtual void setLocation(quint64 nLocation, qint32 nLocationType, qint64 nSize);
     XADDR getStartAddress();  // TODO Check mb remove
