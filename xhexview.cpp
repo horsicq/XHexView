@@ -133,20 +133,14 @@ void XHexView::goToOffset(qint64 nOffset)
     _goToViewPos(nViewPos);
 }
 
-void XHexView::setLocation(quint64 nLocation, qint32 nLocationType, qint64 nSize)
+XADDR XHexView::getStartLocation()
 {
-    goToLocation(nLocation, (XBinary::LT)nLocationType);
-    setLocationOffset(nLocation, (XBinary::LT)nLocationType, nSize);
+    return g_hexOptions.nStartLocation;
 }
 
-XADDR XHexView::getStartAddress()
+XADDR XHexView::getSelectionInitLocation()
 {
-    return g_hexOptions.nStartAddress;
-}
-
-XADDR XHexView::getSelectionInitAddress()
-{
-    return getSelectionInitOffset() + g_hexOptions.nStartAddress;
+    return getSelectionInitOffset() + g_hexOptions.nStartLocation;
 }
 
 void XHexView::setBytesProLine(qint32 nBytesProLine)
@@ -282,7 +276,7 @@ void XHexView::updateData()
                 XADDR nCurrentLocation = 0;
 
                 LOCATIONRECORD record = {};
-                record.nLocation = i + g_hexOptions.nStartAddress + nDataBlockStartOffset;
+                record.nLocation = i + g_hexOptions.nStartLocation + nDataBlockStartOffset;
 
                 if (getlocationMode() == LOCMODE_THIS) {
                     nCurrentLocation = record.nLocation;
@@ -1029,7 +1023,7 @@ void XHexView::adjustColumns()
 {
     const QFontMetricsF fm(getTextFont());
 
-    if (XBinary::getWidthModeFromSize(getStartAddress() + getViewSize()) == XBinary::MODE_64) {
+    if (XBinary::getWidthModeFromSize(getStartLocation() + getViewSize()) == XBinary::MODE_64) {
         g_nAddressWidth = 16;
         setColumnWidth(COLUMN_LOCATION, 2 * getCharWidth() + fm.boundingRect("00000000:00000000").width());
     } else {

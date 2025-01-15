@@ -128,9 +128,9 @@ void XHexViewWidget::setReadonlyVisible(bool bState)
     }
 }
 
-qint64 XHexViewWidget::getStartAddress()
+XADDR XHexViewWidget::getStartLocation()
 {
-    return ui->scrollAreaHex->getStartAddress();
+    return ui->scrollAreaHex->getStartLocation();
 }
 
 void XHexViewWidget::setSelection(qint64 nOffset, qint64 nSize)
@@ -166,14 +166,14 @@ void XHexViewWidget::reloadFileType()
         g_options.fileType = (XBinary::FT)(ui->comboBoxType->currentData().toInt());
 
         XHexView::OPTIONS options = {};
-        options.nStartAddress = g_options.nStartAddress;
+        options.nStartLocation = g_options.nStartLocation;
         options.bMenu_MainHex = g_options.bMenu_MainHex;
         options.bMenu_Disasm = g_options.bMenu_Disasm;
         options.bMenu_MemoryMap = g_options.bMenu_MemoryMap;
         // options.bHideReadOnly = g_options.bHideReadOnly;
 
         if (g_options.fileType == XBinary::FT_REGION) {
-            options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, g_pDevice, true, g_options.nStartAddress);
+            options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, g_pDevice, true, g_options.nStartLocation);
         } else {
             options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, (XBinary::MAPMODE)(ui->comboBoxMapMode->currentData().toInt()), g_pDevice);
         }
