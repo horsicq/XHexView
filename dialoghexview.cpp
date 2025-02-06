@@ -56,9 +56,9 @@ void DialogHexView::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
     XShortcutsDialog::setGlobal(pShortcuts, pXOptions);
 }
 
-void DialogHexView::setXInfoDB(XInfoDB *pXInfoDB)
+void DialogHexView::setXInfoDB(XInfoDB *pXInfoDB, QString sXInfoProfile)
 {
-    ui->widgetHex->setXInfoDB(pXInfoDB);
+    ui->widgetHex->setXInfoDB(pXInfoDB, sXInfoProfile);
 }
 
 void DialogHexView::on_pushButtonClose_clicked()

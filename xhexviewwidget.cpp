@@ -90,9 +90,9 @@ void XHexViewWidget::setDevice(QIODevice *pDevice)
     ui->scrollAreaHex->setDevice(pDevice);
 }
 
-void XHexViewWidget::setXInfoDB(XInfoDB *pXInfoDB)
+void XHexViewWidget::setXInfoDB(XInfoDB *pXInfoDB, QString sXInfoProfile)
 {
-    ui->scrollAreaHex->setXInfoDB(pXInfoDB);
+    ui->scrollAreaHex->setXInfoDB(pXInfoDB, sXInfoProfile);
 }
 
 void XHexViewWidget::reload()
@@ -103,7 +103,7 @@ void XHexViewWidget::reload()
 void XHexViewWidget::cleanup()
 {
     ui->scrollAreaHex->setDevice(nullptr);
-    ui->scrollAreaHex->setXInfoDB(nullptr);
+    ui->scrollAreaHex->setXInfoDB(nullptr, "");
 }
 
 void XHexViewWidget::setReadonly(bool bState)
@@ -181,10 +181,10 @@ void XHexViewWidget::reloadFileType()
         // ui->scrollAreaDisasm->setData(g_pDevice, options);
 
         // TODO Check
-        if (ui->scrollAreaHex->getXInfoDB()) {
-            ui->scrollAreaHex->getXInfoDB()->setData(g_pDevice, options.memoryMapRegion.fileType);
-            //            getSymbols();
-        }
+        // if (ui->scrollAreaHex->getXInfoDB()) {
+        //     ui->scrollAreaHex->getXInfoDB()->setData(g_pDevice, options.memoryMapRegion.fileType);
+        //     //            getSymbols();
+        // }
 
         ui->scrollAreaHex->setData(g_pDevice, options, true);
         ui->scrollAreaHex->reload(true);
