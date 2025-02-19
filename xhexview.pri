@@ -123,6 +123,11 @@ FORMS += \
     include($$PWD/../FormatDialogs/dialogwidget.pri)
 }
 
+!contains(XCONFIG, xregionswidget) {
+    XCONFIG += xregionswidget
+    include($$PWD/../XRegionsWidget/xregionswidget.pri)
+}
+
 DISTFILES += \
     $$PWD/LICENSE \
     $$PWD/README.md \
