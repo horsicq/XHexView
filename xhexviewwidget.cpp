@@ -33,7 +33,6 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     ui->toolButtonStrings->setToolTip(tr("Strings"));
     ui->checkBoxReadonly->setText(tr("Readonly"));
     ui->comboBoxType->setToolTip(tr("Type"));
-    ui->comboBoxMapMode->setToolTip(tr("Mode"));
     ui->comboBoxLocationBase->setToolTip(tr("Base"));
 
     XFormats::setBaseComboBox(ui->comboBoxLocationBase, 10);
@@ -71,7 +70,6 @@ void XHexViewWidget::setData(QIODevice *pDevice, const OPTIONS &options)
 
     if (pDevice) {
         XFormats::setFileTypeComboBox(options.fileType, pDevice, ui->comboBoxType, XBinary::TL_OPTION_ALL);
-        XFormats::getMapModesList(options.fileType, ui->comboBoxMapMode);
     } else {
         ui->scrollAreaHex->setDevice(nullptr);
     }
@@ -161,8 +159,6 @@ void XHexViewWidget::reloadData(bool bSaveSelection)
 void XHexViewWidget::reloadFileType()
 {
     if (g_pDevice) {
-        const bool bBlocked1 = ui->comboBoxMapMode->blockSignals(true);
-
         g_options.fileType = (XBinary::FT)(ui->comboBoxType->currentData().toInt());
 
         XHexView::OPTIONS options = {};
@@ -175,7 +171,7 @@ void XHexViewWidget::reloadFileType()
         if (g_options.fileType == XBinary::FT_REGION) {
             options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, g_pDevice, true, g_options.nStartLocation);
         } else {
-            options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, (XBinary::MAPMODE)(ui->comboBoxMapMode->currentData().toInt()), g_pDevice);
+            options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, g_pDevice);
         }
 
         // ui->scrollAreaDisasm->setData(g_pDevice, options);
@@ -188,8 +184,6 @@ void XHexViewWidget::reloadFileType()
 
         ui->scrollAreaHex->setData(g_pDevice, options, true);
         ui->scrollAreaHex->reload(true);
-
-        ui->comboBoxMapMode->blockSignals(bBlocked1);
     }
 }
 
@@ -286,9 +280,6 @@ void XHexViewWidget::on_toolButtonStrings_clicked()
 void XHexViewWidget::on_comboBoxType_currentIndexChanged(int nIndex)
 {
     Q_UNUSED(nIndex)
-
-    XBinary::FT fileType = (XBinary::FT)(ui->comboBoxType->currentData().toInt());
-    XFormats::getMapModesList(fileType, ui->comboBoxMapMode);
 
     reloadFileType();
 }
