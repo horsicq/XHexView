@@ -52,7 +52,7 @@ public:
     void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions);
     void setData(QIODevice *pDevice, const OPTIONS &options);
     void setDevice(QIODevice *pDevice);
-    void setXInfoDB(XInfoDB *pXInfoDB, QString sXInfoProfile);
+    void setXInfoDB(XInfoDB *pXInfoDB, XInfoDB::PROFILE profile);
     void reload();
     void cleanup();
     virtual void setReadonly(bool bState);
