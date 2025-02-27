@@ -101,7 +101,7 @@ void XHexViewWidget::reload()
 void XHexViewWidget::cleanup()
 {
     ui->scrollAreaHex->setDevice(nullptr);
-    ui->scrollAreaHex->setXInfoDB(nullptr, XInfoDB::PROFILE_MAIN);
+    ui->scrollAreaHex->setXInfoDB(nullptr, XInfoDB::PROFILE_UNKNOWN);
 }
 
 void XHexViewWidget::setReadonly(bool bState)
