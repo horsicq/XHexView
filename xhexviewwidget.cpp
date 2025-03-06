@@ -88,9 +88,9 @@ void XHexViewWidget::setDevice(QIODevice *pDevice)
     ui->scrollAreaHex->setDevice(pDevice);
 }
 
-void XHexViewWidget::setXInfoDB(XInfoDB *pXInfoDB, XInfoDB::PROFILE profile)
+void XHexViewWidget::setXInfoDB(XInfoDB *pXInfoDB)
 {
-    ui->scrollAreaHex->setXInfoDB(pXInfoDB, profile);
+    ui->scrollAreaHex->setXInfoDB(pXInfoDB);
 }
 
 void XHexViewWidget::reload()
@@ -101,7 +101,7 @@ void XHexViewWidget::reload()
 void XHexViewWidget::cleanup()
 {
     ui->scrollAreaHex->setDevice(nullptr);
-    ui->scrollAreaHex->setXInfoDB(nullptr, XInfoDB::PROFILE_UNKNOWN);
+    ui->scrollAreaHex->setXInfoDB(nullptr);
 }
 
 void XHexViewWidget::setReadonly(bool bState)

@@ -39,7 +39,7 @@ public:
 
     void setData(QIODevice *pDevice, const XHexViewWidget::OPTIONS &options);
     void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions);
-    void setXInfoDB(XInfoDB *pXInfoDB, XInfoDB::PROFILE profile);
+    void setXInfoDB(XInfoDB *pXInfoDB);
 
 signals:
     //    void editState(bool bState);
