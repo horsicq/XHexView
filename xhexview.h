@@ -45,7 +45,6 @@ public:
         bool bMenu_MainHex;
         QString sTitle;  // For dialogs
         LOCMODE addressMode;
-        XBinary::_MEMORY_MAP memoryMapRegion;
     };
 
     explicit XHexView(QWidget *pParent = nullptr);

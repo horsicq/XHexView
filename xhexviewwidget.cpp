@@ -168,11 +168,11 @@ void XHexViewWidget::reloadFileType()
         options.bMenu_MemoryMap = g_options.bMenu_MemoryMap;
         // options.bHideReadOnly = g_options.bHideReadOnly;
 
-        if (g_options.fileType == XBinary::FT_REGION) {
-            options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, g_pDevice, true, g_options.nStartLocation);
-        } else {
-            options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, g_pDevice);
-        }
+        // if (g_options.fileType == XBinary::FT_REGION) {
+        //     options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, g_pDevice, true, g_options.nStartLocation);
+        // } else {
+        //     options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, g_pDevice);
+        // }
 
         // ui->scrollAreaDisasm->setData(g_pDevice, options);
 

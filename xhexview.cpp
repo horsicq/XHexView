@@ -105,7 +105,7 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
     adjustView();
     adjustMap();
 
-    setMemoryMap(options.memoryMapRegion);
+    // setMemoryMap(options.memoryMapRegion);
 
     //    resetCursorData();
 
