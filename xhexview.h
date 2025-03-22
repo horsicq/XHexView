@@ -37,7 +37,8 @@ class XHexView : public XDeviceTableEditView {
 public:
     // TODO setOptions ???
     struct OPTIONS {
-        XADDR nStartLocation;
+        qint64 nStartOffset;
+        qint64 nTotalSize;
         qint64 nStartSelectionOffset;  // -1 no selection
         qint64 nSizeOfSelection;
         bool bMenu_Disasm;
@@ -53,8 +54,8 @@ public:
     virtual void adjustView();
     void setData(QIODevice *pDevice, const OPTIONS &options, bool bReload);
     void goToOffset(qint64 nOffset);
-    XADDR getStartLocation();  // TODO Check mb remove
-    XADDR getSelectionInitLocation();
+    // XADDR getStartLocation();  // TODO Check mb remove
+    // XADDR getSelectionInitLocation();
     void setBytesProLine(qint32 nBytesProLine);
 
 private:

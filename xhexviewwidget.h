@@ -34,7 +34,8 @@ class XHexViewWidget : public XShortcutsWidget {
 public:
     struct OPTIONS {
         XBinary::FT fileType;
-        XADDR nStartLocation;          // For FT_REGION
+        qint64 nStartOffset;          // For FT_REGION
+        qint64 nTotalSize;
         qint64 nStartSelectionOffset;  // -1 no selection
         qint64 nSizeOfSelection;
         QString sTitle;
@@ -51,13 +52,13 @@ public:
 
     void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions);
     void setData(QIODevice *pDevice, const OPTIONS &options);
-    void setDevice(QIODevice *pDevice);
+    void setDevice(QIODevice *pDevice, qint64 nStartOffset, qint64 nTotalSize);
     void setXInfoDB(XInfoDB *pXInfoDB);
     void reload();
     void cleanup();
     virtual void setReadonly(bool bState);
     void setReadonlyVisible(bool bState);
-    XADDR getStartLocation();
+    // XADDR getStartLocation();
     void setSelection(qint64 nOffset, qint64 nSize);  // TODO remove use setLocation
     virtual void setLocation(quint64 nLocation, qint32 nLocationType, qint64 nSize);
     virtual void adjustView();
