@@ -276,7 +276,7 @@ void XHexView::updateData()
                 XADDR nCurrentLocation = 0;
 
                 LOCATIONRECORD record = {};
-                record.nLocation = i + g_hexOptions.nStartOffset + nDataBlockStartOffset; // TODO !!!
+                record.nLocation = i + g_hexOptions.nStartOffset + nDataBlockStartOffset;  // TODO !!!
 
                 if (getlocationMode() == LOCMODE_THIS) {
                     nCurrentLocation = record.nLocation;

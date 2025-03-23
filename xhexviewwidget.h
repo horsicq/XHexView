@@ -34,7 +34,7 @@ class XHexViewWidget : public XShortcutsWidget {
 public:
     struct OPTIONS {
         XBinary::FT fileType;
-        qint64 nStartOffset;          // For FT_REGION
+        qint64 nStartOffset;  // For FT_REGION
         qint64 nTotalSize;
         qint64 nStartSelectionOffset;  // -1 no selection
         qint64 nSizeOfSelection;
