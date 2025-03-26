@@ -67,13 +67,13 @@ private:
 
     struct LOCATIONRECORD {  // TODO move
         QString sLocation;
-        quint64 nLocation;
+        quint64 nViewPos;
     };
 
     struct SHOWRECORD {
         qint32 nRow;
         qint32 nViewPos;
-        qint32 nRowViewOffset;
+        qint32 nRowViewPos;
         qint32 nSize;
         bool bFirstRowSymbol;
         bool bLastRowSymbol;
@@ -103,7 +103,7 @@ private:
         ELEMENT_MODE_INT64,
     };
 
-    SHOWRECORD _getShowRecordByOffset(qint64 nOffset);
+    SHOWRECORD _getShowRecordByViewPos(qint64 nOffset);
 
 protected:
     virtual OS cursorPositionToOS(const CURSOR_POSITION &cursorPosition);
