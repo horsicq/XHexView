@@ -182,7 +182,7 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(const XAbstractTableView::CU
             osResult.nSize = 1;
         } else if (cursorPosition.nColumn == COLUMN_ELEMENTS) {
             osResult.nViewPos = nBlockViewPos + ((cursorPosition.nAreaLeft - getSideDelta() - getCharWidth()) / (getCharWidth() * g_nPrintsProElement + getSideDelta())) *
-                                                   g_nElementByteSize;
+                                                    g_nElementByteSize;
             //            osResult.nSize=g_nPieceSize;
             osResult.nSize = 1;
         } else if (cursorPosition.nColumn == COLUMN_SYMBOLS) {
