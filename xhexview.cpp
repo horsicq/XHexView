@@ -243,7 +243,7 @@ void XHexView::updateData()
 
         g_listHighlightsRegion.clear();
         if (getXInfoDB()) {
-            QList<XInfoDB::BOOKMARKRECORD> listBookMarks = getXInfoDB()->getBookmarkRecords(nDataBlockStartViewPos, XBinary::LT_OFFSET, nDataBlockSize);
+            QVector<XInfoDB::BOOKMARKRECORD> listBookMarks = getXInfoDB()->getBookmarkRecords(nDataBlockStartViewPos, XBinary::LT_OFFSET, nDataBlockSize);
             g_listHighlightsRegion.append(_convertBookmarksToHighlightRegion(&listBookMarks));
         }
 
