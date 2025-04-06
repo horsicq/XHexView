@@ -667,7 +667,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
 
                 qint32 nNumberOfShowRecords = g_listShowRecords.count();
 
-                for (int i = 0; i < nNumberOfShowRecords; i++) {
+                for (qint32 i = 0; i < nNumberOfShowRecords; i++) {
                     SHOWRECORD record = g_listShowRecords.at(i);
 
                     bool bIsHighlighted = g_listShowRecords.at(i).bIsHighlighted;
