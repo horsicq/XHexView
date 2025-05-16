@@ -1504,11 +1504,11 @@ void XHexView::_mainHexSlot()
 
 void XHexView::_structsSlot()
 {
-    DEVICESTATE deviceState = getDeviceState();
+    // DEVICESTATE deviceState = getDeviceState();
 
-    DialogSetGenericWidget dialogSetGenericWidget(this);
-    dialogSetGenericWidget.setData(getDevice(), deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
-    dialogSetGenericWidget.exec();
+    // DialogSetGenericWidget dialogSetGenericWidget(this);
+    // dialogSetGenericWidget.setData(getDevice(), deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
+    // dialogSetGenericWidget.exec();
 }
 
 void XHexView::_setCodePage(const QString &sCodePage)
