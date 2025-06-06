@@ -130,7 +130,6 @@ private slots:
     void _disasmSlot();
     void _memoryMapSlot();
     void _mainHexSlot();
-    void _structsSlot();
     void _setCodePage(const QString &sCodePage);
     void changeElementWidth();
     void changeElementMode();

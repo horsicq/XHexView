@@ -22,9 +22,9 @@
 
 XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 {
-    addShortcut(X_ID_HEX_DATA_INSPECTOR, this, SLOT(_showDataInspector()));
-    addShortcut(X_ID_HEX_DATA_CONVERTOR, this, SLOT(_showDataConvertor()));
-    addShortcut(X_ID_HEX_MULTISEARCH, this, SLOT(_showMultisearch()));
+    addShortcut(X_ID_HEX_DATA_INSPECTOR, this, SLOT(_dataInspector()));
+    addShortcut(X_ID_HEX_DATA_CONVERTOR, this, SLOT(_dataConvertor()));
+    addShortcut(X_ID_HEX_MULTISEARCH, this, SLOT(_multisearch()));
     addShortcut(X_ID_HEX_GOTO_OFFSET, this, SLOT(_goToOffsetSlot()));
     addShortcut(X_ID_HEX_GOTO_ADDRESS, this, SLOT(_goToAddressSlot()));
     addShortcut(X_ID_HEX_DUMPTOFILE, this, SLOT(_dumpToFileSlot()));
@@ -43,7 +43,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     addShortcut(X_ID_HEX_EDIT_HEX, this, SLOT(_editHex()));
     addShortcut(X_ID_HEX_EDIT_REMOVE, this, SLOT(_editRemove()));
     addShortcut(X_ID_HEX_EDIT_RESIZE, this, SLOT(_editResize()));
-    addShortcut(X_ID_HEX_STRUCTS, this, SLOT(_structsSlot()));
+    addShortcut(X_ID_HEX_STRUCTS, this, SLOT(_structs()));
 
     g_nBytesProLine = 16;  // Default
     g_nElementByteSize = 1;
@@ -777,9 +777,9 @@ void XHexView::contextMenu(const QPoint &pos)
         QList<XShortcuts::MENUITEM> listMenuItems;
 
         if (menuState.nSelectionViewSize) {
-            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATA_INSPECTOR, this, SLOT(_showDataInspector()), XShortcuts::GROUPID_NONE,
+            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATA_INSPECTOR, this, SLOT(_dataInspector()), XShortcuts::GROUPID_NONE,
                                                  getViewWidgetState(VIEWWIDGET_DATAINSPECTOR));
-            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATA_CONVERTOR, this, SLOT(_showDataConvertor()), XShortcuts::GROUPID_NONE,
+            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATA_CONVERTOR, this, SLOT(_dataConvertor()), XShortcuts::GROUPID_NONE,
                                                  getViewWidgetState(VIEWWIDGET_DATACONVERTOR));
             getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_NONE);
         }
@@ -794,7 +794,7 @@ void XHexView::contextMenu(const QPoint &pos)
                                          (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
         }
 
-        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_MULTISEARCH, this, SLOT(_showMultisearch()), XShortcuts::GROUPID_NONE,
+        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_MULTISEARCH, this, SLOT(_multisearch()), XShortcuts::GROUPID_NONE,
                                              getViewWidgetState(VIEWWIDGET_MULTISEARCH));
 
         if (menuState.nSelectionViewSize) {
@@ -847,7 +847,7 @@ void XHexView::contextMenu(const QPoint &pos)
             }
         }
 
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_STRUCTS, this, SLOT(_structsSlot()), XShortcuts::GROUPID_NONE);
+        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_STRUCTS, this, SLOT(_structs()), XShortcuts::GROUPID_NONE);
 
         QList<QObject *> listObjects = getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
 
@@ -1500,15 +1500,6 @@ void XHexView::_mainHexSlot()
         DEVICESTATE deviceState = getDeviceState();
         emit followLocation(getDeviceState().nSelectionDeviceOffset, XBinary::LT_OFFSET, deviceState.nSelectionSize, XOptions::WIDGETTYPE_HEX);
     }
-}
-
-void XHexView::_structsSlot()
-{
-    // DEVICESTATE deviceState = getDeviceState();
-
-    // DialogSetGenericWidget dialogSetGenericWidget(this);
-    // dialogSetGenericWidget.setData(getDevice(), deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
-    // dialogSetGenericWidget.exec();
 }
 
 void XHexView::_setCodePage(const QString &sCodePage)

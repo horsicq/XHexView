@@ -113,9 +113,9 @@ FORMS += \
     include($$PWD/../XVisualizationWidget/xvisualizationwidget.pri)
 }
 
-!contains(XCONFIG, abstractwidgets) {
-    XCONFIG += abstractwidgets
-    include($$PWD/../FormatWidgets/AbstractWidgets/abstractwidgets.pri)
+!contains(XCONFIG, xstructwidget) {
+    XCONFIG += xstructwidget
+    include($$PWD/../FormatWidgets/XAbstractWidgets/xstructwidget.pri)
 }
 
 !contains(XCONFIG, dialogwidget) {

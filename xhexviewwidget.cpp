@@ -240,10 +240,10 @@ void XHexViewWidget::viewWidgetsState()
 {
     // ui->pushButtonBookmarks->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_BOOKMARKS));
     // ui->pushButtonDataConverter->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_DATACONVERTOR));
-    ui->toolButtonDataInspector->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_DATAINSPECTOR));
+    ui->toolButtonDataInspector->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableEditView::VIEWWIDGET_DATAINSPECTOR));
     // ui->pushButtonMultiSearch->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_MULTISEARCH));
     // ui->pushButtonScripts->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_SCRIPTS));
-    ui->toolButtonStrings->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_STRINGS));
+    ui->toolButtonStrings->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableEditView::VIEWWIDGET_STRINGS));
     // ui->pushButtonVisualization->setEnabled(!ui->scrollAreaHex->getViewWidgetState(XDeviceTableView::VIEWWIDGET_VISUALIZATION));
 }
 
@@ -270,7 +270,7 @@ void XHexViewWidget::on_checkBoxReadonly_toggled(bool bChecked)
 void XHexViewWidget::on_toolButtonDataInspector_clicked()
 {
     // TODO set Readonly
-    ui->scrollAreaHex->_showDataInspector();
+    ui->scrollAreaHex->_dataInspector();
 }
 
 void XHexViewWidget::on_toolButtonStrings_clicked()
