@@ -100,6 +100,14 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
 {
     g_hexOptions = options;
 
+    bool bReadOnly = false;
+
+    if (pDevice) {
+        bReadOnly = !(pDevice->isWritable());
+    }
+
+    setReadonly(bReadOnly);
+
     setDevice(pDevice, options.nStartOffset, options.nTotalSize);
 
     adjustView();
