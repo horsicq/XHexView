@@ -104,7 +104,7 @@
     </layout>
    </item>
    <item>
-    <widget class="XHexView" name="scrollAreaHex" native="true">
+    <widget class="XHexViewEx" name="scrollAreaHex">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -114,7 +114,10 @@
      <property name="focusPolicy">
       <enum>Qt::FocusPolicy::StrongFocus</enum>
      </property>
-     <property name="widgetResizable" stdset="0">
+     <property name="contextMenuPolicy">
+      <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+     </property>
+     <property name="widgetResizable">
       <bool>true</bool>
      </property>
     </widget>
@@ -133,9 +136,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>XHexView</class>
-   <extends>QWidget</extends>
-   <header>xhexview.h</header>
+   <class>XHexViewEx</class>
+   <extends>QScrollArea</extends>
+   <header>xhexviewex.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

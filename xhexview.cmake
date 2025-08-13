@@ -132,6 +132,8 @@ set(XHEXVIEW_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/dialoghexview.ui
     ${CMAKE_CURRENT_LIST_DIR}/xhexview.cpp
     ${CMAKE_CURRENT_LIST_DIR}/xhexview.h
+    ${CMAKE_CURRENT_LIST_DIR}/xhexviewex.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/xhexviewex.h
     ${CMAKE_CURRENT_LIST_DIR}/xhexviewoptionswidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/xhexviewoptionswidget.h
     ${CMAKE_CURRENT_LIST_DIR}/xhexviewoptionswidget.ui

@@ -43,7 +43,6 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     addShortcut(X_ID_HEX_EDIT_HEX, this, SLOT(_editHex()));
     addShortcut(X_ID_HEX_EDIT_REMOVE, this, SLOT(_editRemove()));
     addShortcut(X_ID_HEX_EDIT_RESIZE, this, SLOT(_editResize()));
-    addShortcut(X_ID_HEX_STRUCTS, this, SLOT(_structs()));
 
     g_nBytesProLine = 16;  // Default
     g_nElementByteSize = 1;
@@ -156,6 +155,86 @@ void XHexView::setBytesProLine(qint32 nBytesProLine)
     g_nBytesProLine = nBytesProLine;
     adjustScrollCount();
     adjustView();
+}
+
+QList<XShortcuts::MENUITEM> XHexView::getMenuItems()
+{
+    QList<XShortcuts::MENUITEM> listResults;
+
+    STATE menuState = getState();
+
+    if (menuState.nSelectionViewSize) {
+        getShortcuts()->_addMenuItem_Checked(&listResults, X_ID_HEX_DATA_INSPECTOR, this, SLOT(_dataInspector()), XShortcuts::GROUPID_NONE,
+                                             getViewWidgetState(VIEWWIDGET_DATAINSPECTOR));
+        getShortcuts()->_addMenuItem_Checked(&listResults, X_ID_HEX_DATA_CONVERTOR, this, SLOT(_dataConvertor()), XShortcuts::GROUPID_NONE,
+                                             getViewWidgetState(VIEWWIDGET_DATACONVERTOR));
+        getShortcuts()->_addMenuSeparator(&listResults, XShortcuts::GROUPID_NONE);
+    }
+
+    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_GOTO_OFFSET, this, SLOT(_goToOffsetSlot()), XShortcuts::GROUPID_GOTO);
+    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_GOTO_ADDRESS, this, SLOT(_goToAddressSlot()), XShortcuts::GROUPID_GOTO);
+
+    if (menuState.nSelectionViewSize) {
+        getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_GOTO_SELECTION_START, this, SLOT(_goToSelectionStart()),
+                                     (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
+        getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_GOTO_SELECTION_END, this, SLOT(_goToSelectionEnd()),
+                                     (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
+    }
+
+    getShortcuts()->_addMenuItem_Checked(&listResults, X_ID_HEX_MULTISEARCH, this, SLOT(_multisearch()), XShortcuts::GROUPID_NONE,
+                                         getViewWidgetState(VIEWWIDGET_MULTISEARCH));
+
+    if (menuState.nSelectionViewSize) {
+        getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_DUMPTOFILE, this, SLOT(_dumpToFileSlot()), XShortcuts::GROUPID_NONE);
+        getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_SIGNATURE, this, SLOT(_hexSignatureSlot()), XShortcuts::GROUPID_NONE);
+    }
+
+    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_FIND_STRING, this, SLOT(_findStringSlot()), XShortcuts::GROUPID_FIND);
+    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_FIND_SIGNATURE, this, SLOT(_findSignatureSlot()), XShortcuts::GROUPID_FIND);
+    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_FIND_VALUE, this, SLOT(_findValueSlot()), XShortcuts::GROUPID_FIND);
+    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_FIND_NEXT, this, SLOT(_findNextSlot()), XShortcuts::GROUPID_FIND);
+
+    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_SELECT_ALL, this, SLOT(_selectAllSlot()), XShortcuts::GROUPID_SELECT);
+
+    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_COPY_OFFSET, this, SLOT(_copyOffsetSlot()), XShortcuts::GROUPID_COPY);
+    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_COPY_ADDRESS, this, SLOT(_copyAddressSlot()), XShortcuts::GROUPID_COPY);
+    getShortcuts()->_addMenuSeparator(&listResults, XShortcuts::GROUPID_COPY);
+    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_COPY_DATA, this, SLOT(_copyDataSlot()), XShortcuts::GROUPID_COPY);
+
+    getShortcuts()->_addMenuItem_Checked(&listResults, X_ID_HEX_STRINGS, this, SLOT(_strings()), XShortcuts::GROUPID_NONE, getViewWidgetState(VIEWWIDGET_STRINGS));
+    getShortcuts()->_addMenuItem_Checked(&listResults, X_ID_HEX_VISUALIZATION, this, SLOT(_visualization()), XShortcuts::GROUPID_NONE,
+                                         getViewWidgetState(VIEWWIDGET_VISUALIZATION));
+
+    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_BOOKMARKS_NEW, this, SLOT(_bookmarkNew()), XShortcuts::GROUPID_BOOKMARKS);
+    getShortcuts()->_addMenuItem_Checked(&listResults, X_ID_HEX_BOOKMARKS_LIST, this, SLOT(_bookmarkList()), XShortcuts::GROUPID_BOOKMARKS,
+                                         getViewWidgetState(VIEWWIDGET_BOOKMARKS));
+
+    if (g_hexOptions.bMenu_Disasm) {
+        getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_FOLLOWIN_DISASM, this, SLOT(_disasmSlot()), XShortcuts::GROUPID_FOLLOWIN);
+    }
+
+    if (g_hexOptions.bMenu_MemoryMap) {
+        getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_FOLLOWIN_MEMORYMAP, this, SLOT(_memoryMapSlot()), XShortcuts::GROUPID_FOLLOWIN);
+    }
+
+    if (g_hexOptions.bMenu_MainHex) {
+        getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_FOLLOWIN_HEX, this, SLOT(_mainHexSlot()), XShortcuts::GROUPID_FOLLOWIN);
+    }
+
+    if (!isReadonly()) {
+        if (menuState.nSelectionViewSize) {
+            getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_EDIT_HEX, this, SLOT(_editHex()), XShortcuts::GROUPID_EDIT);
+        }
+        getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_EDIT_PATCH, this, SLOT(_editPatch()), XShortcuts::GROUPID_EDIT);
+
+        if (XBinary::isResizeEnable(getDevice())) {
+            getShortcuts()->_addMenuSeparator(&listResults, XShortcuts::GROUPID_EDIT);
+            getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_EDIT_REMOVE, this, SLOT(_editRemove()), XShortcuts::GROUPID_EDIT);
+            getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_EDIT_RESIZE, this, SLOT(_editResize()), XShortcuts::GROUPID_EDIT);
+        }
+    }
+
+    return listResults;
 }
 
 XHexView::SHOWRECORD XHexView::_getShowRecordByViewPos(qint64 nOffset)
@@ -772,110 +851,6 @@ void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint
         }
     } else {
         XAbstractTableView::paintTitle(pPainter, nColumn, nLeft, nTop, nWidth, nHeight, sTitle);
-    }
-}
-
-void XHexView::contextMenu(const QPoint &pos)
-{
-    if (isContextMenuEnable()) {
-        STATE menuState = getState();
-
-        QMenu contextMenu(this);
-
-        QList<XShortcuts::MENUITEM> listMenuItems;
-
-        if (menuState.nSelectionViewSize) {
-            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATA_INSPECTOR, this, SLOT(_dataInspector()), XShortcuts::GROUPID_NONE,
-                                                 getViewWidgetState(VIEWWIDGET_DATAINSPECTOR));
-            getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_DATA_CONVERTOR, this, SLOT(_dataConvertor()), XShortcuts::GROUPID_NONE,
-                                                 getViewWidgetState(VIEWWIDGET_DATACONVERTOR));
-            getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_NONE);
-        }
-
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_OFFSET, this, SLOT(_goToOffsetSlot()), XShortcuts::GROUPID_GOTO);
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_ADDRESS, this, SLOT(_goToAddressSlot()), XShortcuts::GROUPID_GOTO);
-
-        if (menuState.nSelectionViewSize) {
-            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_SELECTION_START, this, SLOT(_goToSelectionStart()),
-                                         (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
-            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_GOTO_SELECTION_END, this, SLOT(_goToSelectionEnd()),
-                                         (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
-        }
-
-        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_MULTISEARCH, this, SLOT(_multisearch()), XShortcuts::GROUPID_NONE,
-                                             getViewWidgetState(VIEWWIDGET_MULTISEARCH));
-
-        if (menuState.nSelectionViewSize) {
-            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_DUMPTOFILE, this, SLOT(_dumpToFileSlot()), XShortcuts::GROUPID_NONE);
-            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_SIGNATURE, this, SLOT(_hexSignatureSlot()), XShortcuts::GROUPID_NONE);
-        }
-
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FIND_STRING, this, SLOT(_findStringSlot()), XShortcuts::GROUPID_FIND);
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FIND_SIGNATURE, this, SLOT(_findSignatureSlot()), XShortcuts::GROUPID_FIND);
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FIND_VALUE, this, SLOT(_findValueSlot()), XShortcuts::GROUPID_FIND);
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FIND_NEXT, this, SLOT(_findNextSlot()), XShortcuts::GROUPID_FIND);
-
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_SELECT_ALL, this, SLOT(_selectAllSlot()), XShortcuts::GROUPID_SELECT);
-
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_COPY_OFFSET, this, SLOT(_copyOffsetSlot()), XShortcuts::GROUPID_COPY);
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_COPY_ADDRESS, this, SLOT(_copyAddressSlot()), XShortcuts::GROUPID_COPY);
-        getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_COPY);
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_COPY_DATA, this, SLOT(_copyDataSlot()), XShortcuts::GROUPID_COPY);
-
-        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_STRINGS, this, SLOT(_strings()), XShortcuts::GROUPID_NONE, getViewWidgetState(VIEWWIDGET_STRINGS));
-        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_VISUALIZATION, this, SLOT(_visualization()), XShortcuts::GROUPID_NONE,
-                                             getViewWidgetState(VIEWWIDGET_VISUALIZATION));
-
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_BOOKMARKS_NEW, this, SLOT(_bookmarkNew()), XShortcuts::GROUPID_BOOKMARKS);
-        getShortcuts()->_addMenuItem_Checked(&listMenuItems, X_ID_HEX_BOOKMARKS_LIST, this, SLOT(_bookmarkList()), XShortcuts::GROUPID_BOOKMARKS,
-                                             getViewWidgetState(VIEWWIDGET_BOOKMARKS));
-
-        if (g_hexOptions.bMenu_Disasm) {
-            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FOLLOWIN_DISASM, this, SLOT(_disasmSlot()), XShortcuts::GROUPID_FOLLOWIN);
-        }
-
-        if (g_hexOptions.bMenu_MemoryMap) {
-            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FOLLOWIN_MEMORYMAP, this, SLOT(_memoryMapSlot()), XShortcuts::GROUPID_FOLLOWIN);
-        }
-
-        if (g_hexOptions.bMenu_MainHex) {
-            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_FOLLOWIN_HEX, this, SLOT(_mainHexSlot()), XShortcuts::GROUPID_FOLLOWIN);
-        }
-
-        if (!isReadonly()) {
-            if (menuState.nSelectionViewSize) {
-                getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_EDIT_HEX, this, SLOT(_editHex()), XShortcuts::GROUPID_EDIT);
-            }
-            getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_EDIT_PATCH, this, SLOT(_editPatch()), XShortcuts::GROUPID_EDIT);
-
-            if (XBinary::isResizeEnable(getDevice())) {
-                getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_EDIT);
-                getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_EDIT_REMOVE, this, SLOT(_editRemove()), XShortcuts::GROUPID_EDIT);
-                getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_EDIT_RESIZE, this, SLOT(_editResize()), XShortcuts::GROUPID_EDIT);
-            }
-        }
-
-        getShortcuts()->_addMenuItem(&listMenuItems, X_ID_HEX_STRUCTS, this, SLOT(_structs()), XShortcuts::GROUPID_NONE);
-
-        QList<QObject *> listObjects = getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
-
-        contextMenu.exec(pos);
-
-        XOptions::deleteQObjectList(&listObjects);
-
-        return;
-
-        // TODO
-#if defined(QT_SCRIPT_LIB) || defined(QT_QML_LIB)
-        QAction actionScripts(this);
-        getShortcuts()->adjustAction(&contextMenu, &actionScripts, X_ID_HEX_SCRIPTS, this, SLOT(_scripts()));
-        if (getViewWidgetState(VIEWWIDGET_SCRIPTS)) {
-            actionScripts.setCheckable(true);
-            actionScripts.setChecked(true);
-        }
-#endif
-        // TODO reset select
-        contextMenu.exec(pos);
     }
 }
 
