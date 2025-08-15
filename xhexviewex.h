@@ -25,8 +25,7 @@
 #include "dialogxstructchooser.h"
 #include "dialogxstruct.h"
 
-class XHexViewEx : public XHexView
-{
+class XHexViewEx : public XHexView {
     Q_OBJECT
 
 public:
@@ -38,4 +37,4 @@ public slots:
     void _structs();
 };
 
-#endif // XHEXVIEWEX_H
+#endif  // XHEXVIEWEX_H

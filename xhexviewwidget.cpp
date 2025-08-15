@@ -291,4 +291,3 @@ void XHexViewWidget::on_comboBoxLocationBase_currentIndexChanged(int nIndex)
 
     ui->scrollAreaHex->setLocationBase(ui->comboBoxLocationBase->currentData().toInt());
 }
-
