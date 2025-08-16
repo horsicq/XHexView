@@ -860,7 +860,6 @@ void XHexView::wheelEvent(QWheelEvent *pEvent)
         if (getCurrentViewPosFromScroll() == g_nViewStartDelta) {
             setCurrentViewPosToScroll(0);
             adjust(true);
-            viewport()->update();
         }
     }
 
