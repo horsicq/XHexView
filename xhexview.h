@@ -52,7 +52,7 @@ public:
 
     void _adjustView();
     virtual void adjustView();
-    void setData(QIODevice *pDevice, const OPTIONS &options, bool bReload);
+    void setData(QIODevice *pDevice, const OPTIONS &options, bool bReload, XInfoDB *pInfoDB = nullptr);
     void goToOffset(qint64 nOffset);
     // XADDR getStartLocation();  // TODO Check mb remove
     // XADDR getSelectionInitLocation();

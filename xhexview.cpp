@@ -95,7 +95,7 @@ void XHexView::_adjustView()
     }
 }
 
-void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
+void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload, XInfoDB *pInfoDB)
 {
     g_hexOptions = options;
 
@@ -104,6 +104,8 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload)
     if (pDevice) {
         bReadOnly = !(pDevice->isWritable());
     }
+
+    setXInfoDB(pInfoDB);
 
     setReadonly(bReadOnly);
 
