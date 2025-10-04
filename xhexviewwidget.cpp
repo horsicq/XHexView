@@ -37,7 +37,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 
     XFormats::setBaseComboBox(ui->comboBoxLocationBase, 10);
 
-    g_pDevice = nullptr;
+    m_pDevice = nullptr;
     g_options = {};
 
     connect(ui->scrollAreaHex, SIGNAL(followLocation(quint64, qint32, qint64, qint32)), this, SIGNAL(followLocation(quint64, qint32, qint64, qint32)));
@@ -65,7 +65,7 @@ void XHexViewWidget::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
 
 void XHexViewWidget::setData(QIODevice *pDevice, const OPTIONS &options)
 {
-    g_pDevice = pDevice;
+    m_pDevice = pDevice;
     g_options = options;
 
     if (pDevice) {
@@ -158,7 +158,7 @@ void XHexViewWidget::reloadData(bool bSaveSelection)
 
 void XHexViewWidget::reloadFileType()
 {
-    if (g_pDevice) {
+    if (m_pDevice) {
         g_options.fileType = (XBinary::FT)(ui->comboBoxType->currentData().toInt());
 
         XHexView::OPTIONS options = {};
@@ -170,20 +170,20 @@ void XHexViewWidget::reloadFileType()
         // options.bHideReadOnly = g_options.bHideReadOnly;
 
         // if (g_options.fileType == XBinary::FT_REGION) {
-        //     options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, g_pDevice, true, g_options.nStartLocation);
+        //     options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, m_pDevice, true, g_options.nStartLocation);
         // } else {
-        //     options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, g_pDevice);
+        //     options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, m_pDevice);
         // }
 
-        // ui->scrollAreaDisasm->setData(g_pDevice, options);
+        // ui->scrollAreaDisasm->setData(m_pDevice, options);
 
         // TODO Check
         // if (ui->scrollAreaHex->getXInfoDB()) {
-        //     ui->scrollAreaHex->getXInfoDB()->setData(g_pDevice, options.memoryMapRegion.fileType);
+        //     ui->scrollAreaHex->getXInfoDB()->setData(m_pDevice, options.memoryMapRegion.fileType);
         //     //            getSymbols();
         // }
 
-        ui->scrollAreaHex->setData(g_pDevice, options, true);
+        ui->scrollAreaHex->setData(m_pDevice, options, true);
         ui->scrollAreaHex->reload(true);
     }
 }
