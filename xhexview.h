@@ -141,7 +141,7 @@ private:
     qint32 g_nPrintsProElement;
     qint32 g_nElementByteSize;
     qint32 g_nSymbolByteSize;
-    ELEMENT_MODE g_mode;
+    ELEMENT_MODE m_mode;
     qint32 g_nDataBlockSize;
     QList<HIGHLIGHTREGION> g_listHighlightsRegion;
     qint32 g_nViewStartDelta;

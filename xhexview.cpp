@@ -349,7 +349,7 @@ void XHexView::updateData()
             QString sDataHexBuffer;
             QString sANSI;
 
-            if ((g_mode == ELEMENT_MODE_HEX) || (g_mode == ELEMENT_MODE_BYTE)) {
+            if ((m_mode == ELEMENT_MODE_HEX) || (m_mode == ELEMENT_MODE_BYTE)) {
                 sDataHexBuffer = QByteArray(g_baDataBuffer.toHex());
             }
 
@@ -394,7 +394,7 @@ void XHexView::updateData()
             // Elements
             qint32 nMaxBytes = 1;
 
-            if (g_mode == ELEMENT_MODE_HEX) {
+            if (m_mode == ELEMENT_MODE_HEX) {
                 nMaxBytes = 8;  // TODO compare with XBinary::getHexSize
             } else {
                 nMaxBytes = g_nElementByteSize;
@@ -439,31 +439,31 @@ void XHexView::updateData()
 #endif
                 }
 
-                if (g_mode == ELEMENT_MODE_HEX) {
+                if (m_mode == ELEMENT_MODE_HEX) {
                     record.sElement = sDataHexBuffer.mid(i * 2, 2 * record.nSize);
-                } else if (g_mode == ELEMENT_MODE_BYTE) {
+                } else if (m_mode == ELEMENT_MODE_BYTE) {
                     record.sElement = sDataHexBuffer.mid(i * 2, 2);  // g_nSymbolsProElement
-                } else if (g_mode == ELEMENT_MODE_UINT8) {
+                } else if (m_mode == ELEMENT_MODE_UINT8) {
                     record.sElement = QString::number(XBinary::_read_uint8(pData + i));
-                } else if (g_mode == ELEMENT_MODE_INT8) {
+                } else if (m_mode == ELEMENT_MODE_INT8) {
                     record.sElement = QString::number(XBinary::_read_int8(pData + i));
-                } else if (g_mode == ELEMENT_MODE_WORD) {
+                } else if (m_mode == ELEMENT_MODE_WORD) {
                     record.sElement = XBinary::valueToHex(XBinary::_read_uint16(pData + i));
-                } else if (g_mode == ELEMENT_MODE_UINT16) {
+                } else if (m_mode == ELEMENT_MODE_UINT16) {
                     record.sElement = QString::number(XBinary::_read_uint16(pData + i));
-                } else if (g_mode == ELEMENT_MODE_INT16) {
+                } else if (m_mode == ELEMENT_MODE_INT16) {
                     record.sElement = QString::number(XBinary::_read_int16(pData + i));
-                } else if (g_mode == ELEMENT_MODE_DWORD) {
+                } else if (m_mode == ELEMENT_MODE_DWORD) {
                     record.sElement = XBinary::valueToHex(XBinary::_read_uint32(pData + i));
-                } else if (g_mode == ELEMENT_MODE_UINT32) {
+                } else if (m_mode == ELEMENT_MODE_UINT32) {
                     record.sElement = QString::number(XBinary::_read_uint32(pData + i));
-                } else if (g_mode == ELEMENT_MODE_INT32) {
+                } else if (m_mode == ELEMENT_MODE_INT32) {
                     record.sElement = QString::number(XBinary::_read_int32(pData + i));
-                } else if (g_mode == ELEMENT_MODE_QWORD) {
+                } else if (m_mode == ELEMENT_MODE_QWORD) {
                     record.sElement = XBinary::valueToHex(XBinary::_read_uint64(pData + i));
-                } else if (g_mode == ELEMENT_MODE_UINT64) {
+                } else if (m_mode == ELEMENT_MODE_UINT64) {
                     record.sElement = QString::number(XBinary::_read_uint64(pData + i));
-                } else if (g_mode == ELEMENT_MODE_INT64) {
+                } else if (m_mode == ELEMENT_MODE_INT64) {
                     record.sElement = QString::number(XBinary::_read_int64(pData + i));
                 }
 
@@ -1116,7 +1116,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_HEX);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_HEX);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_HEX;
 
@@ -1132,7 +1132,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_BYTE);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_BYTE);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_BYTE;
 
@@ -1146,7 +1146,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_WORD);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_WORD);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_WORD;
 
@@ -1160,7 +1160,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_DWORD);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_DWORD);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_DWORD;
 
@@ -1174,7 +1174,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_QWORD);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_QWORD);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_QWORD;
 
@@ -1190,7 +1190,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_UINT8);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_UINT8);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_UINT8;
 
@@ -1204,7 +1204,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_INT8);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_INT8);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_INT8;
 
@@ -1220,7 +1220,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_UINT16);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_UINT16);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_UINT16;
 
@@ -1234,7 +1234,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_INT16);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_INT16);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_INT16;
 
@@ -1250,7 +1250,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_UINT32);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_UINT32);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_UINT32;
 
@@ -1264,7 +1264,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_INT32);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_INT32);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_INT32;
 
@@ -1280,7 +1280,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_UINT64);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_UINT64);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_UINT64;
 
@@ -1294,7 +1294,7 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeElementMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (g_mode == ELEMENT_MODE_INT64);
+            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_INT64);
             menuItem.sPropertyName = "mode";
             menuItem.varProperty = ELEMENT_MODE_INT64;
 
@@ -1536,7 +1536,7 @@ void XHexView::changeElementMode()
 
 void XHexView::_setMode(ELEMENT_MODE mode)
 {
-    g_mode = mode;
+    m_mode = mode;
 
     if (mode == ELEMENT_MODE_HEX) {
         g_nPrintsProElement = 2;
