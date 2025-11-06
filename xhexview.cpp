@@ -1097,11 +1097,11 @@ void XHexView::_headerClicked(qint32 nColumn)
             listMenuItems.append(menuItem);
         }
 
-        QList<QObject *> listObjects = getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
+        getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
 
         contextMenu.exec(QCursor::pos());
 
-        XOptions::deleteQObjectList(&listObjects);
+
 
         // adjust(true);
     } else if (nColumn == COLUMN_ELEMENTS) {
@@ -1385,11 +1385,11 @@ void XHexView::_headerClicked(qint32 nColumn)
             listMenuItems.append(menuItem);
         }
 
-        QList<QObject *> listObjects = getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
+        getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
 
         contextMenu.exec(QCursor::pos());
 
-        XOptions::deleteQObjectList(&listObjects);
+
     } else if (nColumn == COLUMN_SYMBOLS) {
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
         g_pCodePageMenu->exec(QCursor::pos());
