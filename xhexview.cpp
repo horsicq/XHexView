@@ -1101,8 +1101,6 @@ void XHexView::_headerClicked(qint32 nColumn)
 
         contextMenu.exec(QCursor::pos());
 
-
-
         // adjust(true);
     } else if (nColumn == COLUMN_ELEMENTS) {
         QMenu contextMenu(this);  // TODO
@@ -1388,7 +1386,6 @@ void XHexView::_headerClicked(qint32 nColumn)
         getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
 
         contextMenu.exec(QCursor::pos());
-
 
     } else if (nColumn == COLUMN_SYMBOLS) {
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
