@@ -26,7 +26,7 @@ XHexViewOptionsWidget::XHexViewOptionsWidget(QWidget *pParent) : XShortcutsWidge
 {
     ui->setupUi(this);
 
-    g_pOptions = nullptr;
+    m_pOptions = nullptr;
 
     setProperty("GROUPID", XOptions::GROUPID_HEX);
 }
@@ -43,14 +43,14 @@ void XHexViewOptionsWidget::adjustView()
 
 void XHexViewOptionsWidget::setOptions(XOptions *pOptions)
 {
-    g_pOptions = pOptions;
+    m_pOptions = pOptions;
 
     reload();
 }
 
 void XHexViewOptionsWidget::save()
 {
-    g_pOptions->getCheckBox(ui->checkBoxHexLocationColon, XOptions::ID_HEX_LOCATIONCOLON);
+    m_pOptions->getCheckBox(ui->checkBoxHexLocationColon, XOptions::ID_HEX_LOCATIONCOLON);
 }
 
 void XHexViewOptionsWidget::setDefaultValues(XOptions *pOptions)
@@ -67,7 +67,7 @@ void XHexViewOptionsWidget::reloadData(bool bSaveSelection)
 
 void XHexViewOptionsWidget::reload()
 {
-    g_pOptions->setCheckBox(ui->checkBoxHexLocationColon, XOptions::ID_HEX_LOCATIONCOLON);
+    m_pOptions->setCheckBox(ui->checkBoxHexLocationColon, XOptions::ID_HEX_LOCATIONCOLON);
 }
 
 void XHexViewOptionsWidget::registerShortcuts(bool bState)

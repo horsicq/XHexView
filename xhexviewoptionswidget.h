@@ -49,7 +49,7 @@ protected:
 
 private:
     Ui::XHexViewOptionsWidget *ui;
-    XOptions *g_pOptions;
+    XOptions *m_pOptions;
 };
 
 #endif  // XHEXVIEWOPTIONSWIDGET_H
