@@ -136,30 +136,30 @@ private slots:
     void _setMode(ELEMENT_MODE mode);
 
 private:
-    OPTIONS g_hexOptions;
-    qint32 g_nBytesProLine;
-    qint32 g_nPrintsProElement;
-    qint32 g_nElementByteSize;
-    qint32 g_nSymbolByteSize;
+    OPTIONS m_hexOptions;
+    qint32 m_nBytesProLine;
+    qint32 m_nPrintsProElement;
+    qint32 m_nElementByteSize;
+    qint32 m_nSymbolByteSize;
     ELEMENT_MODE m_mode;
-    qint32 g_nDataBlockSize;
-    QList<HIGHLIGHTREGION> g_listHighlightsRegion;
-    qint32 g_nViewStartDelta;
-    QByteArray g_baDataBuffer;
-    QList<LOCATIONRECORD> g_listLocationRecords;
-    QList<SHOWRECORD> g_listShowRecords;
-    qint32 g_nAddressWidth;
-    qint64 g_nThisBase;
+    qint32 m_nDataBlockSize;
+    QList<HIGHLIGHTREGION> m_listHighlightsRegion;
+    qint32 m_nViewStartDelta;
+    QByteArray m_baDataBuffer;
+    QList<LOCATIONRECORD> m_listLocationRecords;
+    QList<SHOWRECORD> m_listShowRecords;
+    qint32 m_nAddressWidth;
+    qint64 m_nThisBase;
     //    SMODE g_smode;
-    bool g_bIsLocationColon;
+    bool m_bIsLocationColon;
 
-    QString g_sCodePage;
+    QString m_sCodePage;
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
-    QTextCodec *g_pCodec;
-    QMenu *g_pCodePageMenu;
-    XOptions g_xCodePageOptions;
+    QTextCodec *m_pCodec;
+    QMenu *m_pCodePageMenu;
+    XOptions m_xCodePageOptions;
 #endif
-    QPixmapCache g_pixmapCache;
+    QPixmapCache m_pixmapCache;
 };
 
 #endif  // XHEXVIEW_H
