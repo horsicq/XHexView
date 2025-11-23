@@ -38,7 +38,7 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     XFormats::setBaseComboBox(ui->comboBoxLocationBase, 10);
 
     m_pDevice = nullptr;
-    g_options = {};
+    m_options = {};
 
     connect(ui->scrollAreaHex, SIGNAL(followLocation(quint64, qint32, qint64, qint32)), this, SIGNAL(followLocation(quint64, qint32, qint64, qint32)));
     connect(ui->scrollAreaHex, SIGNAL(errorMessage(QString)), this, SLOT(errorMessageSlot(QString)));
@@ -66,7 +66,7 @@ void XHexViewWidget::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
 void XHexViewWidget::setData(QIODevice *pDevice, const OPTIONS &options)
 {
     m_pDevice = pDevice;
-    g_options = options;
+    m_options = options;
 
     if (pDevice) {
         XFormats::setFileTypeComboBox(options.fileType, pDevice, ui->comboBoxType, XBinary::TL_OPTION_ALL);
@@ -159,20 +159,20 @@ void XHexViewWidget::reloadData(bool bSaveSelection)
 void XHexViewWidget::reloadFileType()
 {
     if (m_pDevice) {
-        g_options.fileType = (XBinary::FT)(ui->comboBoxType->currentData().toInt());
+        m_options.fileType = (XBinary::FT)(ui->comboBoxType->currentData().toInt());
 
         XHexView::OPTIONS options = {};
-        options.nStartOffset = g_options.nStartOffset;
-        options.nTotalSize = g_options.nTotalSize;
-        options.bMenu_MainHex = g_options.bMenu_MainHex;
-        options.bMenu_Disasm = g_options.bMenu_Disasm;
-        options.bMenu_MemoryMap = g_options.bMenu_MemoryMap;
-        // options.bHideReadOnly = g_options.bHideReadOnly;
+        options.nStartOffset = m_options.nStartOffset;
+        options.nTotalSize = m_options.nTotalSize;
+        options.bMenu_MainHex = m_options.bMenu_MainHex;
+        options.bMenu_Disasm = m_options.bMenu_Disasm;
+        options.bMenu_MemoryMap = m_options.bMenu_MemoryMap;
+        // options.bHideReadOnly = m_options.bHideReadOnly;
 
-        // if (g_options.fileType == XBinary::FT_REGION) {
-        //     options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, m_pDevice, true, g_options.nStartLocation);
+        // if (m_options.fileType == XBinary::FT_REGION) {
+        //     options.memoryMapRegion = XFormats::getMemoryMap(m_options.fileType, XBinary::MAPMODE_UNKNOWN, m_pDevice, true, m_options.nStartLocation);
         // } else {
-        //     options.memoryMapRegion = XFormats::getMemoryMap(g_options.fileType, XBinary::MAPMODE_UNKNOWN, m_pDevice);
+        //     options.memoryMapRegion = XFormats::getMemoryMap(m_options.fileType, XBinary::MAPMODE_UNKNOWN, m_pDevice);
         // }
 
         // ui->scrollAreaDisasm->setData(m_pDevice, options);

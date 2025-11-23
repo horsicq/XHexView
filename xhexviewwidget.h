@@ -89,7 +89,7 @@ protected:
 private:
     Ui::XHexViewWidget *ui;
     QIODevice *m_pDevice;
-    OPTIONS g_options;
+    OPTIONS m_options;
 };
 
 #endif  // XHEXVIEWWIDGET_H
