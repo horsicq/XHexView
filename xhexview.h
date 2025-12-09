@@ -25,9 +25,7 @@
 #include <QPixmapCache>
 
 #include "dialoghexedit.h"
-// #include "xformatwidget.h"
 #include "xdevicetableeditview.h"
-// #include "dialogsetgenericwidget.h"
 
 // TODO if cursor moved -> highlight location and header
 // TODO modes symbols/disasm/types
@@ -115,8 +113,8 @@ protected:
     virtual void paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight, const QString &sTitle);
     virtual void wheelEvent(QWheelEvent *pEvent);
     virtual void keyPressEvent(QKeyEvent *pEvent);
-    virtual qint64 getCurrentViewPosFromScroll();
-    virtual void setCurrentViewPosToScroll(qint64 nOffset);
+    virtual XVPOS getCurrentViewPosFromScroll();
+    virtual void setCurrentViewPosToScroll(XVPOS nOffset);
     virtual void adjustColumns();
     virtual void adjustHeader();
     virtual void _headerClicked(qint32 nColumn);
@@ -160,6 +158,7 @@ private:
     XOptions m_xCodePageOptions;
 #endif
     QPixmapCache m_pixmapCache;
+    XBinaryView m_binaryView;
 };
 
 #endif  // XHEXVIEW_H

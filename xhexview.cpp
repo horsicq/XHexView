@@ -138,7 +138,7 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload,
 
 void XHexView::goToOffset(qint64 nOffset)
 {
-    qint64 nViewPos = deviceOffsetToViewPos(nOffset);
+    XVPOS nViewPos = deviceOffsetToViewPos(nOffset);
     _goToViewPos(nViewPos);
 }
 
@@ -949,9 +949,9 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
     }
 }
 
-qint64 XHexView::getCurrentViewPosFromScroll()
+XVPOS XHexView::getCurrentViewPosFromScroll()
 {
-    qint64 nResult = 0;
+    XVPOS nResult = 0;
 
     qint32 nValue = verticalScrollBar()->value();
 
@@ -964,13 +964,13 @@ qint64 XHexView::getCurrentViewPosFromScroll()
             nResult = ((double)nValue / (double)getMaxScrollValue()) * getViewSize() + m_nViewStartDelta;
         }
     } else {
-        nResult = (qint64)nValue * m_nBytesProLine + m_nViewStartDelta;
+        nResult = (XVPOS)nValue * m_nBytesProLine + m_nViewStartDelta;
     }
 
     return nResult;
 }
 
-void XHexView::setCurrentViewPosToScroll(qint64 nOffset)
+void XHexView::setCurrentViewPosToScroll(XVPOS nOffset)
 {
     setViewPosStart(nOffset);
     m_nViewStartDelta = (nOffset) % m_nBytesProLine;
