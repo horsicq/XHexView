@@ -263,7 +263,7 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(const XAbstractTableView::CU
     osResult.nViewPos = -1;
 
     if ((cursorPosition.bIsValid) && (cursorPosition.ptype == PT_CELL)) {
-        qint64 nBlockViewPos = getViewPosStart() + (cursorPosition.nRow * m_nBytesProLine);
+        XVPOS nBlockViewPos = getViewPosStart() + (cursorPosition.nRow * m_nBytesProLine);
 
         if (cursorPosition.nColumn == COLUMN_LOCATION) {
             osResult.nViewPos = nBlockViewPos;
@@ -311,7 +311,7 @@ void XHexView::updateData()
 
     if (_pDevice) {
         // Update cursor position
-        qint64 nDataBlockStartViewPos = getViewPosStart();  // TODO Check
+        XVPOS nDataBlockStartViewPos = getViewPosStart();  // TODO Check
 
         //        qint64 nCursorOffset = nBlockStartLine + getCursorDelta();
 
@@ -876,7 +876,7 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
         pEvent->matches(QKeySequence::MoveToNextPage) || pEvent->matches(QKeySequence::MoveToPreviousPage) || pEvent->matches(QKeySequence::MoveToStartOfDocument) ||
         pEvent->matches(QKeySequence::MoveToEndOfDocument)) {
         STATE state = getState();
-        qint64 nViewStart = getViewPosStart();
+        XVPOS nViewStart = getViewPosStart();
 
         state.nSelectionViewSize = 1;
 
