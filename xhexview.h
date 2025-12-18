@@ -34,23 +34,12 @@ class XHexView : public XDeviceTableEditView {
 
 public:
     // TODO setOptions ???
-    struct OPTIONS {
-        qint64 nStartOffset;
-        qint64 nTotalSize;
-        qint64 nStartSelectionOffset;  // -1 no selection
-        qint64 nSizeOfSelection;
-        bool bMenu_Disasm;
-        bool bMenu_MemoryMap;
-        bool bMenu_MainHex;
-        QString sTitle;  // For dialogs
-        LOCMODE addressMode;
-    };
 
     explicit XHexView(QWidget *pParent = nullptr);
 
     void _adjustView();
     virtual void adjustView();
-    void setData(QIODevice *pDevice, const OPTIONS &options, bool bReload, XInfoDB *pInfoDB = nullptr);
+    void setData(QIODevice *pDevice, const XBinaryView::OPTIONS &options, bool bReload, XInfoDB *pInfoDB = nullptr);
     void goToOffset(qint64 nOffset);
     // XADDR getStartLocation();  // TODO Check mb remove
     // XADDR getSelectionInitLocation();
@@ -134,7 +123,6 @@ private slots:
     void _setMode(ELEMENT_MODE mode);
 
 private:
-    OPTIONS m_hexOptions;
     qint32 m_nBytesProLine;
     qint32 m_nPrintsProElement;
     qint32 m_nElementByteSize;
@@ -158,7 +146,6 @@ private:
     XOptions m_xCodePageOptions;
 #endif
     QPixmapCache m_pixmapCache;
-    XBinaryView m_binaryView;
 };
 
 #endif  // XHEXVIEW_H

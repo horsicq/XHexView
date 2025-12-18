@@ -52,7 +52,6 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     m_nViewStartDelta = 0;
     //    g_smode=SMODE_ANSI;  // TODO Set/Get
     m_nThisBase = 0;
-    m_hexOptions = {};
     m_nAddressWidth = 8;         // TODO Set/Get
     m_bIsLocationColon = false;  // TODO Check
                                  //    g_nPieceSize=1; // TODO
@@ -69,7 +68,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     m_pCodePageMenu = m_xCodePageOptions.createCodePagesMenu(this, true);
     connect(&m_xCodePageOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
 #endif
-    setLocationMode(LOCMODE_OFFSET);
+    setLocationMode(XBinaryView::LOCMODE_OFFSET);
     setMapEnable(true);
     setMapWidth(20);
 
@@ -95,10 +94,8 @@ void XHexView::_adjustView()
     }
 }
 
-void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload, XInfoDB *pInfoDB)
+void XHexView::setData(QIODevice *pDevice, const XBinaryView::OPTIONS &options, bool bReload, XInfoDB *pInfoDB)
 {
-    m_hexOptions = options;
-
     bool bReadOnly = false;
 
     if (pDevice) {
@@ -109,7 +106,7 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload,
 
     setReadonly(bReadOnly);
 
-    setDevice(pDevice, options.nStartOffset, options.nTotalSize);
+    XDeviceTableView::setData(pDevice, options);
 
     adjustView();
     adjustMap();
@@ -138,7 +135,7 @@ void XHexView::setData(QIODevice *pDevice, const OPTIONS &options, bool bReload,
 
 void XHexView::goToOffset(qint64 nOffset)
 {
-    XVPOS nViewPos = deviceOffsetToViewPos(nOffset);
+    XVPOS nViewPos = getBinaryView()->deviceOffsetToViewPos(nOffset);
     _goToViewPos(nViewPos);
 }
 
@@ -211,15 +208,15 @@ QList<XShortcuts::MENUITEM> XHexView::getMenuItems()
     getShortcuts()->_addMenuItem_Checked(&listResults, X_ID_HEX_BOOKMARKS_LIST, this, SLOT(_bookmarkList()), XShortcuts::GROUPID_BOOKMARKS,
                                          getViewWidgetState(VIEWWIDGET_BOOKMARKS));
 
-    if (m_hexOptions.bMenu_Disasm) {
+    if (getBinaryView()->getOptions()->bMenu_Disasm) {
         getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_FOLLOWIN_DISASM, this, SLOT(_disasmSlot()), XShortcuts::GROUPID_FOLLOWIN);
     }
 
-    if (m_hexOptions.bMenu_MemoryMap) {
+    if (getBinaryView()->getOptions()->bMenu_MemoryMap) {
         getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_FOLLOWIN_MEMORYMAP, this, SLOT(_memoryMapSlot()), XShortcuts::GROUPID_FOLLOWIN);
     }
 
-    if (m_hexOptions.bMenu_MainHex) {
+    if (getBinaryView()->getOptions()->bMenu_MainHex) {
         getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_FOLLOWIN_HEX, this, SLOT(_mainHexSlot()), XShortcuts::GROUPID_FOLLOWIN);
     }
 
@@ -290,7 +287,7 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(const XAbstractTableView::CU
                 osResult.nSize = showRecord.nSize;
             }
         } else {
-            osResult.nViewPos = getViewSize();  // TODO Check
+            osResult.nViewPos = getBinaryView()->getViewSize();  // TODO Check
             osResult.nSize = 0;
         }
 
@@ -299,7 +296,7 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(const XAbstractTableView::CU
         //        qDebug("getCharWidth() %x",getCharWidth());
         //        qDebug("nOffset %x",osResult.nOffset);
     } else if ((cursorPosition.bIsValid) && (cursorPosition.ptype == PT_MAP)) {
-        osResult.nViewPos = XBinary::align_down((getViewSize() * cursorPosition.nPercentage) / getMapCount(), m_nBytesProLine);
+        osResult.nViewPos = XBinary::align_down((getBinaryView()->getViewSize() * cursorPosition.nPercentage) / getMapCount(), m_nBytesProLine);
         osResult.nSize = 0;
     }
     return osResult;
@@ -328,7 +325,7 @@ void XHexView::updateData()
 
         qint32 nDataBlockSize = m_nBytesProLine * getLinesProPage();
 
-        nDataBlockSize = qMin(nDataBlockSize, (qint32)(getViewSize() - nDataBlockStartViewPos));
+        nDataBlockSize = qMin(nDataBlockSize, (qint32)(getBinaryView()->getViewSize() - nDataBlockStartViewPos));
 
         m_listHighlightsRegion.clear();
         if (getXInfoDB()) {
@@ -336,7 +333,7 @@ void XHexView::updateData()
             m_listHighlightsRegion.append(_convertBookmarksToHighlightRegion(&listBookMarks));
         }
 
-        qint64 nDeviceOffset = viewPosToDeviceOffset(nDataBlockStartViewPos);
+        qint64 nDeviceOffset = getBinaryView()->viewPosToDeviceOffset(nDataBlockStartViewPos);
 
         m_baDataBuffer = read_array(nDeviceOffset, nDataBlockSize);
         // QList<QChar> listElements = getStringBuffer(&m_baDataBuffer);
@@ -364,17 +361,17 @@ void XHexView::updateData()
                 LOCATIONRECORD record = {};
                 record.nViewPos = i + nDataBlockStartViewPos;
 
-                if (getlocationMode() == LOCMODE_THIS) {
+                if (getlocationMode() == XBinaryView::LOCMODE_THIS) {
                     nCurrentLocation = record.nViewPos;
 
                     qint64 nDelta = (qint64)nCurrentLocation - (qint64)m_nThisBase;
 
                     record.sLocation = XBinary::thisToString(nDelta, getLocationBase());
                 } else {
-                    if (getlocationMode() == LOCMODE_ADDRESS) {
-                        nCurrentLocation = viewPosToAddress(record.nViewPos);
-                    } else if (getlocationMode() == LOCMODE_OFFSET) {
-                        nCurrentLocation = viewPosToDeviceOffset(record.nViewPos);
+                    if (getlocationMode() == XBinaryView::LOCMODE_ADDRESS) {
+                        nCurrentLocation = getBinaryView()->viewPosToAddress(record.nViewPos);
+                    } else if (getlocationMode() == XBinaryView::LOCMODE_OFFSET) {
+                        nCurrentLocation = getBinaryView()->viewPosToDeviceOffset(record.nViewPos);
                     }
 
                     if (getLocationBase() == 16) {
@@ -495,7 +492,7 @@ void XHexView::updateData()
                     nRow++;
                     record.bLastRowSymbol = true;
                     bFirst = true;
-                } else if (nCurrentRowViewPos >= getViewSize()) {
+                } else if (nCurrentRowViewPos >= getBinaryView()->getViewSize()) {
                     record.bLastRowSymbol = true;
                 }
 
@@ -715,7 +712,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
 
     if (sKey != "") {
         sKey += QString("_%1").arg(getViewPosStart());
-        sKey += QString("_%1").arg(getViewSize());
+        sKey += QString("_%1").arg(getBinaryView()->getViewSize());
         sKey += QString("_%1").arg(nWidth);
         sKey += QString("_%1").arg(nHeight);
 
@@ -899,8 +896,8 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
             m_nViewStartDelta = 0;
         }
 
-        if ((state.nSelectionViewPos >= getViewSize()) || (pEvent->matches(QKeySequence::MoveToEndOfDocument))) {
-            state.nSelectionViewPos = getViewSize() - 1;
+        if ((state.nSelectionViewPos >= getBinaryView()->getViewSize()) || (pEvent->matches(QKeySequence::MoveToEndOfDocument))) {
+            state.nSelectionViewPos = getBinaryView()->getViewSize() - 1;
             m_nViewStartDelta = 0;
         }
 
@@ -957,11 +954,11 @@ XVPOS XHexView::getCurrentViewPosFromScroll()
 
     qint64 nMaxValue = getMaxScrollValue() * m_nBytesProLine;
 
-    if (getViewSize() > nMaxValue) {
+    if (getBinaryView()->getViewSize() > nMaxValue) {
         if (nValue == getMaxScrollValue()) {
-            nResult = getViewSize() - m_nBytesProLine;
+            nResult = getBinaryView()->getViewSize() - m_nBytesProLine;
         } else {
-            nResult = ((double)nValue / (double)getMaxScrollValue()) * getViewSize() + m_nViewStartDelta;
+            nResult = ((double)nValue / (double)getMaxScrollValue()) * getBinaryView()->getViewSize() + m_nViewStartDelta;
         }
     } else {
         nResult = (XVPOS)nValue * m_nBytesProLine + m_nViewStartDelta;
@@ -977,11 +974,11 @@ void XHexView::setCurrentViewPosToScroll(XVPOS nOffset)
 
     qint32 nValue = 0;
 
-    if (getViewSize() > (getMaxScrollValue() * m_nBytesProLine)) {
-        if (nOffset == getViewSize() - m_nBytesProLine) {
+    if (getBinaryView()->getViewSize() > (getMaxScrollValue() * m_nBytesProLine)) {
+        if (nOffset == getBinaryView()->getViewSize() - m_nBytesProLine) {
             nValue = getMaxScrollValue();
         } else {
-            nValue = ((double)(nOffset - m_nViewStartDelta) / ((double)getViewSize())) * (double)getMaxScrollValue();
+            nValue = ((double)(nOffset - m_nViewStartDelta) / ((double)getBinaryView()->getViewSize())) * (double)getMaxScrollValue();
         }
     } else {
         nValue = (nOffset) / m_nBytesProLine;
@@ -1002,7 +999,7 @@ void XHexView::adjustColumns()
     const QFontMetricsF fm(getTextFont());
 
     // if (XBinary::getWidthModeFromSize(getStartLocation() + getViewSize()) == XBinary::MODE_64) {
-    if (XBinary::getWidthModeFromSize(getViewSize()) == XBinary::MODE_64) {
+    if (XBinary::getWidthModeFromSize(getBinaryView()->getViewSize()) == XBinary::MODE_64) {
         m_nAddressWidth = 16;
         setColumnWidth(COLUMN_LOCATION, 2 * getCharWidth() + fm.boundingRect("00000000:00000000").width());
     } else {
@@ -1019,9 +1016,9 @@ void XHexView::adjustColumns()
 
 void XHexView::adjustHeader()
 {
-    if (getlocationMode() == LOCMODE_ADDRESS) {
+    if (getlocationMode() == XBinaryView::LOCMODE_ADDRESS) {
         setColumnTitle(COLUMN_LOCATION, tr("Address"));
-    } else if ((getlocationMode() == LOCMODE_OFFSET) || (getlocationMode() == LOCMODE_THIS)) {
+    } else if ((getlocationMode() == XBinaryView::LOCMODE_OFFSET) || (getlocationMode() == XBinaryView::LOCMODE_THIS)) {
         setColumnTitle(COLUMN_LOCATION, tr("Offset"));
     }
 }
@@ -1076,9 +1073,9 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeLocationMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_LOCATION;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (getlocationMode() == LOCMODE_ADDRESS);
+            menuItem.bIsChecked = (getlocationMode() == XBinaryView::LOCMODE_ADDRESS);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = LOCMODE_ADDRESS;
+            menuItem.varProperty = XBinaryView::LOCMODE_ADDRESS;
 
             listMenuItems.append(menuItem);
         }
@@ -1090,9 +1087,9 @@ void XHexView::_headerClicked(qint32 nColumn)
             menuItem.pMethod = SLOT(changeLocationMode());
             menuItem.nSubgroups = XShortcuts::GROUPID_LOCATION;
             menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (getlocationMode() == LOCMODE_OFFSET);
+            menuItem.bIsChecked = (getlocationMode() == XBinaryView::LOCMODE_OFFSET);
             menuItem.sPropertyName = "mode";
-            menuItem.varProperty = LOCMODE_OFFSET;
+            menuItem.varProperty = XBinaryView::LOCMODE_OFFSET;
 
             listMenuItems.append(menuItem);
         }
@@ -1400,7 +1397,7 @@ void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
 {
     if (nColumn == COLUMN_LOCATION) {
         setColumnTitle(COLUMN_LOCATION, "");
-        setLocationMode(LOCMODE_THIS);
+        setLocationMode(XBinaryView::LOCMODE_THIS);
 
         if (nRow < m_listLocationRecords.count()) {
             m_nThisBase = m_listLocationRecords.at(nRow).nViewPos;
@@ -1412,9 +1409,9 @@ void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
 
 void XHexView::adjustScrollCount()
 {
-    qint64 nTotalLineCount = getViewSize() / m_nBytesProLine;
+    qint64 nTotalLineCount = getBinaryView()->getViewSize() / m_nBytesProLine;
 
-    if (getViewSize() % m_nBytesProLine == 0) {
+    if (getBinaryView()->getViewSize() % m_nBytesProLine == 0) {
         nTotalLineCount--;
     }
 
@@ -1463,21 +1460,21 @@ void XHexView::adjustMap()
 
 void XHexView::_disasmSlot()
 {
-    if (m_hexOptions.bMenu_Disasm) {
+    if (getBinaryView()->getOptions()->bMenu_Disasm) {
         emit followLocation(getDeviceState().nSelectionDeviceOffset, XBinary::LT_OFFSET, 0, XOptions::WIDGETTYPE_DISASM);
     }
 }
 
 void XHexView::_memoryMapSlot()
 {
-    if (m_hexOptions.bMenu_MemoryMap) {
+    if (getBinaryView()->getOptions()->bMenu_MemoryMap) {
         emit followLocation(getDeviceState().nSelectionDeviceOffset, XBinary::LT_OFFSET, 0, XOptions::WIDGETTYPE_MEMORYMAP);
     }
 }
 
 void XHexView::_mainHexSlot()
 {
-    if (m_hexOptions.bMenu_MainHex) {
+    if (getBinaryView()->getOptions()->bMenu_MainHex) {
         DEVICESTATE deviceState = getDeviceState();
         emit followLocation(getDeviceState().nSelectionDeviceOffset, XBinary::LT_OFFSET, deviceState.nSelectionSize, XOptions::WIDGETTYPE_HEX);
     }

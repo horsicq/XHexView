@@ -71,7 +71,7 @@ void XHexViewWidget::setData(QIODevice *pDevice, const OPTIONS &options)
     if (pDevice) {
         XFormats::setFileTypeComboBox(options.fileType, pDevice, ui->comboBoxType, XBinary::TL_OPTION_ALL);
     } else {
-        ui->scrollAreaHex->setDevice(nullptr, 0, -1);
+        ui->scrollAreaHex->reset();
     }
 
     // adjustVisitedState();
@@ -85,7 +85,10 @@ void XHexViewWidget::setData(QIODevice *pDevice, const OPTIONS &options)
 
 void XHexViewWidget::setDevice(QIODevice *pDevice, qint64 nStartOffset, qint64 nTotalSize)
 {
-    ui->scrollAreaHex->setDevice(pDevice, nStartOffset, nTotalSize);
+    XBinaryView::OPTIONS options = {};
+    options.nStartOffset = nStartOffset;
+    options.nTotalSize = nTotalSize;
+    ui->scrollAreaHex->setData(pDevice, options, false);
 }
 
 void XHexViewWidget::setXInfoDB(XInfoDB *pXInfoDB)
@@ -100,7 +103,7 @@ void XHexViewWidget::reload()
 
 void XHexViewWidget::cleanup()
 {
-    ui->scrollAreaHex->setDevice(nullptr, 0, -1);
+    ui->scrollAreaHex->reset();
     ui->scrollAreaHex->setXInfoDB(nullptr);
 }
 
@@ -161,7 +164,7 @@ void XHexViewWidget::reloadFileType()
     if (m_pDevice) {
         m_options.fileType = (XBinary::FT)(ui->comboBoxType->currentData().toInt());
 
-        XHexView::OPTIONS options = {};
+        XBinaryView::OPTIONS options = {};
         options.nStartOffset = m_options.nStartOffset;
         options.nTotalSize = m_options.nTotalSize;
         options.bMenu_MainHex = m_options.bMenu_MainHex;

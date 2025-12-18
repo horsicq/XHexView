@@ -44,7 +44,7 @@ public:
         bool bMenu_MemoryMap;
         bool bMenu_MainHex;
         // bool bHideReadOnly;
-        XHexView::LOCMODE addressMode;
+        XBinaryView::LOCMODE addressMode;
     };
 
     explicit XHexViewWidget(QWidget *pParent = nullptr);
