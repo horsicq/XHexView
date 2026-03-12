@@ -110,8 +110,6 @@ protected:
     virtual void _cellDoubleClicked(qint32 nRow, qint32 nColumn);
     virtual void adjustScrollCount();
     virtual void adjustMap();
-    //    SMODE getSmode();
-    //    void setSmode(SMODE smode);
 
 private slots:
     void _disasmSlot();
@@ -121,6 +119,9 @@ private slots:
     void changeElementWidth();
     void changeElementMode();
     void _setMode(ELEMENT_MODE mode);
+    void _addElementModeMenuItem(QList<XShortcuts::MENUITEM> *pListMenuItems, const QString &sText, ELEMENT_MODE mode);
+    void _addElementWidthMenuItem(QList<XShortcuts::MENUITEM> *pListMenuItems, qint32 nWidth);
+    QString _formatElement(char *pData, qint32 nOffset, qint32 nSize, const QString &sDataHexBuffer);
 
 private:
     qint32 m_nBytesProLine;
@@ -136,7 +137,6 @@ private:
     QList<SHOWRECORD> m_listShowRecords;
     qint32 m_nAddressWidth;
     qint64 m_nThisBase;
-    //    SMODE g_smode;
     bool m_bIsLocationColon;
 
     QString m_sCodePage;

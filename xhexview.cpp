@@ -50,19 +50,15 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     _setMode(ELEMENT_MODE_HEX);
     m_nDataBlockSize = 0;
     m_nViewStartDelta = 0;
-    //    g_smode=SMODE_ANSI;  // TODO Set/Get
     m_nThisBase = 0;
-    m_nAddressWidth = 8;         // TODO Set/Get
-    m_bIsLocationColon = false;  // TODO Check
-                                 //    g_nPieceSize=1; // TODO
+    m_nAddressWidth = 8;
+    m_bIsLocationColon = false;
 
     addColumn(tr("Address"), 0, true);
     addColumn(tr("Hex"), 0, true);
     addColumn(tr("Symbols"), 0, true);
 
-    setTextFont(XOptions::getMonoFont());  // mb TODO move to XDeviceTableView !!!
-                                           //    setBlinkingCursorEnable(true);
-    // setBlinkingCursorEnable(false);
+    setTextFont(XOptions::getMonoFont());
     m_sCodePage = "";
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
     m_pCodePageMenu = m_xCodePageOptions.createCodePagesMenu(this, true);
@@ -72,7 +68,6 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     setMapEnable(true);
     setMapWidth(20);
 
-    // m_pixmapCache.setCacheLimit(1024);
     setVerticalLinesVisible(false);
 }
 
@@ -350,7 +345,7 @@ void XHexView::updateData()
                 sDataHexBuffer = QByteArray(m_baDataBuffer.toHex());
             }
 
-            if (m_sCodePage == "") {
+            if (m_sCodePage.isEmpty()) {
                 sANSI = XBinary::dataToString(m_baDataBuffer, XBinary::DSMODE_NOPRINT_TO_DOT);
             }
 
@@ -415,7 +410,7 @@ void XHexView::updateData()
                     bFirst = false;
                 }
 
-                if (m_sCodePage == "") {
+                if (m_sCodePage.isEmpty()) {
                     record.sSymbol = sANSI.mid(i, m_nElementByteSize);
                 } else {
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
@@ -436,33 +431,7 @@ void XHexView::updateData()
 #endif
                 }
 
-                if (m_mode == ELEMENT_MODE_HEX) {
-                    record.sElement = sDataHexBuffer.mid(i * 2, 2 * record.nSize);
-                } else if (m_mode == ELEMENT_MODE_BYTE) {
-                    record.sElement = sDataHexBuffer.mid(i * 2, 2);  // g_nSymbolsProElement
-                } else if (m_mode == ELEMENT_MODE_UINT8) {
-                    record.sElement = QString::number(XBinary::_read_uint8(pData + i));
-                } else if (m_mode == ELEMENT_MODE_INT8) {
-                    record.sElement = QString::number(XBinary::_read_int8(pData + i));
-                } else if (m_mode == ELEMENT_MODE_WORD) {
-                    record.sElement = XBinary::valueToHex(XBinary::_read_uint16(pData + i));
-                } else if (m_mode == ELEMENT_MODE_UINT16) {
-                    record.sElement = QString::number(XBinary::_read_uint16(pData + i));
-                } else if (m_mode == ELEMENT_MODE_INT16) {
-                    record.sElement = QString::number(XBinary::_read_int16(pData + i));
-                } else if (m_mode == ELEMENT_MODE_DWORD) {
-                    record.sElement = XBinary::valueToHex(XBinary::_read_uint32(pData + i));
-                } else if (m_mode == ELEMENT_MODE_UINT32) {
-                    record.sElement = QString::number(XBinary::_read_uint32(pData + i));
-                } else if (m_mode == ELEMENT_MODE_INT32) {
-                    record.sElement = QString::number(XBinary::_read_int32(pData + i));
-                } else if (m_mode == ELEMENT_MODE_QWORD) {
-                    record.sElement = XBinary::valueToHex(XBinary::_read_uint64(pData + i));
-                } else if (m_mode == ELEMENT_MODE_UINT64) {
-                    record.sElement = QString::number(XBinary::_read_uint64(pData + i));
-                } else if (m_mode == ELEMENT_MODE_INT64) {
-                    record.sElement = QString::number(XBinary::_read_int64(pData + i));
-                }
+                record.sElement = _formatElement(pData, i, record.nSize, sDataHexBuffer);
 
                 // if (i < nNumberOfElements) {
                 //     record.sSymbol = listElements.at(i);
@@ -578,118 +547,98 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
         fontBold.setBold(true);
 
         for (qint32 i = 0; i < nNumberOfShowRecords; i++) {
-            if (m_listShowRecords.at(i).nRow == nRow) {
-                SHOWRECORD record = m_listShowRecords.at(i);
+            if (m_listShowRecords.at(i).nRow < nRow) {
+                continue;  // Skip records before our row
+            }
 
-                bool bIsSelected = isViewPosSelected(record.nViewPos);
-                bool bIsSelectedPrev = false;
-                bool bIsSelectedNext = false;
+            if (m_listShowRecords.at(i).nRow > nRow) {
+                break;  // Past our row, no more matches
+            }
 
-                if (i - 1 >= 0) {
-                    bIsSelectedPrev = isViewPosSelected(m_listShowRecords.at(i - 1).nViewPos);
+            SHOWRECORD record = m_listShowRecords.at(i);
+
+            bool bIsSelected = isViewPosSelected(record.nViewPos);
+
+            if (!bIsSelected) {
+                continue;
+            }
+
+            bool bIsSelectedPrev = false;
+            bool bIsSelectedNext = false;
+
+            if (i - 1 >= 0) {
+                bIsSelectedPrev = isViewPosSelected(m_listShowRecords.at(i - 1).nViewPos);
+            }
+
+            if (i + 1 < nNumberOfShowRecords) {
+                bIsSelectedNext = isViewPosSelected(m_listShowRecords.at(i + 1).nViewPos);
+            }
+
+            QRectF rectSymbol;
+
+            if (nColumn == COLUMN_ELEMENTS) {
+                qint32 _nRowOffset = record.nRowViewPos / m_nElementByteSize;
+
+                rectSymbol.setLeft(nLeft + getCharWidth() + (_nRowOffset * (m_nPrintsProElement * getCharWidth() + getSideDelta())));
+                rectSymbol.setTop(nTop + getLineDelta());
+                rectSymbol.setHeight(nHeight - getLineDelta());
+
+                int nSelWidth = (record.nSize / m_nElementByteSize) * (m_nPrintsProElement * getCharWidth() + getSideDelta());
+
+                if ((record.bLastRowSymbol) || (!bIsSelectedNext)) {
+                    nSelWidth -= getSideDelta();
                 }
 
-                if (i + 1 < nNumberOfShowRecords) {
-                    bIsSelectedNext = isViewPosSelected(m_listShowRecords.at(i + 1).nViewPos);
-                }
+                rectSymbol.setWidth(nSelWidth);
+            } else if (nColumn == COLUMN_SYMBOLS) {
+                rectSymbol.setLeft(nLeft + (record.nRowViewPos + 1) * getCharWidth());
+                rectSymbol.setTop(nTop + getLineDelta());
+                rectSymbol.setWidth(getCharWidth() * (record.nSize / m_nSymbolByteSize));
+                rectSymbol.setHeight(nHeight - getLineDelta());
+            }
 
-                QRectF rectSymbol;
+            if (rectSymbol.left() >= (nLeft + nWidth)) {
+                break;  // Off-screen to the right, skip remaining
+            }
 
-                if (bIsSelected) {
-                    if (nColumn == COLUMN_ELEMENTS) {
-                        qint32 _nRowOffset = record.nRowViewPos / m_nElementByteSize;
+            if (record.bIsBold) {
+                pPainter->save();
+                pPainter->setFont(fontBold);
+            }
 
-                        rectSymbol.setLeft(nLeft + getCharWidth() + (_nRowOffset * (m_nPrintsProElement * getCharWidth() + getSideDelta())));
-                        rectSymbol.setTop(nTop + getLineDelta());
-                        rectSymbol.setHeight(nHeight - getLineDelta());
+            if (record.bIsSymbolError) {
+                pPainter->fillRect(rectSymbol, QBrush(Qt::red));
+            } else {
+                pPainter->fillRect(rectSymbol, record.colBackgroundSelected);
+            }
 
-                        int nWidth = (record.nSize / m_nElementByteSize) * (m_nPrintsProElement * getCharWidth() + getSideDelta());
+            // Draw selection border lines
+            bool bTop = !isViewPosSelected(record.nViewPos - m_nBytesProLine);
+            bool bLeft = (record.bFirstRowSymbol) || (!bIsSelectedPrev);
+            bool bBottom = !isViewPosSelected(record.nViewPos + m_nBytesProLine);
+            bool bRight = (record.bLastRowSymbol) || (!bIsSelectedNext);
 
-                        if ((record.bLastRowSymbol) || (bIsSelected && (!bIsSelectedNext))) {
-                            nWidth -= getSideDelta();
-                        }
+            if (bTop) {
+                pPainter->drawLine(rectSymbol.left(), rectSymbol.top(), rectSymbol.right(), rectSymbol.top());
+            }
 
-                        rectSymbol.setWidth(nWidth);
-                    } else if (nColumn == COLUMN_SYMBOLS) {
-                        rectSymbol.setLeft(nLeft + (record.nRowViewPos + 1) * getCharWidth());
-                        rectSymbol.setTop(nTop + getLineDelta());
-                        rectSymbol.setWidth(getCharWidth() * (record.nSize / m_nSymbolByteSize));
-                        rectSymbol.setHeight(nHeight - getLineDelta());
-                    }
+            if (bLeft) {
+                pPainter->drawLine(rectSymbol.left(), rectSymbol.top(), rectSymbol.left(), rectSymbol.bottom());
+            }
 
-                    if (rectSymbol.left() < (nLeft + nWidth)) {  // Paint Only visible
-                        if (record.bIsBold) {
-                            pPainter->save();
-                            pPainter->setFont(fontBold);
-                        }
+            if (bBottom) {
+                pPainter->drawLine(rectSymbol.left(), rectSymbol.bottom(), rectSymbol.right(), rectSymbol.bottom());
+            }
 
-                        // QString sSymbol;
+            if (bRight) {
+                pPainter->drawLine(rectSymbol.right(), rectSymbol.top(), rectSymbol.right(), rectSymbol.bottom());
+            }
 
-                        // if (nColumn == COLUMN_ELEMENTS) {
-                        //     sSymbol = record.sElement;
-                        // } else if (nColumn == COLUMN_SYMBOLS) {
-                        //     sSymbol = record.sSymbol;
-                        // }
-
-                        if (record.bIsSymbolError) {
-                            pPainter->fillRect(rectSymbol, QBrush(Qt::red));
-                        } else if (bIsSelected) {
-                            pPainter->fillRect(rectSymbol, record.colBackgroundSelected);
-                        }
-
-                        if (bIsSelected) {
-                            // Draw lines
-                            bool bTop = false;
-                            bool bLeft = false;
-                            bool bBottom = false;
-                            bool bRight = false;
-
-                            if ((record.bFirstRowSymbol) || (!bIsSelectedPrev)) {
-                                bLeft = true;
-                            }
-
-                            if ((record.bLastRowSymbol) || (!bIsSelectedNext)) {
-                                bRight = true;
-                            }
-
-                            if (!isViewPosSelected(record.nViewPos - m_nBytesProLine)) {
-                                bTop = true;
-                            }
-
-                            if (!isViewPosSelected(record.nViewPos + m_nBytesProLine)) {
-                                bBottom = true;
-                            }
-
-                            if (bTop) {
-                                pPainter->drawLine(rectSymbol.left(), rectSymbol.top(), rectSymbol.right(), rectSymbol.top());
-                            }
-
-                            if (bLeft) {
-                                pPainter->drawLine(rectSymbol.left(), rectSymbol.top(), rectSymbol.left(), rectSymbol.bottom());
-                            }
-
-                            if (bBottom) {
-                                pPainter->drawLine(rectSymbol.left(), rectSymbol.bottom(), rectSymbol.right(), rectSymbol.bottom());
-                            }
-
-                            if (bRight) {
-                                pPainter->drawLine(rectSymbol.right(), rectSymbol.top(), rectSymbol.right(), rectSymbol.bottom());
-                            }
-
-                            if (record.bIsBold) {
-                                pPainter->restore();
-                            }
-                        } else {
-                            break;  // Do not paint invisible
-                        }
-                    }
-                }
+            if (record.bIsBold) {
+                pPainter->restore();
             }
         }
     }
-    // #ifdef QT_DEBUG
-    //     qDebug("XHexView::paintCell %lld",timer.elapsed());
-    // #endif
 }
 
 void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
@@ -710,7 +659,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
         sKey = QString("symbols");
     }
 
-    if (sKey != "") {
+    if (!sKey.isEmpty()) {
         sKey += QString("_%1").arg(getViewPosStart());
         sKey += QString("_%1").arg(getBinaryView()->getViewSize());
         sKey += QString("_%1").arg(nWidth);
@@ -835,7 +784,6 @@ void XHexView::paintTitle(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qint
     if (nColumn == COLUMN_ELEMENTS) {
         for (qint32 i = 0; i < m_nBytesProLine / m_nElementByteSize; i++) {
             QString sSymbol = QString("%1").arg(i * m_nElementByteSize, 2, getLocationBase(), QChar('0'));
-            ;
 
             QRectF rectSymbol;
 
@@ -886,9 +834,9 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
         } else if (pEvent->matches(QKeySequence::MoveToPreviousLine)) {
             state.nSelectionViewPos -= m_nBytesProLine;
         } else if (pEvent->matches(QKeySequence::MoveToStartOfLine)) {
-            // TODO
+            state.nSelectionViewPos = XBinary::align_down(state.nSelectionViewPos, m_nBytesProLine);
         } else if (pEvent->matches(QKeySequence::MoveToEndOfLine)) {
-            // TODO
+            state.nSelectionViewPos = XBinary::align_down(state.nSelectionViewPos, m_nBytesProLine) + m_nBytesProLine - m_nElementByteSize;
         }
 
         if ((state.nSelectionViewPos < 0) || (pEvent->matches(QKeySequence::MoveToStartOfDocument))) {
@@ -1100,285 +1048,35 @@ void XHexView::_headerClicked(qint32 nColumn)
 
         // adjust(true);
     } else if (nColumn == COLUMN_ELEMENTS) {
-        QMenu contextMenu(this);  // TODO
+        QMenu contextMenu(this);
 
         QList<XShortcuts::MENUITEM> listMenuItems;
 
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = tr("Hex");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_HEX);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_HEX;
-
-            listMenuItems.append(menuItem);
-        }
-
+        _addElementModeMenuItem(&listMenuItems, tr("Hex"), ELEMENT_MODE_HEX);
         getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_MODE);
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("byte");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_BYTE);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_BYTE;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("word");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_WORD);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_WORD;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("dword");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_DWORD);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_DWORD;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("qword");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_QWORD);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_QWORD;
-
-            listMenuItems.append(menuItem);
-        }
-
+        _addElementModeMenuItem(&listMenuItems, QString("byte"), ELEMENT_MODE_BYTE);
+        _addElementModeMenuItem(&listMenuItems, QString("word"), ELEMENT_MODE_WORD);
+        _addElementModeMenuItem(&listMenuItems, QString("dword"), ELEMENT_MODE_DWORD);
+        _addElementModeMenuItem(&listMenuItems, QString("qword"), ELEMENT_MODE_QWORD);
         getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_MODE);
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("uint8");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_UINT8);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_UINT8;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("int8");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_INT8);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_INT8;
-
-            listMenuItems.append(menuItem);
-        }
-
+        _addElementModeMenuItem(&listMenuItems, QString("uint8"), ELEMENT_MODE_UINT8);
+        _addElementModeMenuItem(&listMenuItems, QString("int8"), ELEMENT_MODE_INT8);
         getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_MODE);
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("uint16");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_UINT16);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_UINT16;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("int16");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_INT16);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_INT16;
-
-            listMenuItems.append(menuItem);
-        }
-
+        _addElementModeMenuItem(&listMenuItems, QString("uint16"), ELEMENT_MODE_UINT16);
+        _addElementModeMenuItem(&listMenuItems, QString("int16"), ELEMENT_MODE_INT16);
         getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_MODE);
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("uint32");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_UINT32);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_UINT32;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("int32");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_INT32);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_INT32;
-
-            listMenuItems.append(menuItem);
-        }
-
+        _addElementModeMenuItem(&listMenuItems, QString("uint32"), ELEMENT_MODE_UINT32);
+        _addElementModeMenuItem(&listMenuItems, QString("int32"), ELEMENT_MODE_INT32);
         getShortcuts()->_addMenuSeparator(&listMenuItems, XShortcuts::GROUPID_MODE);
+        _addElementModeMenuItem(&listMenuItems, QString("uint64"), ELEMENT_MODE_UINT64);
+        _addElementModeMenuItem(&listMenuItems, QString("int64"), ELEMENT_MODE_INT64);
 
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("uint64");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_UINT64);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_UINT64;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("int64");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementMode());
-            menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_mode == ELEMENT_MODE_INT64);
-            menuItem.sPropertyName = "mode";
-            menuItem.varProperty = ELEMENT_MODE_INT64;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("8");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementWidth());
-            menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_nBytesProLine == 8);
-            menuItem.sPropertyName = "width";
-            menuItem.varProperty = 8;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("16");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementWidth());
-            menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_nBytesProLine == 16);
-            menuItem.sPropertyName = "width";
-            menuItem.varProperty = 16;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("24");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementWidth());
-            menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_nBytesProLine == 24);
-            menuItem.sPropertyName = "width";
-            menuItem.varProperty = 24;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("32");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementWidth());
-            menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_nBytesProLine == 32);
-            menuItem.sPropertyName = "width";
-            menuItem.varProperty = 32;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("48");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementWidth());
-            menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_nBytesProLine == 48);
-            menuItem.sPropertyName = "width";
-            menuItem.varProperty = 48;
-
-            listMenuItems.append(menuItem);
-        }
-
-        {
-            XShortcuts::MENUITEM menuItem = {};
-            menuItem.sText = QString("64");
-            menuItem.pRecv = this;
-            menuItem.pMethod = SLOT(changeElementWidth());
-            menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
-            menuItem.bIsCheckable = true;
-            menuItem.bIsChecked = (m_nBytesProLine == 64);
-            menuItem.sPropertyName = "width";
-            menuItem.varProperty = 64;
-
-            listMenuItems.append(menuItem);
-        }
+        _addElementWidthMenuItem(&listMenuItems, 8);
+        _addElementWidthMenuItem(&listMenuItems, 16);
+        _addElementWidthMenuItem(&listMenuItems, 24);
+        _addElementWidthMenuItem(&listMenuItems, 32);
+        _addElementWidthMenuItem(&listMenuItems, 48);
+        _addElementWidthMenuItem(&listMenuItems, 64);
 
         getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
 
@@ -1439,25 +1137,6 @@ void XHexView::adjustMap()
     }
 }
 
-// XHexView::SMODE XHexView::getSmode()
-//{
-//     return g_smode;
-// }
-
-// void XHexView::setSmode(SMODE smode)
-//{
-//     g_smode=smode;
-
-////    if(smode==SMODE_UNICODE)
-////    {
-////        g_nPieceSize=2;
-////    }
-////    else
-////    {
-////        g_nPieceSize=1;
-////    }
-//}
-
 void XHexView::_disasmSlot()
 {
     if (getBinaryView()->getOptions()->bMenu_Disasm) {
@@ -1487,7 +1166,7 @@ void XHexView::_setCodePage(const QString &sCodePage)
 
     QString sTitle = tr("Symbols");
 
-    if (m_sCodePage != "") {
+    if (!m_sCodePage.isEmpty()) {
         sTitle = m_sCodePage;
         m_pCodec = QTextCodec::codecForName(m_sCodePage.toLatin1().data());
     }
@@ -1573,4 +1252,67 @@ void XHexView::_setMode(ELEMENT_MODE mode)
         m_nElementByteSize = 8;
     }
     // TODO make g_nSymbolsProElement make dynamic if UTF8
+}
+
+void XHexView::_addElementModeMenuItem(QList<XShortcuts::MENUITEM> *pListMenuItems, const QString &sText, ELEMENT_MODE mode)
+{
+    XShortcuts::MENUITEM menuItem = {};
+    menuItem.sText = sText;
+    menuItem.pRecv = this;
+    menuItem.pMethod = SLOT(changeElementMode());
+    menuItem.nSubgroups = XShortcuts::GROUPID_MODE;
+    menuItem.bIsCheckable = true;
+    menuItem.bIsChecked = (m_mode == mode);
+    menuItem.sPropertyName = "mode";
+    menuItem.varProperty = mode;
+    pListMenuItems->append(menuItem);
+}
+
+void XHexView::_addElementWidthMenuItem(QList<XShortcuts::MENUITEM> *pListMenuItems, qint32 nWidth)
+{
+    XShortcuts::MENUITEM menuItem = {};
+    menuItem.sText = QString::number(nWidth);
+    menuItem.pRecv = this;
+    menuItem.pMethod = SLOT(changeElementWidth());
+    menuItem.nSubgroups = XShortcuts::GROUPID_WIDTH;
+    menuItem.bIsCheckable = true;
+    menuItem.bIsChecked = (m_nBytesProLine == nWidth);
+    menuItem.sPropertyName = "width";
+    menuItem.varProperty = nWidth;
+    pListMenuItems->append(menuItem);
+}
+
+QString XHexView::_formatElement(char *pData, qint32 nOffset, qint32 nSize, const QString &sDataHexBuffer)
+{
+    QString sResult;
+
+    if (m_mode == ELEMENT_MODE_HEX) {
+        sResult = sDataHexBuffer.mid(nOffset * 2, 2 * nSize);
+    } else if (m_mode == ELEMENT_MODE_BYTE) {
+        sResult = sDataHexBuffer.mid(nOffset * 2, 2);
+    } else if (m_mode == ELEMENT_MODE_UINT8) {
+        sResult = QString::number(XBinary::_read_uint8(pData + nOffset));
+    } else if (m_mode == ELEMENT_MODE_INT8) {
+        sResult = QString::number(XBinary::_read_int8(pData + nOffset));
+    } else if (m_mode == ELEMENT_MODE_WORD) {
+        sResult = XBinary::valueToHex(XBinary::_read_uint16(pData + nOffset));
+    } else if (m_mode == ELEMENT_MODE_UINT16) {
+        sResult = QString::number(XBinary::_read_uint16(pData + nOffset));
+    } else if (m_mode == ELEMENT_MODE_INT16) {
+        sResult = QString::number(XBinary::_read_int16(pData + nOffset));
+    } else if (m_mode == ELEMENT_MODE_DWORD) {
+        sResult = XBinary::valueToHex(XBinary::_read_uint32(pData + nOffset));
+    } else if (m_mode == ELEMENT_MODE_UINT32) {
+        sResult = QString::number(XBinary::_read_uint32(pData + nOffset));
+    } else if (m_mode == ELEMENT_MODE_INT32) {
+        sResult = QString::number(XBinary::_read_int32(pData + nOffset));
+    } else if (m_mode == ELEMENT_MODE_QWORD) {
+        sResult = XBinary::valueToHex(XBinary::_read_uint64(pData + nOffset));
+    } else if (m_mode == ELEMENT_MODE_UINT64) {
+        sResult = QString::number(XBinary::_read_uint64(pData + nOffset));
+    } else if (m_mode == ELEMENT_MODE_INT64) {
+        sResult = QString::number(XBinary::_read_int64(pData + nOffset));
+    }
+
+    return sResult;
 }
