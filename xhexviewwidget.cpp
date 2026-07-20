@@ -91,7 +91,7 @@ void XHexViewWidget::setData(QIODevice *pDevice, const OPTIONS &options)
 
 QIODevice *XHexViewWidget::getDevice()
 {
-    return ui->scrollAreaHex->getDevice();
+    return ui->scrollAreaHex->getBinaryView()->getInData().pDevice;
 }
 
 void XHexViewWidget::setDevice(QIODevice *pDevice, qint64 nStartOffset, qint64 nTotalSize)
@@ -114,7 +114,7 @@ void XHexViewWidget::reload()
 
 void XHexViewWidget::cleanup()
 {
-    QIODevice *pDevice = ui->scrollAreaHex->getDevice();
+    QIODevice *pDevice = ui->scrollAreaHex->getBinaryView()->getInData().pDevice;
     ui->scrollAreaHex->reset();
     ui->scrollAreaHex->setXInfoDB(nullptr);
     XFormats::removeDevice(pDevice, m_inData);
@@ -176,17 +176,23 @@ void XHexViewWidget::reloadData(bool bSaveSelection)
 
 void XHexViewWidget::reloadFileType()
 {
-    QIODevice *pDevice = ui->scrollAreaHex->getDevice();
+    QIODevice *pDevice = ui->scrollAreaHex->getBinaryView()->getInData().pDevice;
 
     if (pDevice) {
         m_options.fileType = (XBinary::FT)(ui->comboBoxType->currentData().toInt());
 
         XBinaryView::OPTIONS options = {};
+        options.fileType = m_options.fileType;
         options.nStartOffset = m_options.nStartOffset;
         options.nTotalSize = m_options.nTotalSize;
+        options.nStartSelectionOffset = m_options.nStartSelectionOffset;
+        options.nSizeOfSelection = m_options.nSizeOfSelection;
+        options.addressMode = m_options.addressMode;
         options.bMenu_MainHex = m_options.bMenu_MainHex;
         options.bMenu_Disasm = m_options.bMenu_Disasm;
         options.bMenu_MemoryMap = m_options.bMenu_MemoryMap;
+        options.bIsImage = m_inData.bIsImage;
+        options.nModuleAddress = m_inData.nModuleAddress;
         // options.bHideReadOnly = m_options.bHideReadOnly;
 
         // if (m_options.fileType == XBinary::FT_REGION) {

@@ -62,7 +62,7 @@ private:
 
     struct SHOWRECORD {
         qint32 nRow;
-        qint32 nViewPos;
+        qint64 nViewPos;  // 64-bit: view positions exceed 2GB for large files
         qint32 nRowViewPos;
         qint32 nSize;
         bool bFirstRowSymbol;

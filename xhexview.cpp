@@ -61,6 +61,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     setTextFont(XOptions::getMonoFont());
     m_sCodePage = "";
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
+    m_pCodec = nullptr;
     m_pCodePageMenu = m_xCodePageOptions.createCodePagesMenu(this, true);
     connect(&m_xCodePageOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
 #endif
@@ -88,7 +89,7 @@ void XHexView::_adjustView()
 {
     adjustView();
 
-    if (getDevice()) {
+    if (getBinaryView()->getInData().pDevice) {
         reload(true);
     }
 }
@@ -96,7 +97,7 @@ void XHexView::_adjustView()
 void XHexView::setData(const XBinary::INDATA &inData, const XBinaryView::OPTIONS &options, bool bReload, XInfoDB *pInfoDB)
 {
     XDeviceTableView::setData(inData, options);
-    QIODevice *pDevice = getDevice();
+    QIODevice *pDevice = getBinaryView()->getInData().pDevice;
 
     bool bReadOnly = false;
 
@@ -231,7 +232,7 @@ QList<XShortcuts::MENUITEM> XHexView::getMenuItems()
         }
         getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_EDIT_PATCH, this, SLOT(_editPatch()), XShortcuts::GROUPID_EDIT);
 
-        if (XBinary::isResizeEnable(getDevice())) {
+        if (XBinary::isResizeEnable(getBinaryView()->getInData().pDevice)) {
             getShortcuts()->_addMenuSeparator(&listResults, XShortcuts::GROUPID_EDIT);
             getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_EDIT_REMOVE, this, SLOT(_editRemove()), XShortcuts::GROUPID_EDIT);
             getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_EDIT_RESIZE, this, SLOT(_editResize()), XShortcuts::GROUPID_EDIT);
@@ -309,7 +310,7 @@ XAbstractTableView::OS XHexView::cursorPositionToOS(const XAbstractTableView::CU
 
 void XHexView::updateData()
 {
-    QIODevice *_pDevice = getDevice();
+    QIODevice *_pDevice = getBinaryView()->getInData().pDevice;
 
     if (_pDevice) {
         // Update cursor position
@@ -330,7 +331,7 @@ void XHexView::updateData()
 
         qint32 nDataBlockSize = m_nBytesProLine * getLinesProPage();
 
-        nDataBlockSize = qMin(nDataBlockSize, (qint32)(getBinaryView()->getViewSize() - nDataBlockStartViewPos));
+        nDataBlockSize = (qint32)qMin((qint64)nDataBlockSize, (qint64)(getBinaryView()->getViewSize() - nDataBlockStartViewPos));  // qint64 to avoid overflow on large files
 
         m_listHighlightsRegion.clear();
         if (getXInfoDB()) {
@@ -410,7 +411,7 @@ void XHexView::updateData()
             for (qint32 i = 0; i < m_nDataBlockSize;) {
                 SHOWRECORD record = {};
 
-                record.nSize = m_nElementByteSize;
+                record.nSize = qMin(m_nElementByteSize, m_nDataBlockSize - i);  // The last element can be cut off at the end of the data
                 record.nViewPos = nDataBlockStartViewPos + i;
                 record.nRowViewPos = nCurrentRowViewPos;
                 record.nRow = nRow;
@@ -471,7 +472,7 @@ void XHexView::updateData()
                     nRow++;
                     record.bLastRowSymbol = true;
                     bFirst = true;
-                } else if (nCurrentRowViewPos >= getBinaryView()->getViewSize()) {
+                } else if (i >= m_nDataBlockSize) {  // Last element of the data block
                     record.bLastRowSymbol = true;
                 }
 
@@ -507,7 +508,7 @@ void XHexView::paintMap(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nW
         qreal ratio = QPaintDevice::devicePixelRatio();
 #endif
         // qint32 nPartCount = qMin(nHeight, (qint32)nHeight);
-        // qint32 nPartSize = getDevice()->size() / nPartCount;
+        // qint32 nPartSize = getBinaryView()->getInData().pDevice->size() / nPartCount;
 
         // XBinary::_MEMORY_MAP *pMemoryMap = getMemoryMap();
 
@@ -593,7 +594,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                 rectSymbol.setTop(nTop + getLineDelta());
                 rectSymbol.setHeight(nHeight - getLineDelta());
 
-                int nSelWidth = (record.nSize / m_nElementByteSize) * (m_nPrintsProElement * getCharWidth() + getSideDelta());
+                int nSelWidth = ((record.nSize + m_nElementByteSize - 1) / m_nElementByteSize) * (m_nPrintsProElement * getCharWidth() + getSideDelta());
 
                 if ((record.bLastRowSymbol) || (!bIsSelectedNext)) {
                     nSelWidth -= getSideDelta();
@@ -731,7 +732,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                         rectSymbol.setTop(getLineHeight() * record.nRow + getLineDelta());
                         rectSymbol.setHeight(getLineHeight() - getLineDelta());
 
-                        int nWidth = (record.nSize / m_nElementByteSize) * (m_nPrintsProElement * getCharWidth() + getSideDelta());
+                        int nWidth = ((record.nSize + m_nElementByteSize - 1) / m_nElementByteSize) * (m_nPrintsProElement * getCharWidth() + getSideDelta());
 
                         if ((record.bLastRowSymbol) || (bIsHighlighted && (!bIsHighlightedNext))) {
                             nWidth -= getSideDelta();
@@ -1134,8 +1135,8 @@ void XHexView::adjustScrollCount()
 void XHexView::adjustMap()
 {
     if (isMapEnable()) {
-        if (getDevice()) {
-            qint64 nNumberOfLines = getDevice()->size() / m_nBytesProLine;
+        if (getBinaryView()->getInData().pDevice) {
+            qint64 nNumberOfLines = getBinaryView()->getInData().pDevice->size() / m_nBytesProLine;
             if (nNumberOfLines > 100) {
                 nNumberOfLines = 100;
             } else if (nNumberOfLines == 0) {
@@ -1296,32 +1297,35 @@ QString XHexView::_formatElement(char *pData, qint32 nOffset, qint32 nSize, cons
 {
     QString sResult;
 
+    char baElement[8] = {};  // Zero-padded buffer: the last element can be cut off at the end of the data
+    memcpy(baElement, pData + nOffset, qMin(nSize, (qint32)sizeof(baElement)));
+
     if (m_mode == ELEMENT_MODE_HEX) {
         sResult = sDataHexBuffer.mid(nOffset * 2, 2 * nSize);
     } else if (m_mode == ELEMENT_MODE_BYTE) {
         sResult = sDataHexBuffer.mid(nOffset * 2, 2);
     } else if (m_mode == ELEMENT_MODE_UINT8) {
-        sResult = QString::number(XBinary::_read_uint8(pData + nOffset));
+        sResult = QString::number(XBinary::_read_uint8(baElement));
     } else if (m_mode == ELEMENT_MODE_INT8) {
-        sResult = QString::number(XBinary::_read_int8(pData + nOffset));
+        sResult = QString::number(XBinary::_read_int8(baElement));
     } else if (m_mode == ELEMENT_MODE_WORD) {
-        sResult = XBinary::valueToHex(XBinary::_read_uint16(pData + nOffset));
+        sResult = XBinary::valueToHex(XBinary::_read_uint16(baElement));
     } else if (m_mode == ELEMENT_MODE_UINT16) {
-        sResult = QString::number(XBinary::_read_uint16(pData + nOffset));
+        sResult = QString::number(XBinary::_read_uint16(baElement));
     } else if (m_mode == ELEMENT_MODE_INT16) {
-        sResult = QString::number(XBinary::_read_int16(pData + nOffset));
+        sResult = QString::number(XBinary::_read_int16(baElement));
     } else if (m_mode == ELEMENT_MODE_DWORD) {
-        sResult = XBinary::valueToHex(XBinary::_read_uint32(pData + nOffset));
+        sResult = XBinary::valueToHex(XBinary::_read_uint32(baElement));
     } else if (m_mode == ELEMENT_MODE_UINT32) {
-        sResult = QString::number(XBinary::_read_uint32(pData + nOffset));
+        sResult = QString::number(XBinary::_read_uint32(baElement));
     } else if (m_mode == ELEMENT_MODE_INT32) {
-        sResult = QString::number(XBinary::_read_int32(pData + nOffset));
+        sResult = QString::number(XBinary::_read_int32(baElement));
     } else if (m_mode == ELEMENT_MODE_QWORD) {
-        sResult = XBinary::valueToHex(XBinary::_read_uint64(pData + nOffset));
+        sResult = XBinary::valueToHex(XBinary::_read_uint64(baElement));
     } else if (m_mode == ELEMENT_MODE_UINT64) {
-        sResult = QString::number(XBinary::_read_uint64(pData + nOffset));
+        sResult = QString::number(XBinary::_read_uint64(baElement));
     } else if (m_mode == ELEMENT_MODE_INT64) {
-        sResult = QString::number(XBinary::_read_int64(pData + nOffset));
+        sResult = QString::number(XBinary::_read_int64(baElement));
     }
 
     return sResult;
