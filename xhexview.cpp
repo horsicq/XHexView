@@ -71,6 +71,10 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     setVerticalLinesVisible(false);
 }
 
+XHexView::~XHexView()
+{
+}
+
 void XHexView::adjustView()
 {
     setTextFontFromOptions(XOptions::ID_HEX_FONT);
@@ -89,8 +93,11 @@ void XHexView::_adjustView()
     }
 }
 
-void XHexView::setData(QIODevice *pDevice, const XBinaryView::OPTIONS &options, bool bReload, XInfoDB *pInfoDB)
+void XHexView::setData(const XBinary::INDATA &inData, const XBinaryView::OPTIONS &options, bool bReload, XInfoDB *pInfoDB)
 {
+    XDeviceTableView::setData(inData, options);
+    QIODevice *pDevice = getDevice();
+
     bool bReadOnly = false;
 
     if (pDevice) {
@@ -100,8 +107,6 @@ void XHexView::setData(QIODevice *pDevice, const XBinaryView::OPTIONS &options, 
     setXInfoDB(pInfoDB);
 
     setReadonly(bReadOnly);
-
-    XDeviceTableView::setData(pDevice, options);
 
     adjustView();
     adjustMap();
@@ -126,6 +131,11 @@ void XHexView::setData(QIODevice *pDevice, const XBinaryView::OPTIONS &options, 
     if (bReload) {
         reload(true);
     }
+}
+
+void XHexView::setData(QIODevice *pDevice, const XBinaryView::OPTIONS &options, bool bReload, XInfoDB *pInfoDB)
+{
+    setData(XFormats::createINDATA(options.fileType, pDevice, options.bIsImage, options.nModuleAddress), options, bReload, pInfoDB);
 }
 
 void XHexView::goToOffset(qint64 nOffset)

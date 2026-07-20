@@ -37,7 +37,6 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 
     XFormats::setBaseComboBox(ui->comboBoxLocationBase, 10);
 
-    m_pDevice = nullptr;
     m_options = {};
 
     connect(ui->scrollAreaHex, SIGNAL(followLocation(quint64, qint32, qint64, qint32)), this, SIGNAL(followLocation(quint64, qint32, qint64, qint32)));
@@ -54,6 +53,8 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
 
 XHexViewWidget::~XHexViewWidget()
 {
+    cleanup();
+
     delete ui;
 }
 
@@ -63,24 +64,34 @@ void XHexViewWidget::setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions)
     XShortcutsWidget::setGlobal(pShortcuts, pXOptions);
 }
 
-void XHexViewWidget::setData(QIODevice *pDevice, const OPTIONS &options)
+void XHexViewWidget::setData(const XBinary::INDATA &inData, const OPTIONS &options)
 {
-    m_pDevice = pDevice;
+    cleanup();
+
+    QIODevice *pDevice = XFormats::createDevice(inData);
+    m_inData = inData;
     m_options = options;
 
     if (pDevice) {
         XFormats::setFileTypeComboBox(options.fileType, pDevice, ui->comboBoxType, XBinary::TL_OPTION_ALL);
+
+        XBinaryView::OPTIONS viewOptions = {};
+        ui->scrollAreaHex->setData(pDevice, viewOptions, false);
     } else {
         ui->scrollAreaHex->reset();
     }
 
-    // adjustVisitedState();
-
     reloadFileType();
+}
 
-    // ui->checkBoxReadonly->setEnabled(pDevice->isWritable());
+void XHexViewWidget::setData(QIODevice *pDevice, const OPTIONS &options)
+{
+    setData(XFormats::createINDATA(options.fileType, pDevice), options);
+}
 
-    // ui->scrollAreaHex->setData(pDevice, options, true);
+QIODevice *XHexViewWidget::getDevice()
+{
+    return ui->scrollAreaHex->getDevice();
 }
 
 void XHexViewWidget::setDevice(QIODevice *pDevice, qint64 nStartOffset, qint64 nTotalSize)
@@ -103,8 +114,12 @@ void XHexViewWidget::reload()
 
 void XHexViewWidget::cleanup()
 {
+    QIODevice *pDevice = ui->scrollAreaHex->getDevice();
     ui->scrollAreaHex->reset();
     ui->scrollAreaHex->setXInfoDB(nullptr);
+    XFormats::removeDevice(pDevice, m_inData);
+    m_inData = {};
+    m_options = {};
 }
 
 void XHexViewWidget::setReadonly(bool bState)
@@ -161,7 +176,9 @@ void XHexViewWidget::reloadData(bool bSaveSelection)
 
 void XHexViewWidget::reloadFileType()
 {
-    if (m_pDevice) {
+    QIODevice *pDevice = ui->scrollAreaHex->getDevice();
+
+    if (pDevice) {
         m_options.fileType = (XBinary::FT)(ui->comboBoxType->currentData().toInt());
 
         XBinaryView::OPTIONS options = {};
@@ -186,7 +203,7 @@ void XHexViewWidget::reloadFileType()
         //     //            getSymbols();
         // }
 
-        ui->scrollAreaHex->setData(m_pDevice, options, true);
+        ui->scrollAreaHex->setData(pDevice, options, true);
         ui->scrollAreaHex->reload(true);
     }
 }

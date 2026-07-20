@@ -36,9 +36,11 @@ public:
     // TODO setOptions ???
 
     explicit XHexView(QWidget *pParent = nullptr);
+    ~XHexView() override;
 
     void _adjustView();
     virtual void adjustView();
+    void setData(const XBinary::INDATA &inData, const XBinaryView::OPTIONS &options, bool bReload, XInfoDB *pInfoDB = nullptr);
     void setData(QIODevice *pDevice, const XBinaryView::OPTIONS &options, bool bReload, XInfoDB *pInfoDB = nullptr);
     void goToOffset(qint64 nOffset);
     // XADDR getStartLocation();  // TODO Check mb remove

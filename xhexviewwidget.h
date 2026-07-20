@@ -51,7 +51,9 @@ public:
     ~XHexViewWidget();
 
     void setGlobal(XShortcuts *pShortcuts, XOptions *pXOptions) override;
+    void setData(const XBinary::INDATA &inData, const OPTIONS &options);
     void setData(QIODevice *pDevice, const OPTIONS &options);
+    QIODevice *getDevice();
     void setDevice(QIODevice *pDevice, qint64 nStartOffset, qint64 nTotalSize);
     void setXInfoDB(XInfoDB *pXInfoDB);
     void reload();
@@ -88,7 +90,7 @@ protected:
 
 private:
     Ui::XHexViewWidget *ui;
-    QIODevice *m_pDevice;
+    XBinary::INDATA m_inData;
     OPTIONS m_options;
 };
 
