@@ -23,6 +23,8 @@
 
 #include <QTextBoundaryFinder>
 #include <QPixmapCache>
+#include <QStringList>
+#include <QVector>
 
 #include "dialoghexedit.h"
 #include "xdevicetableeditview.h"
@@ -93,9 +95,41 @@ private:
         ELEMENT_MODE_INT64,
     };
 
+    // What the map overview visualizes. Values mirror XBinary::BSTATUS_* metrics.
+    enum MAPMODE : qint32 {
+        MAPMODE_ENTROPY = 0,  // Shannon entropy (0..8)
+        MAPMODE_GRADIENT,     // Mean byte value / 255 (0..1) - "byte density"
+        MAPMODE_ZEROS,        // Fraction of zero bytes (0..1)
+        MAPMODE_TEXT          // Fraction of printable/text bytes (0..1)
+    };
+
+    struct MAPBANDSTATS {  // Per-band statistics, all derived from one histogram pass over the sample
+        double dEntropy;   // 0..8
+        double dGradient;  // 0..1
+        double dZeros;     // 0..1
+        double dText;      // 0..1
+    };
+
     SHOWRECORD _getShowRecordByViewPos(qint64 nOffset);
 
+    // Pixmap cache helpers. Note: QPixmapCache is an application-wide (global) cache with only
+    // static members, so every key must be namespaced per instance to avoid cross-view collisions,
+    // and invalidation must remove only this instance's keys (never QPixmapCache::clear(), which
+    // would wipe pixmaps owned by every other widget in the process).
+    QString _pixmapCacheKey(const QString &sSuffix) const;
+    void _insertPixmapToCache(const QString &sKey, const QPixmap &pixmap);
+    void _clearPixmapCache();
+
+    // Map overview. Per-band stats computed once per (device, view size) off the paint path
+    // (adjustMap), stored in m_listMapStats, and rendered into the cached map pixmap by paintMap().
+    void _updateMapOverview();
+    MAPBANDSTATS _calcBlockStats(const QByteArray &baData);
+    double _bandValue(const MAPBANDSTATS &stats) const;  // Selected metric, normalized to [0..1]
+    QColor _metricColor(double dNorm) const;
+    void _mapHeaderClicked();  // Opens the map-metric chooser (click on the map header button)
+
 protected:
+    virtual void mousePressEvent(QMouseEvent *pEvent);
     virtual OS cursorPositionToOS(const CURSOR_POSITION &cursorPosition);
     virtual void updateData();
     virtual void paintMap(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight);
@@ -123,6 +157,9 @@ private slots:
     void _setMode(ELEMENT_MODE mode);
     void _addElementModeMenuItem(QList<XShortcuts::MENUITEM> *pListMenuItems, const QString &sText, ELEMENT_MODE mode);
     void _addElementWidthMenuItem(QList<XShortcuts::MENUITEM> *pListMenuItems, qint32 nWidth);
+    void _addMapModeMenuItem(QList<XShortcuts::MENUITEM> *pListMenuItems, const QString &sText, MAPMODE mapMode);
+    void changeMapMode();
+    void _invalidateMapOverviewSlot();  // Marks the overview stale so it recomputes (on data edits)
     QString _formatElement(char *pData, qint32 nOffset, qint32 nSize, const QString &sDataHexBuffer);
 
 private:
@@ -147,7 +184,13 @@ private:
     QMenu *m_pCodePageMenu;
     XOptions m_xCodePageOptions;
 #endif
-    QPixmapCache m_pixmapCache;
+    qint32 m_nInstanceId;                  // Unique per-instance token used to namespace global pixmap-cache keys
+    QStringList m_listPixmapCacheKeys;     // Keys this instance inserted into the global QPixmapCache
+    QVector<qint32> m_listRowStartIndex;   // nRow -> index of its first record in m_listShowRecords (paint speedup)
+    QVector<MAPBANDSTATS> m_listMapStats;  // Per-band overview statistics (one entry per band)
+    MAPMODE m_mapMode;                     // Which metric the map overview currently visualizes
+    QIODevice *m_pMapOverviewDevice;       // Device the overview was computed for (recompute guard)
+    qint64 m_nMapOverviewViewSize;         // View size the overview was computed for (recompute guard)
 };
 
 #endif  // XHEXVIEW_H

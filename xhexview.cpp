@@ -20,8 +20,23 @@
  */
 #include "xhexview.h"
 
+#include <QtMath>
+
+// Monotonic counter used to hand every XHexView instance a unique id. It never repeats within a
+// process run, so pixmap-cache keys built from it can never collide across views (even after an
+// instance is destroyed and a new one is created).
+static qint32 g_nXHexViewInstanceCounter = 0;
+
 XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 {
+    m_nInstanceId = g_nXHexViewInstanceCounter++;
+    m_pMapOverviewDevice = nullptr;
+    m_nMapOverviewViewSize = -1;
+    m_mapMode = MAPMODE_ENTROPY;
+
+    // Editing the data invalidates the map overview so it recomputes from the new bytes.
+    connect(this, SIGNAL(dataChanged(qint64, qint64)), this, SLOT(_invalidateMapOverviewSlot()));
+
     addShortcut(X_ID_HEX_DATA_INSPECTOR, this, SLOT(_dataInspector()));
     addShortcut(X_ID_HEX_DATA_CONVERTOR, this, SLOT(_dataConvertor()));
     addShortcut(X_ID_HEX_MULTISEARCH, this, SLOT(_multisearch()));
@@ -74,6 +89,162 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 
 XHexView::~XHexView()
 {
+    _clearPixmapCache();  // Do not leave this instance's pixmaps behind in the global cache
+}
+
+QString XHexView::_pixmapCacheKey(const QString &sSuffix) const
+{
+    return QString("XHexView_%1_%2").arg(m_nInstanceId).arg(sSuffix);
+}
+
+void XHexView::_insertPixmapToCache(const QString &sKey, const QPixmap &pixmap)
+{
+    if (QPixmapCache::insert(sKey, pixmap)) {
+        m_listPixmapCacheKeys.append(sKey);
+    }
+}
+
+void XHexView::_clearPixmapCache()
+{
+    qint32 nNumberOfKeys = m_listPixmapCacheKeys.size();
+
+    for (qint32 i = 0; i < nNumberOfKeys; i++) {
+        QPixmapCache::remove(m_listPixmapCacheKeys.at(i));
+    }
+
+    m_listPixmapCacheKeys.clear();
+}
+
+XHexView::MAPBANDSTATS XHexView::_calcBlockStats(const QByteArray &baData)
+{
+    // All four overview metrics from a single 256-bin histogram pass. Entropy mirrors
+    // XBinary::getBinaryStatus(BSTATUS_ENTROPY) exactly (same histogram and 1/ln2 constant);
+    // gradient/zeros/text mirror BSTATUS_GRADIENT/ZEROS/TEXT so the map agrees with DIE's widgets.
+    MAPBANDSTATS result = {};
+
+    qint32 nSize = baData.size();
+
+    if (nSize <= 0) {
+        return result;
+    }
+
+    quint64 nCounts[256] = {0};
+    const unsigned char *pBytes = reinterpret_cast<const unsigned char *>(baData.constData());
+
+    for (qint32 i = 0; i < nSize; i++) {
+        nCounts[pBytes[i]]++;
+    }
+
+    const double dInvLog2 = 1.4426950408889634073599246810023;  // 1/ln(2)
+    const double dN = (double)nSize;
+
+    double dEntropy = 0.0;
+    quint64 nSum = 0;        // sum of byte values (gradient)
+    quint64 nTextCount = 0;  // printable/text bytes
+
+    for (qint32 j = 0; j < 256; j++) {
+        quint64 nCount = nCounts[j];
+
+        if (nCount) {
+            double dP = (double)nCount / dN;
+            dEntropy += -dP * (qLn(dP) * dInvLog2);
+            nSum += (quint64)j * nCount;
+
+            // Printable range [32..126] plus 8(BS),10(LF),13(CR) - same rule as BSTATUS_TEXT
+            if (((j >= 32) && (j <= 126)) || (j == 8) || (j == 10) || (j == 13)) {
+                nTextCount += nCount;
+            }
+        }
+    }
+
+    result.dEntropy = dEntropy;                       // 0..8
+    result.dGradient = (double)nSum / (dN * 255.0);   // 0..1
+    result.dZeros = (double)nCounts[0] / dN;          // 0..1
+    result.dText = (double)nTextCount / dN;           // 0..1
+
+    return result;
+}
+
+double XHexView::_bandValue(const MAPBANDSTATS &stats) const
+{
+    double dValue = 0.0;
+
+    if (m_mapMode == MAPMODE_ENTROPY) {
+        dValue = stats.dEntropy / 8.0;
+    } else if (m_mapMode == MAPMODE_GRADIENT) {
+        dValue = stats.dGradient;
+    } else if (m_mapMode == MAPMODE_ZEROS) {
+        dValue = stats.dZeros;
+    } else if (m_mapMode == MAPMODE_TEXT) {
+        dValue = stats.dText;
+    }
+
+    if (dValue < 0.0) {
+        dValue = 0.0;
+    }
+    if (dValue > 1.0) {
+        dValue = 1.0;
+    }
+
+    return dValue;
+}
+
+QColor XHexView::_metricColor(double dNorm) const
+{
+    // DIE house style (see XVisualization): a single accent color darkened by the metric value.
+    // factor 100 (value 0, unchanged) .. 300 (value 1, ~3x darker). Theme-aware via the palette.
+    QColor colBase = viewport()->palette().color(QPalette::Highlight);
+    qint32 nFactor = 100 + (qint32)(200.0 * dNorm);
+
+    return colBase.darker(nFactor);
+}
+
+void XHexView::_updateMapOverview()
+{
+    QIODevice *pDevice = getBinaryView()->getInData().pDevice;
+    qint64 nViewSize = getBinaryView()->getViewSize();
+
+    // Recompute only when the underlying content changes (new device, or size change from resize/remove).
+    // Redundant calls (scroll-triggered paintMap, bytes-per-line change) are cheap no-ops.
+    if ((m_pMapOverviewDevice == pDevice) && (m_nMapOverviewViewSize == nViewSize)) {
+        return;
+    }
+
+    m_pMapOverviewDevice = pDevice;
+    m_nMapOverviewViewSize = nViewSize;
+    m_listMapStats.clear();
+
+    if ((!pDevice) || (nViewSize <= 0)) {
+        return;
+    }
+
+    const qint32 N_MAX_BANDS = 256;         // overview resolution (independent of map pixel height)
+    const qint64 N_SAMPLE_CAP = 0x10000;    // <=64 KiB read per band bounds work on huge files
+
+    qint32 nNumberOfBands = (qint32)qMin((qint64)N_MAX_BANDS, nViewSize);
+
+    if (nNumberOfBands < 1) {
+        nNumberOfBands = 1;
+    }
+
+    m_listMapStats.reserve(nNumberOfBands);
+
+    for (qint32 i = 0; i < nNumberOfBands; i++) {
+        qint64 nBandStartViewPos = (nViewSize * i) / nNumberOfBands;
+        qint64 nBandEndViewPos = (nViewSize * (i + 1)) / nNumberOfBands;
+        qint64 nBandSize = nBandEndViewPos - nBandStartViewPos;
+
+        if (nBandSize <= 0) {
+            nBandSize = 1;
+        }
+
+        qint32 nSampleSize = (qint32)qMin(nBandSize, N_SAMPLE_CAP);
+
+        qint64 nDeviceOffset = getBinaryView()->viewPosToDeviceOffset(nBandStartViewPos);
+        QByteArray baBlock = read_array(nDeviceOffset, nSampleSize);
+
+        m_listMapStats.append(_calcBlockStats(baBlock));
+    }
 }
 
 void XHexView::adjustView()
@@ -482,9 +653,22 @@ void XHexView::updateData()
             m_baDataBuffer.clear();
         }
 
+        // Build nRow -> first-record-index map so paintCell() can jump straight to a row's records
+        // instead of rescanning the whole list for every painted row (was O(rows*records) per frame).
+        m_listRowStartIndex.clear();
+        qint32 nNumberOfShowRecords = m_listShowRecords.size();
+
+        for (qint32 i = 0; i < nNumberOfShowRecords; i++) {
+            qint32 nRecordRow = m_listShowRecords.at(i).nRow;
+
+            while (m_listRowStartIndex.size() <= nRecordRow) {
+                m_listRowStartIndex.append(i);
+            }
+        }
+
         setCurrentBlock(nDataBlockStartViewPos, m_nDataBlockSize);
 
-        m_pixmapCache.clear();
+        _clearPixmapCache();
     }
 }
 
@@ -492,13 +676,15 @@ void XHexView::paintMap(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nW
 {
     pPainter->save();
 
-    QString sKey = "Map_0_0";
-    sKey += QString("_%1").arg(nWidth);
-    sKey += QString("_%1").arg(nHeight);
+    // Ensure the per-file entropy overview exists (normally already built off the paint path in
+    // adjustMap(); this guarded call is a cheap no-op unless the content changed).
+    _updateMapOverview();
+
+    QString sKey = _pixmapCacheKey(QString("Map_0_0_%1_%2").arg(nWidth).arg(nHeight));
 
     QPixmap _pixmap(0, 0);
 
-    if (m_pixmapCache.find(sKey, &_pixmap)) {
+    if (QPixmapCache::find(sKey, &_pixmap)) {
         //        if (false) {
         pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
     } else {
@@ -507,23 +693,72 @@ void XHexView::paintMap(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nW
 #else
         qreal ratio = QPaintDevice::devicePixelRatio();
 #endif
-        // qint32 nPartCount = qMin(nHeight, (qint32)nHeight);
-        // qint32 nPartSize = getBinaryView()->getInData().pDevice->size() / nPartCount;
-
-        // XBinary::_MEMORY_MAP *pMemoryMap = getMemoryMap();
-
-        // TODO memoryMap tooltips
-
         QPixmap pixmap(nWidth * ratio, nHeight * ratio);
         pixmap.setDevicePixelRatio(ratio);
         pixmap.fill(Qt::transparent);
 
-        QPainter painterPixmap(&pixmap);
-        // painterPixmap.fillRect(0, 0, nWidth, nHeight, QBrush(Qt::darkYellow));
+        {
+            // Overview: one horizontal bar per band. Bar length and shade both encode the selected
+            // metric (entropy / byte density / zeros / text) of that slice of the file.
+            QPainter painterPixmap(&pixmap);
 
-        m_pixmapCache.insert(sKey, pixmap);
+            qint32 nNumberOfBands = m_listMapStats.size();
+
+            for (qint32 i = 0; i < nNumberOfBands; i++) {
+                qint32 nBandTop = (nHeight * i) / nNumberOfBands;
+                qint32 nBandBottom = (nHeight * (i + 1)) / nNumberOfBands;
+                qint32 nBandHeight = nBandBottom - nBandTop;
+
+                if (nBandHeight < 1) {
+                    nBandHeight = 1;
+                }
+
+                double dNorm = _bandValue(m_listMapStats.at(i));
+
+                qint32 nBarWidth = (qint32)(dNorm * nWidth);
+
+                if ((nBarWidth < 1) && (dNorm > 0.0)) {
+                    nBarWidth = 1;  // Keep non-empty low-value regions visible
+                }
+
+                if (nBarWidth > 0) {
+                    painterPixmap.fillRect(0, nBandTop, nBarWidth, nBandHeight, _metricColor(dNorm));
+                }
+            }
+        }  // end painterPixmap before the pixmap is cached/blitted
+
+        _insertPixmapToCache(sKey, pixmap);
 
         pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, pixmap);
+    }
+
+    // Viewport indicator: show where the currently visible page sits inside the whole view.
+    // Drawn live (not cached) because it moves on every scroll, whereas the cached base above does not.
+    qint64 nViewSize = getBinaryView()->getViewSize();
+
+    if (nViewSize > 0) {
+        qint64 nViewStart = getViewPosStart();
+        qint64 nPageSize = (qint64)m_nBytesProLine * getLinesProPage();
+
+        if (nViewStart < 0) {
+            nViewStart = 0;
+        }
+        if (nViewStart > nViewSize) {
+            nViewStart = nViewSize;
+        }
+
+        qint32 nIndicatorTop = nTop + (qint32)((nViewStart * nHeight) / nViewSize);
+        qint32 nIndicatorHeight = (qint32)((nPageSize * nHeight) / nViewSize);
+
+        if (nIndicatorHeight < 2) {
+            nIndicatorHeight = 2;  // Keep the indicator visible even for very large views
+        }
+
+        if ((nIndicatorTop + nIndicatorHeight) > (nTop + nHeight)) {
+            nIndicatorTop = (nTop + nHeight) - nIndicatorHeight;
+        }
+
+        pPainter->fillRect(nLeft, nIndicatorTop, nWidth, nIndicatorHeight, getColor(TCLOLOR_SELECTED));
     }
 
     pPainter->restore();
@@ -557,11 +792,10 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
         QFont fontBold = pPainter->font();
         fontBold.setBold(true);
 
-        for (qint32 i = 0; i < nNumberOfShowRecords; i++) {
-            if (m_listShowRecords.at(i).nRow < nRow) {
-                continue;  // Skip records before our row
-            }
+        // Jump directly to the first record of this row (see m_listRowStartIndex in updateData()).
+        qint32 nStartRecord = (nRow < m_listRowStartIndex.size()) ? m_listRowStartIndex.at(nRow) : nNumberOfShowRecords;
 
+        for (qint32 i = nStartRecord; i < nNumberOfShowRecords; i++) {
             if (m_listShowRecords.at(i).nRow > nRow) {
                 break;  // Past our row, no more matches
             }
@@ -594,7 +828,7 @@ void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32
                 rectSymbol.setTop(nTop + getLineDelta());
                 rectSymbol.setHeight(nHeight - getLineDelta());
 
-                int nSelWidth = ((record.nSize + m_nElementByteSize - 1) / m_nElementByteSize) * (m_nPrintsProElement * getCharWidth() + getSideDelta());
+                qint32 nSelWidth = ((record.nSize + m_nElementByteSize - 1) / m_nElementByteSize) * (m_nPrintsProElement * getCharWidth() + getSideDelta());
 
                 if ((record.bLastRowSymbol) || (!bIsSelectedNext)) {
                     nSelWidth -= getSideDelta();
@@ -675,10 +909,11 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
         sKey += QString("_%1").arg(getBinaryView()->getViewSize());
         sKey += QString("_%1").arg(nWidth);
         sKey += QString("_%1").arg(nHeight);
+        sKey = _pixmapCacheKey(sKey);
 
         QPixmap _pixmap(0, 0);
 
-        if (m_pixmapCache.find(sKey, &_pixmap)) {
+        if (QPixmapCache::find(sKey, &_pixmap)) {
             // qDebug("m_pixmapCache");
             pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
         } else {
@@ -732,13 +967,13 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                         rectSymbol.setTop(getLineHeight() * record.nRow + getLineDelta());
                         rectSymbol.setHeight(getLineHeight() - getLineDelta());
 
-                        int nWidth = ((record.nSize + m_nElementByteSize - 1) / m_nElementByteSize) * (m_nPrintsProElement * getCharWidth() + getSideDelta());
+                        qint32 nElementWidth = ((record.nSize + m_nElementByteSize - 1) / m_nElementByteSize) * (m_nPrintsProElement * getCharWidth() + getSideDelta());
 
                         if ((record.bLastRowSymbol) || (bIsHighlighted && (!bIsHighlightedNext))) {
-                            nWidth -= getSideDelta();
+                            nElementWidth -= getSideDelta();
                         }
 
-                        rectSymbol.setWidth(nWidth);
+                        rectSymbol.setWidth(nElementWidth);
                     } else if (nColumn == COLUMN_SYMBOLS) {
                         rectSymbol.setLeft((record.nRowViewPos + 1) * getCharWidth());
                         rectSymbol.setTop(getLineHeight() * record.nRow + getLineDelta());
@@ -779,7 +1014,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
                 }
             }
 
-            m_pixmapCache.insert(sKey, pixmap);
+            _insertPixmapToCache(sKey, pixmap);
 
             pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, pixmap);
         }
@@ -1118,10 +1353,15 @@ void XHexView::_cellDoubleClicked(qint32 nRow, qint32 nColumn)
 
 void XHexView::adjustScrollCount()
 {
-    qint64 nTotalLineCount = getBinaryView()->getViewSize() / m_nBytesProLine;
+    qint64 nViewSize = getBinaryView()->getViewSize();
+    qint64 nTotalLineCount = 0;
 
-    if (getBinaryView()->getViewSize() % m_nBytesProLine == 0) {
-        nTotalLineCount--;
+    if (nViewSize > 0) {
+        nTotalLineCount = nViewSize / m_nBytesProLine;
+
+        if (nViewSize % m_nBytesProLine == 0) {
+            nTotalLineCount--;  // A view that fills whole lines exactly needs one fewer scroll step
+        }
     }
 
     //    if((getDataSize()>0)&&(getDataSize()<m_nBytesProLine))
@@ -1145,6 +1385,8 @@ void XHexView::adjustMap()
 
             setMapCount((qint32)nNumberOfLines);
         }
+
+        _updateMapOverview();  // Precompute the entropy overview once per file, off the paint path
     }
 }
 
@@ -1291,6 +1533,75 @@ void XHexView::_addElementWidthMenuItem(QList<XShortcuts::MENUITEM> *pListMenuIt
     menuItem.sPropertyName = "width";
     menuItem.varProperty = nWidth;
     pListMenuItems->append(menuItem);
+}
+
+void XHexView::mousePressEvent(QMouseEvent *pEvent)
+{
+    // A click on the map's header button opens the overview-metric chooser (mirrors how a click on a
+    // column header opens that column's configuration menu). The base does nothing for PT_MAPHEADER.
+    // Gated on isActive() to match the base, which ignores all mouse input while inactive.
+    if (isActive() && (pEvent->button() == Qt::LeftButton)) {
+        CURSOR_POSITION cursorPosition = getCursorPosition(pEvent->pos());
+
+        if (cursorPosition.ptype == PT_MAPHEADER) {
+            _mapHeaderClicked();
+            return;
+        }
+    }
+
+    XAbstractTableView::mousePressEvent(pEvent);
+}
+
+void XHexView::_mapHeaderClicked()
+{
+    QMenu contextMenu(this);
+
+    QList<XShortcuts::MENUITEM> listMenuItems;
+
+    _addMapModeMenuItem(&listMenuItems, tr("Entropy"), MAPMODE_ENTROPY);
+    _addMapModeMenuItem(&listMenuItems, tr("Byte density"), MAPMODE_GRADIENT);
+    _addMapModeMenuItem(&listMenuItems, tr("Zeros"), MAPMODE_ZEROS);
+    _addMapModeMenuItem(&listMenuItems, tr("Text"), MAPMODE_TEXT);
+
+    getShortcuts()->adjustContextMenu(&contextMenu, &listMenuItems);
+
+    contextMenu.exec(QCursor::pos());
+}
+
+void XHexView::_addMapModeMenuItem(QList<XShortcuts::MENUITEM> *pListMenuItems, const QString &sText, MAPMODE mapMode)
+{
+    XShortcuts::MENUITEM menuItem = {};
+    menuItem.sText = sText;
+    menuItem.pRecv = this;
+    menuItem.pMethod = SLOT(changeMapMode());
+    menuItem.nSubgroups = XShortcuts::GROUPID_NONE;
+    menuItem.bIsCheckable = true;
+    menuItem.bIsChecked = (m_mapMode == mapMode);
+    menuItem.sPropertyName = "mapmode";
+    menuItem.varProperty = mapMode;
+    pListMenuItems->append(menuItem);
+}
+
+void XHexView::changeMapMode()
+{
+    QAction *pAction = qobject_cast<QAction *>(sender());
+
+    if (pAction) {
+        m_mapMode = (MAPMODE)pAction->property("mapmode").toInt();
+
+        // The band stats are unchanged; only the rendered pixmap needs to be rebuilt with the new metric.
+        _clearPixmapCache();
+        viewport()->update();
+    }
+}
+
+void XHexView::_invalidateMapOverviewSlot()
+{
+    // Force _updateMapOverview() to rescan on the next paint, and drop the cached map pixmap.
+    m_pMapOverviewDevice = nullptr;
+    m_nMapOverviewViewSize = -1;
+    _clearPixmapCache();
+    viewport()->update();
 }
 
 QString XHexView::_formatElement(char *pData, qint32 nOffset, qint32 nSize, const QString &sDataHexBuffer)
