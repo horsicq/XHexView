@@ -24,6 +24,9 @@
 
 XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui(new Ui::XHexViewWidget)
 {
+    m_inData = {};
+    m_options = {};
+
     ui->setupUi(this);
 
     XOptions::adjustToolButton(ui->toolButtonDataInspector, XOptions::ICONTYPE_DATA);
@@ -36,8 +39,6 @@ XHexViewWidget::XHexViewWidget(QWidget *pParent) : XShortcutsWidget(pParent), ui
     ui->comboBoxLocationBase->setToolTip(tr("Base"));
 
     XFormats::setBaseComboBox(ui->comboBoxLocationBase, 10);
-
-    m_options = {};
 
     connect(ui->scrollAreaHex, SIGNAL(followLocation(quint64, qint32, qint64, qint32)), this, SIGNAL(followLocation(quint64, qint32, qint64, qint32)));
     connect(ui->scrollAreaHex, SIGNAL(errorMessage(QString)), this, SLOT(errorMessageSlot(QString)));
@@ -246,18 +247,21 @@ void XHexViewWidget::adjust()
     QString sSelectionStart;
     QString sSelectionEnd;
     QString sSelectionSize;
+    const quint64 nSelectionSize = deviceState.nSelectionSize > 0 ? (quint64)deviceState.nSelectionSize : 0;
+    const quint64 nSelectionEnd = nSelectionSize ? deviceState.nSelectionDeviceOffset + nSelectionSize - 1 : deviceState.nSelectionDeviceOffset;
 
     if (bIsHEX) {
         sSelectionStart = "0x" + XBinary::valueToHexEx(deviceState.nSelectionDeviceOffset);
-        sSelectionEnd = "0x" + XBinary::valueToHexEx(deviceState.nSelectionDeviceOffset + deviceState.nSelectionSize);
-        sSelectionSize = "0x" + XBinary::valueToHexEx(deviceState.nSelectionSize);
+        sSelectionEnd = "0x" + XBinary::valueToHexEx(nSelectionEnd);
+        sSelectionSize = "0x" + XBinary::valueToHexEx(nSelectionSize);
     } else {
         sSelectionStart = QString::number(deviceState.nSelectionDeviceOffset);
-        sSelectionEnd = QString::number(deviceState.nSelectionDeviceOffset + deviceState.nSelectionSize);
-        sSelectionSize = QString::number(deviceState.nSelectionSize);
+        sSelectionEnd = QString::number(nSelectionEnd);
+        sSelectionSize = QString::number(nSelectionSize);
     }
 
-    QString sSelection = QString("%1 - %2 : %3").arg(sSelectionStart, sSelectionEnd, sSelectionSize);
+    const QString sByteCount = nSelectionSize == 1 ? tr("1 byte") : tr("%1 bytes").arg(nSelectionSize);
+    const QString sSelection = tr("Selection: %1 - %2 | Size: %3 (%4)").arg(sSelectionStart, sSelectionEnd, sSelectionSize, sByteCount);
 
     ui->lineEditStatus->setText(sSelection);
 }

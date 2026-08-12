@@ -21,6 +21,8 @@
 #include "xhexview.h"
 
 #include <QtMath>
+#include <QToolTip>
+#include <QElapsedTimer>
 
 // Monotonic counter used to hand every XHexView instance a unique id. It never repeats within a
 // process run, so pixmap-cache keys built from it can never collide across views (even after an
@@ -32,7 +34,13 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     m_nInstanceId = g_nXHexViewInstanceCounter++;
     m_pMapOverviewDevice = nullptr;
     m_nMapOverviewViewSize = -1;
+    m_nMapScanBands = 0;
     m_mapMode = MAPMODE_ENTROPY;
+
+    // The map overview is scanned cooperatively in small batches driven by this timer, so a large
+    // file on slow media never blocks the GUI thread.
+    m_timerMapScan.setInterval(0);
+    connect(&m_timerMapScan, SIGNAL(timeout()), this, SLOT(_scanMapStep()));
 
     // Editing the data invalidates the map overview so it recomputes from the new bytes.
     connect(this, SIGNAL(dataChanged(qint64, qint64)), this, SLOT(_invalidateMapOverviewSlot()));
@@ -80,6 +88,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
     m_pCodePageMenu = m_xCodePageOptions.createCodePagesMenu(this, true);
     connect(&m_xCodePageOptions, SIGNAL(setCodePage(QString)), this, SLOT(_setCodePage(QString)));
 #endif
+    connect(this, &XDeviceTableView::locationModeChanged, this, [this](qint32) { adjustHeader(); });
     setLocationMode(XBinaryView::LOCMODE_OFFSET);
     setMapEnable(true);
     setMapWidth(20);
@@ -89,6 +98,7 @@ XHexView::XHexView(QWidget *pParent) : XDeviceTableEditView(pParent)
 
 XHexView::~XHexView()
 {
+    m_timerMapScan.stop();
     _clearPixmapCache();  // Do not leave this instance's pixmaps behind in the global cache
 }
 
@@ -204,8 +214,8 @@ void XHexView::_updateMapOverview()
     QIODevice *pDevice = getBinaryView()->getInData().pDevice;
     qint64 nViewSize = getBinaryView()->getViewSize();
 
-    // Recompute only when the underlying content changes (new device, or size change from resize/remove).
-    // Redundant calls (scroll-triggered paintMap, bytes-per-line change) are cheap no-ops.
+    // (Re)start the scan only when the underlying content changes (new device, or size change from
+    // resize/remove). Redundant calls (scroll-triggered paintMap, bytes-per-line change) are no-ops.
     if ((m_pMapOverviewDevice == pDevice) && (m_nMapOverviewViewSize == nViewSize)) {
         return;
     }
@@ -215,21 +225,47 @@ void XHexView::_updateMapOverview()
     m_listMapStats.clear();
 
     if ((!pDevice) || (nViewSize <= 0)) {
+        m_nMapScanBands = 0;
+        m_timerMapScan.stop();
         return;
     }
 
-    const qint32 N_MAX_BANDS = 256;         // overview resolution (independent of map pixel height)
-    const qint64 N_SAMPLE_CAP = 0x10000;    // <=64 KiB read per band bounds work on huge files
+    const qint32 N_MAX_BANDS = 256;  // overview resolution (independent of map pixel height)
 
-    qint32 nNumberOfBands = (qint32)qMin((qint64)N_MAX_BANDS, nViewSize);
+    m_nMapScanBands = (qint32)qMin((qint64)N_MAX_BANDS, nViewSize);
 
-    if (nNumberOfBands < 1) {
-        nNumberOfBands = 1;
+    if (m_nMapScanBands < 1) {
+        m_nMapScanBands = 1;
     }
 
-    m_listMapStats.reserve(nNumberOfBands);
+    m_listMapStats.reserve(m_nMapScanBands);
 
-    for (qint32 i = 0; i < nNumberOfBands; i++) {
+    // The scan is done cooperatively in time-bounded batches (see _scanMapStep) so a large file on
+    // slow media never blocks the GUI thread; the map fills in progressively instead.
+    m_timerMapScan.start(0);
+}
+
+void XHexView::_scanMapStep()
+{
+    if ((!m_pMapOverviewDevice) || (m_nMapScanBands <= 0) || (m_listMapStats.size() >= m_nMapScanBands)) {
+        m_timerMapScan.stop();
+        return;
+    }
+
+    const qint64 N_SAMPLE_CAP = 0x10000;   // <=64 KiB read per band bounds work on huge files
+    const qint64 N_TIME_BUDGET_MS = 4;     // keep each tick short so the UI stays responsive
+
+    qint64 nViewSize = m_nMapOverviewViewSize;
+    qint32 nNumberOfBands = m_nMapScanBands;
+
+    QElapsedTimer budgetTimer;
+    budgetTimer.start();
+
+    // At least one band per tick (the elapsed check runs after the first iteration), so progress is
+    // guaranteed even if a single band read is slower than the whole budget.
+    do {
+        qint32 i = m_listMapStats.size();
+
         qint64 nBandStartViewPos = (nViewSize * i) / nNumberOfBands;
         qint64 nBandEndViewPos = (nViewSize * (i + 1)) / nNumberOfBands;
         qint64 nBandSize = nBandEndViewPos - nBandStartViewPos;
@@ -244,7 +280,14 @@ void XHexView::_updateMapOverview()
         QByteArray baBlock = read_array(nDeviceOffset, nSampleSize);
 
         m_listMapStats.append(_calcBlockStats(baBlock));
+    } while ((m_listMapStats.size() < nNumberOfBands) && (budgetTimer.elapsed() < N_TIME_BUDGET_MS));
+
+    if (m_listMapStats.size() >= nNumberOfBands) {
+        m_timerMapScan.stop();
     }
+
+    // Repaint so the newly-computed bands appear (progressive fill of the map strip).
+    viewport()->update();
 }
 
 void XHexView::adjustView()
@@ -268,6 +311,13 @@ void XHexView::_adjustView()
 void XHexView::setData(const XBinary::INDATA &inData, const XBinaryView::OPTIONS &options, bool bReload, XInfoDB *pInfoDB)
 {
     XDeviceTableView::setData(inData, options);
+
+    // Force the map overview to recompute for this load. The (device, viewSize) guard alone is not
+    // enough: a freed device pointer can be reused at the same address by a same-size file, which
+    // would otherwise falsely match and show the previous file's overview.
+    m_pMapOverviewDevice = nullptr;
+    m_nMapOverviewViewSize = -1;
+
     QIODevice *pDevice = getBinaryView()->getInData().pDevice;
 
     bool bReadOnly = false;
@@ -331,6 +381,33 @@ void XHexView::setBytesProLine(qint32 nBytesProLine)
     m_nBytesProLine = nBytesProLine;
     adjustScrollCount();
     adjustView();
+}
+
+void XHexView::setElementMode(ELEMENT_MODE mode)
+{
+    if ((mode < ELEMENT_MODE_HEX) || (mode > ELEMENT_MODE_INT64)) {
+        return;
+    }
+
+    _setMode(mode);
+    adjustColumns();
+    adjust(true);
+    emit elementModeChanged((qint32)mode);
+}
+
+XHexView::ELEMENT_MODE XHexView::getElementMode() const
+{
+    return m_mode;
+}
+
+void XHexView::setCodePage(const QString &sCodePage)
+{
+    _setCodePage(sCodePage);
+}
+
+QString XHexView::getCodePage() const
+{
+    return m_sCodePage;
 }
 
 QList<XShortcuts::MENUITEM> XHexView::getMenuItems()
@@ -676,60 +753,40 @@ void XHexView::paintMap(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nW
 {
     pPainter->save();
 
-    // Ensure the per-file entropy overview exists (normally already built off the paint path in
-    // adjustMap(); this guarded call is a cheap no-op unless the content changed).
+    // Ensure the overview scan is scheduled/running for the current content (non-blocking; the actual
+    // work happens in _scanMapStep across event-loop ticks). Bars are cheap to draw, so - unlike the
+    // data columns - the map is rendered directly each paint rather than cached; this also lets the
+    // progressive scan and metric switches show immediately.
     _updateMapOverview();
 
-    QString sKey = _pixmapCacheKey(QString("Map_0_0_%1_%2").arg(nWidth).arg(nHeight));
+    // Overview: one horizontal bar per band. Bar length and shade both encode the selected metric
+    // (entropy / byte density / zeros / text) of that slice of the file. m_nMapScanBands is the fixed
+    // total, so already-computed bands render at their final positions while a scan is still filling in.
+    qint32 nNumberOfBands = m_nMapScanBands;
+    qint32 nComputedBands = m_listMapStats.size();
 
-    QPixmap _pixmap(0, 0);
+    if (nNumberOfBands > 0) {
+        for (qint32 i = 0; i < nComputedBands; i++) {
+            qint32 nBandTop = nTop + (nHeight * i) / nNumberOfBands;
+            qint32 nBandBottom = nTop + (nHeight * (i + 1)) / nNumberOfBands;
+            qint32 nBandHeight = nBandBottom - nBandTop;
 
-    if (QPixmapCache::find(sKey, &_pixmap)) {
-        //        if (false) {
-        pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, _pixmap);
-    } else {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-        qreal ratio = QPaintDevice::devicePixelRatioF();
-#else
-        qreal ratio = QPaintDevice::devicePixelRatio();
-#endif
-        QPixmap pixmap(nWidth * ratio, nHeight * ratio);
-        pixmap.setDevicePixelRatio(ratio);
-        pixmap.fill(Qt::transparent);
-
-        {
-            // Overview: one horizontal bar per band. Bar length and shade both encode the selected
-            // metric (entropy / byte density / zeros / text) of that slice of the file.
-            QPainter painterPixmap(&pixmap);
-
-            qint32 nNumberOfBands = m_listMapStats.size();
-
-            for (qint32 i = 0; i < nNumberOfBands; i++) {
-                qint32 nBandTop = (nHeight * i) / nNumberOfBands;
-                qint32 nBandBottom = (nHeight * (i + 1)) / nNumberOfBands;
-                qint32 nBandHeight = nBandBottom - nBandTop;
-
-                if (nBandHeight < 1) {
-                    nBandHeight = 1;
-                }
-
-                double dNorm = _bandValue(m_listMapStats.at(i));
-
-                qint32 nBarWidth = (qint32)(dNorm * nWidth);
-
-                if ((nBarWidth < 1) && (dNorm > 0.0)) {
-                    nBarWidth = 1;  // Keep non-empty low-value regions visible
-                }
-
-                if (nBarWidth > 0) {
-                    painterPixmap.fillRect(0, nBandTop, nBarWidth, nBandHeight, _metricColor(dNorm));
-                }
+            if (nBandHeight < 1) {
+                nBandHeight = 1;
             }
-        }  // end painterPixmap before the pixmap is cached/blitted
 
-        _insertPixmapToCache(sKey, pixmap);
+            double dNorm = _bandValue(m_listMapStats.at(i));
 
-        pPainter->drawPixmap(nLeft, nTop, nWidth, nHeight, pixmap);
+            qint32 nBarWidth = (qint32)(dNorm * nWidth);
+
+            if ((nBarWidth < 1) && (dNorm > 0.0)) {
+                nBarWidth = 1;  // Keep non-empty low-value regions visible
+            }
+
+            if (nBarWidth > 0) {
+                pPainter->fillRect(nLeft, nBandTop, nBarWidth, nBandHeight, _metricColor(dNorm));
+            }
+        }
     }
 
     // Viewport indicator: show where the currently visible page sits inside the whole view.
@@ -761,7 +818,64 @@ void XHexView::paintMap(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nW
         pPainter->fillRect(nLeft, nIndicatorTop, nWidth, nIndicatorHeight, getColor(TCLOLOR_SELECTED));
     }
 
+    // Bookmark markers on top, so the map doubles as a navigation minimap.
+    _paintMapBookmarks(pPainter, nLeft, nTop, nWidth, nHeight);
+
     pPainter->restore();
+}
+
+void XHexView::_paintMapBookmarks(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
+{
+    XInfoDB *pXInfoDB = getXInfoDB();
+
+    if (!pXInfoDB) {
+        return;
+    }
+
+    QVector<XInfoDB::BOOKMARKRECORD> *pListBookmarks = pXInfoDB->getBookmarkRecords();
+
+    if ((!pListBookmarks) || (pListBookmarks->isEmpty())) {
+        return;
+    }
+
+    qint64 nViewSize = getBinaryView()->getViewSize();
+
+    if (nViewSize <= 0) {
+        return;
+    }
+
+    qint32 nNumberOfBookmarks = pListBookmarks->size();
+
+    for (qint32 i = 0; i < nNumberOfBookmarks; i++) {
+        const XInfoDB::BOOKMARKRECORD &record = pListBookmarks->at(i);
+
+        XVPOS nViewPos = getBinaryView()->locationToViewPos(record.nLocation, record.locationType);
+
+        if (!getBinaryView()->isViewPosValid(nViewPos)) {
+            continue;  // bookmark not mappable into this view
+        }
+
+        qint32 nMarkerTop = nTop + (qint32)((nViewPos * nHeight) / nViewSize);
+        qint32 nMarkerHeight = (qint32)((record.nSize * nHeight) / nViewSize);
+
+        if (nMarkerHeight < 2) {
+            nMarkerHeight = 2;  // Keep single-byte bookmarks visible
+        }
+
+        if ((nMarkerTop + nMarkerHeight) > (nTop + nHeight)) {
+            nMarkerTop = (nTop + nHeight) - nMarkerHeight;
+        }
+
+        QColor colMarker = XOptions::stringToColor(record.sColorBackground);
+
+        if (!colMarker.isValid()) {
+            colMarker = getColor(TCLOLOR_SELECTED);
+        }
+
+        colMarker.setAlpha(255);  // A minimap marker should read crisply over the heatmap regardless of the bookmark's highlight alpha
+
+        pPainter->fillRect(nLeft, nMarkerTop, nWidth, nMarkerHeight, colMarker);
+    }
 }
 
 void XHexView::paintCell(QPainter *pPainter, qint32 nRow, qint32 nColumn, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight)
@@ -1212,8 +1326,10 @@ void XHexView::adjustHeader()
 {
     if (getlocationMode() == XBinaryView::LOCMODE_ADDRESS) {
         setColumnTitle(COLUMN_LOCATION, tr("Address"));
-    } else if ((getlocationMode() == XBinaryView::LOCMODE_OFFSET) || (getlocationMode() == XBinaryView::LOCMODE_THIS)) {
+    } else if (getlocationMode() == XBinaryView::LOCMODE_OFFSET) {
         setColumnTitle(COLUMN_LOCATION, tr("Offset"));
+    } else if (getlocationMode() == XBinaryView::LOCMODE_THIS) {
+        setColumnTitle(COLUMN_LOCATION, QString());
     }
 }
 
@@ -1386,7 +1502,9 @@ void XHexView::adjustMap()
             setMapCount((qint32)nNumberOfLines);
         }
 
-        _updateMapOverview();  // Precompute the entropy overview once per file, off the paint path
+        // The overview scan is kicked off lazily by paintMap() (which only runs when the view is
+        // actually visible), so a hidden tab does no background I/O. The scan is incremental/
+        // non-blocking, so there is no first-paint hitch to pre-empt here.
     }
 }
 
@@ -1427,6 +1545,7 @@ void XHexView::_setCodePage(const QString &sCodePage)
     setColumnTitle(COLUMN_SYMBOLS, sTitle);
 
     adjust(true);
+    emit codePageChanged(m_sCodePage);
 #else
     Q_UNUSED(sCodePage)
 #endif
@@ -1453,10 +1572,7 @@ void XHexView::changeElementMode()
     if (pAction) {
         ELEMENT_MODE mode = (ELEMENT_MODE)pAction->property("mode").toUInt();
 
-        _setMode(mode);
-
-        adjustColumns();
-        adjust(true);
+        setElementMode(mode);
     }
 }
 
@@ -1552,6 +1668,123 @@ void XHexView::mousePressEvent(QMouseEvent *pEvent)
     XAbstractTableView::mousePressEvent(pEvent);
 }
 
+void XHexView::mouseMoveEvent(QMouseEvent *pEvent)
+{
+    // Live readout while hovering the map: the map body shows offset + metrics under the cursor;
+    // the map header advertises the (clickable) metric chooser.
+    if (isActive()) {
+        CURSOR_POSITION cursorPosition = getCursorPosition(pEvent->pos());
+
+        if (cursorPosition.ptype == PT_MAP) {
+            QString sText = _mapTooltipText(cursorPosition);
+
+            if (!sText.isEmpty()) {
+                QToolTip::showText(QCursor::pos(), sText, this);
+            }
+        } else if (cursorPosition.ptype == PT_MAPHEADER) {
+            QToolTip::showText(QCursor::pos(), tr("Overview") + ": " + _mapModeTitle() + " (" + tr("click to change") + ")", this);
+        } else {
+            QToolTip::hideText();
+        }
+    }
+
+    XAbstractTableView::mouseMoveEvent(pEvent);
+}
+
+QString XHexView::_mapModeTitle() const
+{
+    if (m_mapMode == MAPMODE_ENTROPY) {
+        return tr("Entropy");
+    } else if (m_mapMode == MAPMODE_GRADIENT) {
+        return tr("Byte density");
+    } else if (m_mapMode == MAPMODE_ZEROS) {
+        return tr("Zeros");
+    } else if (m_mapMode == MAPMODE_TEXT) {
+        return tr("Text");
+    }
+
+    return QString();
+}
+
+QString XHexView::_mapTooltipText(const CURSOR_POSITION &cursorPosition)
+{
+    QString sResult;
+
+    qint64 nViewSize = getBinaryView()->getViewSize();
+
+    if (nViewSize <= 0) {
+        return sResult;
+    }
+
+    OS os = cursorPositionToOS(cursorPosition);  // PT_MAP -> the view position a click would navigate to
+
+    if (os.nViewPos == -1) {
+        return sResult;
+    }
+
+    qint64 nDeviceOffset = getBinaryView()->viewPosToDeviceOffset(os.nViewPos);
+
+    // Fall back to the view position if this slice has no backing device offset (virtual/image regions).
+    quint64 nShownOffset = (nDeviceOffset >= 0) ? (quint64)nDeviceOffset : (quint64)os.nViewPos;
+
+    sResult = tr("Offset") + QString(": 0x%1").arg(XBinary::valueToHexEx(nShownOffset));
+
+    qint32 nNumberOfBands = m_listMapStats.size();
+
+    if (nNumberOfBands > 0) {
+        qint64 nBand = (os.nViewPos * nNumberOfBands) / nViewSize;
+
+        if (nBand < 0) {
+            nBand = 0;
+        }
+        if (nBand >= nNumberOfBands) {
+            nBand = nNumberOfBands - 1;
+        }
+
+        MAPBANDSTATS stats = m_listMapStats.at((qint32)nBand);
+
+        sResult += "\n" + tr("Entropy") + QString(": %1").arg(stats.dEntropy, 0, 'f', 2);
+        sResult += "\n" + tr("Byte density") + QString(": %1").arg(stats.dGradient, 0, 'f', 2);
+        sResult += "\n" + tr("Zeros") + QString(": %1").arg(stats.dZeros, 0, 'f', 2);
+        sResult += "\n" + tr("Text") + QString(": %1").arg(stats.dText, 0, 'f', 2);
+    }
+
+    // If a bookmark covers the hovered slice, surface its comment.
+    XInfoDB *pXInfoDB = getXInfoDB();
+
+    if (pXInfoDB) {
+        QVector<XInfoDB::BOOKMARKRECORD> *pListBookmarks = pXInfoDB->getBookmarkRecords();
+
+        if (pListBookmarks) {
+            qint32 nNumberOfBookmarks = pListBookmarks->size();
+
+            for (qint32 i = 0; i < nNumberOfBookmarks; i++) {
+                const XInfoDB::BOOKMARKRECORD &record = pListBookmarks->at(i);
+
+                XVPOS nBookmarkViewPos = getBinaryView()->locationToViewPos(record.nLocation, record.locationType);
+
+                if (!getBinaryView()->isViewPosValid(nBookmarkViewPos)) {
+                    continue;
+                }
+
+                qint64 nBookmarkSize = (record.nSize > 0) ? record.nSize : 1;
+
+                if ((os.nViewPos >= nBookmarkViewPos) && (os.nViewPos < (nBookmarkViewPos + nBookmarkSize))) {
+                    sResult += "\n" + tr("Bookmark");
+
+                    if (!record.sComment.isEmpty()) {
+                        sResult += ": " + record.sComment;
+                    }
+
+                    break;  // one bookmark line is enough
+                }
+            }
+        }
+    }
+
+    return sResult;
+}
+
 void XHexView::_mapHeaderClicked()
 {
     QMenu contextMenu(this);
@@ -1589,15 +1822,16 @@ void XHexView::changeMapMode()
     if (pAction) {
         m_mapMode = (MAPMODE)pAction->property("mapmode").toInt();
 
-        // The band stats are unchanged; only the rendered pixmap needs to be rebuilt with the new metric.
-        _clearPixmapCache();
+        // The band stats already hold all metrics and the map is drawn directly (not cached), so a
+        // repaint immediately reflects the new metric - no rescan or cache invalidation needed.
         viewport()->update();
     }
 }
 
 void XHexView::_invalidateMapOverviewSlot()
 {
-    // Force _updateMapOverview() to rescan on the next paint, and drop the cached map pixmap.
+    // Data changed: force _updateMapOverview() to restart the scan on the next paint, and drop the
+    // cached data-column pixmaps (their bytes changed too). The map itself is drawn directly, uncached.
     m_pMapOverviewDevice = nullptr;
     m_nMapOverviewViewSize = -1;
     _clearPixmapCache();

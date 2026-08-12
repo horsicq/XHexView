@@ -25,6 +25,7 @@
 #include <QPixmapCache>
 #include <QStringList>
 #include <QVector>
+#include <QTimer>
 
 #include "dialoghexedit.h"
 #include "xdevicetableeditview.h"
@@ -37,6 +38,22 @@ class XHexView : public XDeviceTableEditView {
 public:
     // TODO setOptions ???
 
+    enum ELEMENT_MODE : qint32 {
+        ELEMENT_MODE_HEX = 0,
+        ELEMENT_MODE_BYTE,
+        ELEMENT_MODE_WORD,
+        ELEMENT_MODE_DWORD,
+        ELEMENT_MODE_QWORD,
+        ELEMENT_MODE_UINT8,
+        ELEMENT_MODE_INT8,
+        ELEMENT_MODE_UINT16,
+        ELEMENT_MODE_INT16,
+        ELEMENT_MODE_UINT32,
+        ELEMENT_MODE_INT32,
+        ELEMENT_MODE_UINT64,
+        ELEMENT_MODE_INT64,
+    };
+
     explicit XHexView(QWidget *pParent = nullptr);
     ~XHexView() override;
 
@@ -48,6 +65,10 @@ public:
     // XADDR getStartLocation();  // TODO Check mb remove
     // XADDR getSelectionInitLocation();
     void setBytesProLine(qint32 nBytesProLine);
+    void setElementMode(ELEMENT_MODE mode);
+    ELEMENT_MODE getElementMode() const;
+    void setCodePage(const QString &sCodePage);
+    QString getCodePage() const;
     virtual QList<XShortcuts::MENUITEM> getMenuItems();
 
 private:
@@ -79,22 +100,6 @@ private:
         //        bool bIsSelected;
     };
 
-    enum ELEMENT_MODE : qint32 {
-        ELEMENT_MODE_HEX = 0,
-        ELEMENT_MODE_BYTE,
-        ELEMENT_MODE_WORD,
-        ELEMENT_MODE_DWORD,
-        ELEMENT_MODE_QWORD,
-        ELEMENT_MODE_UINT8,
-        ELEMENT_MODE_INT8,
-        ELEMENT_MODE_UINT16,
-        ELEMENT_MODE_INT16,
-        ELEMENT_MODE_UINT32,
-        ELEMENT_MODE_INT32,
-        ELEMENT_MODE_UINT64,
-        ELEMENT_MODE_INT64,
-    };
-
     // What the map overview visualizes. Values mirror XBinary::BSTATUS_* metrics.
     enum MAPMODE : qint32 {
         MAPMODE_ENTROPY = 0,  // Shannon entropy (0..8)
@@ -120,16 +125,25 @@ private:
     void _insertPixmapToCache(const QString &sKey, const QPixmap &pixmap);
     void _clearPixmapCache();
 
-    // Map overview. Per-band stats computed once per (device, view size) off the paint path
-    // (adjustMap), stored in m_listMapStats, and rendered into the cached map pixmap by paintMap().
+    // Map overview. _updateMapOverview() (guarded on device+view size) (re)starts a cooperative
+    // incremental scan (m_timerMapScan -> _scanMapStep) that fills m_listMapStats band-by-band; it is
+    // kicked off lazily from paintMap() so hidden views do no I/O. paintMap() draws the bars directly.
     void _updateMapOverview();
     MAPBANDSTATS _calcBlockStats(const QByteArray &baData);
     double _bandValue(const MAPBANDSTATS &stats) const;  // Selected metric, normalized to [0..1]
     QColor _metricColor(double dNorm) const;
-    void _mapHeaderClicked();  // Opens the map-metric chooser (click on the map header button)
+    void _mapHeaderClicked();          // Opens the map-metric chooser (click on the map header button)
+    QString _mapModeTitle() const;     // Display name of the current map metric
+    QString _mapTooltipText(const CURSOR_POSITION &cursorPosition);  // Offset + metrics under the cursor
+    void _paintMapBookmarks(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight);  // Bookmark markers on the map
+
+signals:
+    void elementModeChanged(qint32 nMode);
+    void codePageChanged(const QString &sCodePage);
 
 protected:
     virtual void mousePressEvent(QMouseEvent *pEvent);
+    virtual void mouseMoveEvent(QMouseEvent *pEvent);
     virtual OS cursorPositionToOS(const CURSOR_POSITION &cursorPosition);
     virtual void updateData();
     virtual void paintMap(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight);
@@ -160,6 +174,7 @@ private slots:
     void _addMapModeMenuItem(QList<XShortcuts::MENUITEM> *pListMenuItems, const QString &sText, MAPMODE mapMode);
     void changeMapMode();
     void _invalidateMapOverviewSlot();  // Marks the overview stale so it recomputes (on data edits)
+    void _scanMapStep();                // Computes a time-bounded batch of overview bands (incremental scan)
     QString _formatElement(char *pData, qint32 nOffset, qint32 nSize, const QString &sDataHexBuffer);
 
 private:
@@ -187,10 +202,12 @@ private:
     qint32 m_nInstanceId;                  // Unique per-instance token used to namespace global pixmap-cache keys
     QStringList m_listPixmapCacheKeys;     // Keys this instance inserted into the global QPixmapCache
     QVector<qint32> m_listRowStartIndex;   // nRow -> index of its first record in m_listShowRecords (paint speedup)
-    QVector<MAPBANDSTATS> m_listMapStats;  // Per-band overview statistics (one entry per band)
+    QVector<MAPBANDSTATS> m_listMapStats;  // Per-band overview statistics (grows as the scan progresses)
     MAPMODE m_mapMode;                     // Which metric the map overview currently visualizes
     QIODevice *m_pMapOverviewDevice;       // Device the overview was computed for (recompute guard)
     qint64 m_nMapOverviewViewSize;         // View size the overview was computed for (recompute guard)
+    qint32 m_nMapScanBands;                // Total bands for the current scan (fixed layout denominator)
+    QTimer m_timerMapScan;                 // Drives the cooperative incremental overview scan
 };
 
 #endif  // XHEXVIEW_H
