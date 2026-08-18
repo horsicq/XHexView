@@ -74,7 +74,7 @@ void XHexViewWidget::setData(const XBinary::INDATA &inData, const OPTIONS &optio
     m_options = options;
 
     if (pDevice) {
-        XFormats::setFileTypeComboBox(options.fileType, pDevice, ui->comboBoxType, XBinary::TL_OPTION_ALL);
+        XFormats::setFileTypeComboBox(options.fileType, pDevice, ui->comboBoxType, XBinary::FT_FLAG_FORMATS);
 
         XBinaryView::OPTIONS viewOptions = {};
         ui->scrollAreaHex->setData(pDevice, viewOptions, false);
