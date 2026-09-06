@@ -163,6 +163,8 @@ void XHexViewWidget::setLocation(quint64 nLocation, qint32 nLocationType, qint64
 
 void XHexViewWidget::adjustView()
 {
+    ui->scrollAreaHex->_adjustView();
+    adjust();
 }
 
 void XHexViewWidget::setWidgetFocus()
@@ -210,7 +212,8 @@ void XHexViewWidget::reloadFileType()
         //     //            getSymbols();
         // }
 
-        ui->scrollAreaHex->setData(pDevice, options, true);
+        // Keep the attached XInfoDB (bookmarks) when the file type changes
+        ui->scrollAreaHex->setData(pDevice, options, true, ui->scrollAreaHex->getXInfoDB());
         ui->scrollAreaHex->reload(true);
     }
 }
@@ -243,6 +246,15 @@ void XHexViewWidget::adjust()
     XFormats::setComboBoxCurrent(ui->comboBoxLocationBase, nLocationBase);
 
     bool bIsHEX = (nLocationBase == 16);
+
+    // An empty device has no selectable byte, but the view still carries
+    // a 1-byte selection at position 0 for it whose device offset is -1;
+    // report no selection instead of the sentinel.
+    if (ui->scrollAreaHex->getBinaryView()->getViewSize() == 0) {
+        ui->lineEditStatus->setText(tr("No selection"));
+
+        return;
+    }
 
     QString sSelectionStart;
     QString sSelectionEnd;

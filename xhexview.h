@@ -65,6 +65,7 @@ public:
     // XADDR getStartLocation();  // TODO Check mb remove
     // XADDR getSelectionInitLocation();
     void setBytesProLine(qint32 nBytesProLine);
+    qint32 getBytesProLine() const;
     void setElementMode(ELEMENT_MODE mode);
     ELEMENT_MODE getElementMode() const;
     void setCodePage(const QString &sCodePage);
@@ -138,6 +139,7 @@ private:
     void _paintMapBookmarks(QPainter *pPainter, qint32 nLeft, qint32 nTop, qint32 nWidth, qint32 nHeight);  // Bookmark markers on the map
 
 signals:
+    void bytesPerLineChanged(qint32 nBytesPerLine);
     void elementModeChanged(qint32 nMode);
     void codePageChanged(const QString &sCodePage);
 

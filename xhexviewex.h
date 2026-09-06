@@ -30,11 +30,6 @@ class XHexViewEx : public XHexView {
 
 public:
     XHexViewEx(QWidget *pParent = nullptr);
-
-    virtual QList<XShortcuts::MENUITEM> getMenuItems();
-
-public slots:
-    void _structs();
 };
 
 #endif  // XHEXVIEWEX_H

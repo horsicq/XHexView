@@ -266,8 +266,11 @@ void XHexView::_scanMapStep()
     do {
         qint32 i = m_listMapStats.size();
 
-        qint64 nBandStartViewPos = (nViewSize * i) / nNumberOfBands;
-        qint64 nBandEndViewPos = (nViewSize * (i + 1)) / nNumberOfBands;
+        // Split before multiplying so even a near-qint64-sized sparse view cannot overflow.
+        const qint64 nWholeBandSize = nViewSize / nNumberOfBands;
+        const qint64 nBandRemainder = nViewSize % nNumberOfBands;
+        qint64 nBandStartViewPos = nWholeBandSize * i + (nBandRemainder * i) / nNumberOfBands;
+        qint64 nBandEndViewPos = nWholeBandSize * (i + 1) + (nBandRemainder * (i + 1)) / nNumberOfBands;
         qint64 nBandSize = nBandEndViewPos - nBandStartViewPos;
 
         if (nBandSize <= 0) {
@@ -276,8 +279,7 @@ void XHexView::_scanMapStep()
 
         qint32 nSampleSize = (qint32)qMin(nBandSize, N_SAMPLE_CAP);
 
-        qint64 nDeviceOffset = getBinaryView()->viewPosToDeviceOffset(nBandStartViewPos);
-        QByteArray baBlock = read_array(nDeviceOffset, nSampleSize);
+        QByteArray baBlock = getBinaryView()->readViewArray(nBandStartViewPos, nSampleSize);
 
         m_listMapStats.append(_calcBlockStats(baBlock));
     } while ((m_listMapStats.size() < nNumberOfBands) && (budgetTimer.elapsed() < N_TIME_BUDGET_MS));
@@ -378,9 +380,25 @@ void XHexView::goToOffset(qint64 nOffset)
 
 void XHexView::setBytesProLine(qint32 nBytesProLine)
 {
+    if ((nBytesProLine <= 0) || (m_nBytesProLine == nBytesProLine)) {
+        return;
+    }
+
+    const XVPOS nViewPosStart = getViewPosStart();
+
     m_nBytesProLine = nBytesProLine;
+
+    adjustMap();
     adjustScrollCount();
-    adjustView();
+    adjustColumns();
+    setCurrentViewPosToScroll(nViewPosStart);
+
+    emit bytesPerLineChanged(m_nBytesProLine);
+}
+
+qint32 XHexView::getBytesProLine() const
+{
+    return m_nBytesProLine;
 }
 
 void XHexView::setElementMode(ELEMENT_MODE mode)
@@ -415,8 +433,11 @@ QList<XShortcuts::MENUITEM> XHexView::getMenuItems()
     QList<XShortcuts::MENUITEM> listResults;
 
     STATE menuState = getState();
+    // An empty device still carries a 1-byte view selection at position 0;
+    // the selection-dependent actions have nothing to work on there.
+    const bool bIsSelection = (menuState.nSelectionViewSize > 0) && (getBinaryView()->getViewSize() > 0);
 
-    if (menuState.nSelectionViewSize) {
+    if (bIsSelection) {
         getShortcuts()->_addMenuItem_Checked(&listResults, X_ID_HEX_DATA_INSPECTOR, this, SLOT(_dataInspector()), XShortcuts::GROUPID_NONE,
                                              getViewWidgetState(VIEWWIDGET_DATAINSPECTOR));
         getShortcuts()->_addMenuItem_Checked(&listResults, X_ID_HEX_DATA_CONVERTOR, this, SLOT(_dataConvertor()), XShortcuts::GROUPID_NONE,
@@ -427,7 +448,7 @@ QList<XShortcuts::MENUITEM> XHexView::getMenuItems()
     getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_GOTO_OFFSET, this, SLOT(_goToOffsetSlot()), XShortcuts::GROUPID_GOTO);
     getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_GOTO_ADDRESS, this, SLOT(_goToAddressSlot()), XShortcuts::GROUPID_GOTO);
 
-    if (menuState.nSelectionViewSize) {
+    if (bIsSelection) {
         getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_GOTO_SELECTION_START, this, SLOT(_goToSelectionStart()),
                                      (XShortcuts::GROUPID_SELECTION << 8) | XShortcuts::GROUPID_GOTO);
         getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_GOTO_SELECTION_END, this, SLOT(_goToSelectionEnd()),
@@ -437,7 +458,7 @@ QList<XShortcuts::MENUITEM> XHexView::getMenuItems()
     getShortcuts()->_addMenuItem_Checked(&listResults, X_ID_HEX_MULTISEARCH, this, SLOT(_multisearch()), XShortcuts::GROUPID_NONE,
                                          getViewWidgetState(VIEWWIDGET_MULTISEARCH));
 
-    if (menuState.nSelectionViewSize) {
+    if (bIsSelection) {
         getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_DUMPTOFILE, this, SLOT(_dumpToFileSlot()), XShortcuts::GROUPID_NONE);
         getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_SIGNATURE, this, SLOT(_hexSignatureSlot()), XShortcuts::GROUPID_NONE);
     }
@@ -475,7 +496,7 @@ QList<XShortcuts::MENUITEM> XHexView::getMenuItems()
     }
 
     if (!isReadonly()) {
-        if (menuState.nSelectionViewSize) {
+        if (bIsSelection) {
             getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_EDIT_HEX, this, SLOT(_editHex()), XShortcuts::GROUPID_EDIT);
         }
         getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_EDIT_PATCH, this, SLOT(_editPatch()), XShortcuts::GROUPID_EDIT);
@@ -588,9 +609,7 @@ void XHexView::updateData()
             m_listHighlightsRegion.append(_convertBookmarksToHighlightRegion(&listBookMarks));
         }
 
-        qint64 nDeviceOffset = getBinaryView()->viewPosToDeviceOffset(nDataBlockStartViewPos);
-
-        m_baDataBuffer = read_array(nDeviceOffset, nDataBlockSize);
+        m_baDataBuffer = getBinaryView()->readViewArray(nDataBlockStartViewPos, nDataBlockSize);
         // QList<QChar> listElements = getStringBuffer(&m_baDataBuffer);
 
         // qint32 nNumberOfElements = listElements.count();
@@ -625,6 +644,9 @@ void XHexView::updateData()
                 } else {
                     if (getlocationMode() == XBinaryView::LOCMODE_ADDRESS) {
                         nCurrentLocation = getBinaryView()->viewPosToAddress(record.nViewPos);
+                    } else if (getlocationMode() == XBinaryView::LOCMODE_RELADDRESS) {
+                        const qint64 nDeviceOffset = getBinaryView()->viewPosToDeviceOffset(record.nViewPos);
+                        nCurrentLocation = XBinary::offsetToRelAddress(getBinaryView()->getMemoryMap(), nDeviceOffset);
                     } else if (getlocationMode() == XBinaryView::LOCMODE_OFFSET) {
                         nCurrentLocation = getBinaryView()->viewPosToDeviceOffset(record.nViewPos);
                     }
@@ -659,8 +681,12 @@ void XHexView::updateData()
 
             for (qint32 i = 0; i < m_nDataBlockSize;) {
                 SHOWRECORD record = {};
+                const qint32 nBytesRemainingInRow = m_nBytesProLine - nCurrentRowViewPos;
 
-                record.nSize = qMin(m_nElementByteSize, m_nDataBlockSize - i);  // The last element can be cut off at the end of the data
+                // Keep every record inside one visual row. In particular, a multibyte character
+                // beginning in the final byte of a row must not consume bytes from the next row.
+                record.nSize = qMin(m_nElementByteSize, qMin(m_nDataBlockSize - i, nBytesRemainingInRow));
+                Q_ASSERT((record.nSize > 0) && (record.nSize <= nBytesRemainingInRow));
                 record.nViewPos = nDataBlockStartViewPos + i;
                 record.nRowViewPos = nCurrentRowViewPos;
                 record.nRow = nRow;
@@ -671,11 +697,11 @@ void XHexView::updateData()
                 }
 
                 if (m_sCodePage.isEmpty()) {
-                    record.sSymbol = sANSI.mid(i, m_nElementByteSize);
+                    record.sSymbol = sANSI.mid(i, record.nSize);
                 } else {
 #if (QT_VERSION_MAJOR < 6) || defined(QT_CORE5COMPAT_LIB)
                     if (m_pCodec) {
-                        qint32 nJmax = qMin(m_nDataBlockSize - i, nMaxBytes);
+                        qint32 nJmax = qMin(qMin(m_nDataBlockSize - i, nMaxBytes), nBytesRemainingInRow);
 
                         for (int j = record.nSize; j <= nJmax; j++) {
                             QTextCodec::ConverterState converterState = {};
@@ -716,8 +742,8 @@ void XHexView::updateData()
                 i += record.nSize;
                 nCurrentRowViewPos += record.nSize;
 
-                if (nCurrentRowViewPos >= m_nBytesProLine) {
-                    nCurrentRowViewPos -= m_nBytesProLine;
+                if (nCurrentRowViewPos == m_nBytesProLine) {
+                    nCurrentRowViewPos = 0;
                     nRow++;
                     record.bLastRowSymbol = true;
                     bFirst = true;
@@ -1205,7 +1231,7 @@ void XHexView::keyPressEvent(QKeyEvent *pEvent)
             m_nViewStartDelta = 0;
         }
 
-        if ((state.nSelectionViewPos >= getBinaryView()->getViewSize()) || (pEvent->matches(QKeySequence::MoveToEndOfDocument))) {
+        if ((state.nSelectionViewPos >= (XVPOS)getBinaryView()->getViewSize()) || (pEvent->matches(QKeySequence::MoveToEndOfDocument))) {
             state.nSelectionViewPos = getBinaryView()->getViewSize() - 1;
             m_nViewStartDelta = 0;
         }
@@ -1306,9 +1332,13 @@ void XHexView::setCurrentViewPosToScroll(XVPOS nOffset)
 void XHexView::adjustColumns()
 {
     const QFontMetricsF fm(getTextFont());
+    XBinary::MODE widthMode = XBinary::getWidthModeFromSize(getBinaryView()->getViewSize());
 
-    // if (XBinary::getWidthModeFromSize(getStartLocation() + getViewSize()) == XBinary::MODE_64) {
-    if (XBinary::getWidthModeFromSize(getBinaryView()->getViewSize()) == XBinary::MODE_64) {
+    if ((getlocationMode() == XBinaryView::LOCMODE_ADDRESS) || (getlocationMode() == XBinaryView::LOCMODE_RELADDRESS)) {
+        widthMode = XBinary::getWidthModeFromMemoryMap(getBinaryView()->getMemoryMap());
+    }
+
+    if (widthMode == XBinary::MODE_64) {
         m_nAddressWidth = 16;
         setColumnWidth(COLUMN_LOCATION, 2 * getCharWidth() + fm.boundingRect("00000000:00000000").width());
     } else {
@@ -1327,6 +1357,8 @@ void XHexView::adjustHeader()
 {
     if (getlocationMode() == XBinaryView::LOCMODE_ADDRESS) {
         setColumnTitle(COLUMN_LOCATION, tr("Address"));
+    } else if (getlocationMode() == XBinaryView::LOCMODE_RELADDRESS) {
+        setColumnTitle(COLUMN_LOCATION, tr("Relative address"));
     } else if (getlocationMode() == XBinaryView::LOCMODE_OFFSET) {
         setColumnTitle(COLUMN_LOCATION, tr("Offset"));
     } else if (getlocationMode() == XBinaryView::LOCMODE_THIS) {
@@ -1557,12 +1589,7 @@ void XHexView::changeElementWidth()
     QAction *pAction = qobject_cast<QAction *>(sender());
 
     if (pAction) {
-        m_nBytesProLine = pAction->property("width").toUInt();
-
-        adjustMap();
-        adjustScrollCount();
-        adjustColumns();
-        adjust(true);
+        setBytesProLine(pAction->property("width").toInt());
     }
 }
 

@@ -22,34 +22,4 @@
 
 XHexViewEx::XHexViewEx(QWidget *pParent) : XHexView(pParent)
 {
-    addShortcut(X_ID_HEX_STRUCTS, this, SLOT(_structs()));
-}
-
-QList<XShortcuts::MENUITEM> XHexViewEx::getMenuItems()
-{
-    QList<XShortcuts::MENUITEM> listResults = XHexView::getMenuItems();
-
-    getShortcuts()->_addMenuItem(&listResults, X_ID_HEX_STRUCTS, this, SLOT(_structs()), XShortcuts::GROUPID_NONE);
-
-    return listResults;
-}
-
-void XHexViewEx::_structs()
-{
-    // DEVICESTATE deviceState = getDeviceState();
-
-    // DialogSetGenericWidget dialogSetGenericWidget(this);
-    // dialogSetGenericWidget.setData(getDevice(), deviceState.nSelectionDeviceOffset, deviceState.nSelectionSize);
-    // dialogSetGenericWidget.exec();
-    // XStructWidget::OPTIONS options = {};
-
-    // DialogXStruct dialog(this);
-    // dialog.setGlobal(getShortcuts(), getGlobalOptions());
-    // dialog.setData(getDevice(), getXInfoDB(), options);  // TODO options
-    // connect(this, SIGNAL(currentLocationChanged(quint64, qint32, qint64)), &dialog, SLOT(currentLocationChangedSlot(quint64, qint32, qint64)));
-    // connect(this, SIGNAL(dataChanged(qint64, qint64)), &dialog, SLOT(dataChangedSlot(qint64, qint64)));
-    // connect(&dialog, SIGNAL(dataChanged(qint64, qint64)), this, SLOT(_setEdited(qint64, qint64)));
-    // connect(this, SIGNAL(closeWidget_Structs()), &dialog, SLOT(close()));
-    // XOptions::_adjustStayOnTop(&dialog, true);
-    // dialog.exec();
 }
