@@ -1050,6 +1050,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
         sKey += QString("_%1").arg(getBinaryView()->getViewSize());
         sKey += QString("_%1").arg(nWidth);
         sKey += QString("_%1").arg(nHeight);
+        sKey += QString("_%1").arg(pPainter->pen().color().name(QColor::HexArgb));
         sKey = _pixmapCacheKey(sKey);
 
         QPixmap _pixmap(0, 0);
@@ -1068,6 +1069,7 @@ void XHexView::paintColumn(QPainter *pPainter, qint32 nColumn, qint32 nLeft, qin
             pixmap.fill(Qt::transparent);
 
             QPainter painterPixmap(&pixmap);
+            painterPixmap.setPen(pPainter->pen());
             painterPixmap.setFont(pPainter->font());
             painterPixmap.setBackgroundMode(Qt::TransparentMode);
 
